@@ -2,13 +2,17 @@ package main.java.view.start_interface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import main.java.interface_adapter.login.LoginController;
+import main.java.interface_adapter.login.LoginViewModel;
+import main.java.use_case.login.LoginState;
 import main.java.view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class LoginView extends JPanel {
-    private final String viewName = "log in";
+    private LoginController loginController; 
 
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 500;
@@ -25,7 +29,11 @@ public class LoginView extends JPanel {
     private JLabel passwordLabel;
     private JLabel statusLabel;
 
-    public LoginView() {
+    private LoginViewModel loginViewModel;
+
+    public LoginView(LoginViewModel loginViewModel) {
+        this.loginViewModel = loginViewModel; 
+
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -227,6 +235,7 @@ public class LoginView extends JPanel {
     private void handleLogin() {
         String email = getEmailText();
         String password = getPasswordText();
+        final LoginState currentState = new LoginState();
 
         if (email.isEmpty() || email.equals("Enter your email")) {
             showStatus("Please enter your email address", Color.RED);
@@ -246,16 +255,14 @@ public class LoginView extends JPanel {
             return;
         }
 
-        showStatus("Logging in...", new Color(76, 175, 80));
+        currentState.setPassword(password);
+        loginViewModel.setState(currentState);
+        loginController.execute(
+            currentState.getemail(),
+            currentState.getPassword()
+        ); 
 
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Thread.sleep(1000);
-                showStatus("Login successful!", new Color(76, 175, 80));
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        
     }
 
     private String getEmailText() {
@@ -277,20 +284,8 @@ public class LoginView extends JPanel {
         statusLabel.setForeground(color);
     }
 
-    public String getViewName() {
-        return viewName;
-    }
-
-    public JTextField getEmailInputField() {
-        return emailInputField;
-    }
-
-    public JPasswordField getPasswordInputField() {
-        return passwordInputField;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
+    public void setLoginController(LoginController loginController) {
+        this.loginController = loginController; 
     }
 
     @Override
