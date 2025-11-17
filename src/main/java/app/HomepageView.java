@@ -62,6 +62,26 @@ public class HomepageView extends JPanel {
         content.add(bottomFiller, gbc);
 
         add(content, BorderLayout.CENTER);
+
+        JButton createButton = new JButton("+");
+        createButton.setFont(createButton.getFont().deriveFont(Font.PLAIN, 28f));
+        createButton.setPreferredSize(new Dimension(64, 64));
+        createButton.setFocusPainted(false);
+        createButton.setBackground(new Color(0, 153, 76)); // green accent
+        createButton.setForeground(Color.WHITE);
+        createButton.setBorder(BorderFactory.createEmptyBorder());
+        createButton.setOpaque(true);
+        createButton.setBorderPainted(false);
+        createButton.setToolTipText("Create");
+
+        createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
+        createButton.setMargin(new Insets(0, 0, 0, 0));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 12));
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(createButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+
         setPreferredSize(new Dimension(1200, 320));
     }
 }
