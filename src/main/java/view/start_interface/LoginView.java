@@ -24,8 +24,15 @@ public class LoginView extends JPanel {
     private JLabel emailLabel;
     private JLabel passwordLabel;
     private JLabel statusLabel;
+    private Runnable onLoginSuccess;
+
 
     public LoginView() {
+        this(null);
+    }
+
+    public LoginView(Runnable onLoginSuccess) {
+        this.onLoginSuccess = onLoginSuccess;
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -252,6 +259,9 @@ public class LoginView extends JPanel {
             try {
                 Thread.sleep(1000);
                 showStatus("Login successful!", new Color(76, 175, 80));
+                if (onLoginSuccess != null) {
+                    onLoginSuccess.run();
+                }
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
