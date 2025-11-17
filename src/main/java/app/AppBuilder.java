@@ -18,12 +18,21 @@ public class AppBuilder {
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Neighbourly");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout()); 
+        frame.setLayout(new BorderLayout());
 
-        LoginView loginView = new LoginView();
-        frame.add(loginView, BorderLayout.CENTER); 
+        Runnable onLoginSuccess = () -> SwingUtilities.invokeLater(() -> {
+            frame.getContentPane().removeAll();
+            HomepageView homepageView = new HomepageView();
+            frame.add(homepageView, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
+        });
+
+        LoginView loginView = new LoginView(onLoginSuccess);
+        frame.add(loginView, BorderLayout.CENTER);
 
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
