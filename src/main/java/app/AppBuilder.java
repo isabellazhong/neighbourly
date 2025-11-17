@@ -1,47 +1,29 @@
 // java
 package main.java.app;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
+import javax.swing.*;
+import main.java.view.start_interface.LoginView;
 
 public class AppBuilder {
-    private static CardLayout cardLayout;
-    private static JPanel cards;
-
-    public static final String CARD_LOGIN = "login";
-    public static final String CARD_HOME = "home";
 
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
-
-        SwingUtilities.invokeLater(AppBuilder::createAndShowGUI);
+        SwingUtilities.invokeLater(() -> {
+            createAndShowGUI();
+        });
     }
 
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Neighbourly");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout()); 
 
-        cardLayout = new CardLayout();
-        cards = new JPanel(cardLayout);
+        LoginView loginView = new LoginView();
+        frame.add(loginView, BorderLayout.CENTER); 
 
-        HomepageView homepageView = new HomepageView();
-
-        cards.add(homepageView, CARD_HOME);
-
-        cardLayout.show(cards, CARD_LOGIN); // start with login
-
-        frame.add(cards, BorderLayout.CENTER);
         frame.pack();
-        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-    public static void showCard(String name) {
-        if (cardLayout != null && cards != null) {
-            cardLayout.show(cards, name);
-        }
     }
 }
