@@ -32,10 +32,12 @@ public class LoginView extends JPanel {
     private JLabel titleLabel;
     private JLabel emailLabel;
     private JLabel passwordLabel;
-    private JLabel statusLabel;
 
     // clean architecture dependencies
     private LoginViewModel loginViewModel;
+
+    // sign up button 
+    private JLabel signUpText; 
 
     public LoginView(LoginViewModel loginViewModel) {
         this.loginViewModel = loginViewModel;
@@ -58,8 +60,7 @@ public class LoginView extends JPanel {
 
         loginButton = createStyledButton("Log In");
 
-        statusLabel = new JLabel(" ", SwingConstants.CENTER);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        signUpText = createStyledSignUp("<html>Don't have account with us? <u> Sign up. </u></html>");
     }
 
     private void setupLayout() {
@@ -100,8 +101,8 @@ public class LoginView extends JPanel {
         formPanel.add(loginButton, gbc);
 
         gbc.gridy = 5;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        formPanel.add(statusLabel, gbc);
+        gbc.insets = new Insets(30,0, COMPONENT_SPACING, 0);
+        formPanel.add(signUpText, gbc);
 
         mainPanel.add(titlePanel);
         mainPanel.add(formPanel);
@@ -246,13 +247,13 @@ public class LoginView extends JPanel {
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
-        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setFont(UIConstants.fontStyle);
 
         button.setOpaque(true);
         button.setContentAreaFilled(true);
         button.setBorderPainted(false);
 
-        button.setBackground(new Color(76, 175, 80));
+        button.setBackground(UIConstants.loginButtonColor);
         button.setForeground(Color.WHITE);
         button.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
         button.setFocusPainted(false);
@@ -261,16 +262,34 @@ public class LoginView extends JPanel {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(69, 160, 73));
+                button.setBackground(UIConstants.loginButtonColorHovered);
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(76, 175, 80));
+                button.setBackground(UIConstants.loginButtonColor);
             }
         });
 
         return button;
+    }
+
+    private JLabel createStyledSignUp(String text) {
+        JLabel label = new JLabel(text); 
+        label.setForeground(UIConstants.signUpTextColor);
+        label.setFont(UIConstants.fontStyle);
+        label.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                label.setForeground(Color.white);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                label.setForeground(UIConstants.signUpTextColor);
+            }
+        });
+        return label; 
     }
 
     private JPanel createCenteredPanel(JComponent component) {
