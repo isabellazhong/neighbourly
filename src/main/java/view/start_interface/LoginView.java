@@ -2,6 +2,8 @@ package main.java.view.start_interface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
 import main.java.interface_adapter.login.LoginController;
 import main.java.interface_adapter.login.LoginViewModel;
@@ -11,8 +13,11 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class LoginView extends JPanel {
-    private LoginController loginController; 
+    private LoginController loginController;
 
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 500;
@@ -29,11 +34,11 @@ public class LoginView extends JPanel {
     private JLabel passwordLabel;
     private JLabel statusLabel;
 
+    // clean architecture dependencies
     private LoginViewModel loginViewModel;
 
     public LoginView(LoginViewModel loginViewModel) {
-        this.loginViewModel = loginViewModel; 
-
+        this.loginViewModel = loginViewModel;
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -109,12 +114,81 @@ public class LoginView extends JPanel {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
     }
 
+    private void handleEmailInputUpdates() {
+        emailInputField.getDocument().addDocumentListener(new DocumentListener() {
+            public void documentEventListener() {
+                final LoginState currentState = loginViewModel.getState();
+                currentState.setEmail(emailInputField.getText());
+                loginViewModel.setState(currentState);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+        });
+    }
+
+    private void handlePasswordInputUpdates() {
+        passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
+            public void documentEventListener() {
+                final LoginState currentState = loginViewModel.getState();
+                currentState.setPassword(new String(passwordInputField.getPassword()));
+                loginViewModel.setState(currentState);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+        });
+    }
+
+    private void handleLogin() {
+        loginButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        if (evt.getSource().equals(loginButton)) {
+                            final LoginState currentState = loginViewModel.getState();
+
+                            loginController.execute(
+                                    currentState.getEmail(),
+                                    currentState.getPassword());
+                        }
+                    }
+                });
+    }
+
     private void addEventListeners() {
         addPlaceholderBehavior(emailInputField, "Enter your email");
 
         addPlaceholderBehavior(passwordInputField, "Enter your password");
 
-        loginButton.addActionListener(e -> handleLogin());
+        handleEmailInputUpdates();
+
+        handlePasswordInputUpdates();
+
+        handleLogin(); 
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
         InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -232,65 +306,12 @@ public class LoginView extends JPanel {
         });
     }
 
-    private void handleLogin() {
-        String email = getEmailText();
-        String password = getPasswordText();
-        final LoginState currentState = new LoginState();
-
-        if (email.isEmpty() || email.equals("Enter your email")) {
-            showStatus("Please enter your email address", Color.RED);
-            emailInputField.requestFocus();
-            return;
-        }
-
-        if (password.isEmpty() || password.equals("Enter your password")) {
-            showStatus("Please enter your password", Color.RED);
-            passwordInputField.requestFocus();
-            return;
-        }
-
-        if (!isValidEmail(email)) {
-            showStatus("Please enter a valid email address", Color.RED);
-            emailInputField.requestFocus();
-            return;
-        }
-
-        currentState.setPassword(password);
-        loginViewModel.setState(currentState);
-        loginController.execute(
-            currentState.getemail(),
-            currentState.getPassword()
-        ); 
-
-        
-    }
-
-    private String getEmailText() {
-        String text = emailInputField.getText();
-        return text.equals("Enter your email") ? "" : text;
-    }
-
-    private String getPasswordText() {
-        String text = new String(passwordInputField.getPassword());
-        return text.equals("Enter your password") ? "" : text;
-    }
-
-    private boolean isValidEmail(String email) {
-        return email.matches("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
-    }
-
-    private void showStatus(String message, Color color) {
-        statusLabel.setText(message);
-        statusLabel.setForeground(color);
-    }
-
     public void setLoginController(LoginController loginController) {
-        this.loginController = loginController; 
+        this.loginController = loginController;
     }
 
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PANEL_WIDTH, PANEL_HEIGHT);
     }
-
 }
