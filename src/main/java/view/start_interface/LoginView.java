@@ -1,14 +1,23 @@
-package main.java.view.start_interface;
+package view.start_interface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import main.java.view.UIConstants;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
+
+import interface_adapter.login.LoginController;
+import interface_adapter.login.LoginViewModel;
+import use_case.login.LoginState;
+import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class LoginView extends JPanel {
-    private final String viewName = "log in";
+    private LoginController loginController;
 
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 500;
@@ -23,16 +32,15 @@ public class LoginView extends JPanel {
     private JLabel titleLabel;
     private JLabel emailLabel;
     private JLabel passwordLabel;
-    private JLabel statusLabel;
-    private Runnable onLoginSuccess;
 
+    // clean architecture dependencies
+    private LoginViewModel loginViewModel;
 
-    public LoginView() {
-        this(null);
-    }
+    // sign up button 
+    private JLabel signUpText; 
 
-    public LoginView(Runnable onLoginSuccess) {
-        this.onLoginSuccess = onLoginSuccess;
+    public LoginView(LoginViewModel loginViewModel) {
+        this.loginViewModel = loginViewModel;
         initializeComponents();
         setupLayout();
         setupStyling();
@@ -52,8 +60,7 @@ public class LoginView extends JPanel {
 
         loginButton = createStyledButton("Log In");
 
-        statusLabel = new JLabel(" ", SwingConstants.CENTER);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        signUpText = createStyledSignUp("<html>Don't have account with us? <u> Sign up. </u></html>");
     }
 
     private void setupLayout() {
@@ -94,8 +101,8 @@ public class LoginView extends JPanel {
         formPanel.add(loginButton, gbc);
 
         gbc.gridy = 5;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        formPanel.add(statusLabel, gbc);
+        gbc.insets = new Insets(30,0, COMPONENT_SPACING, 0);
+        formPanel.add(signUpText, gbc);
 
         mainPanel.add(titlePanel);
         mainPanel.add(formPanel);
@@ -108,12 +115,81 @@ public class LoginView extends JPanel {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
     }
 
+    private void handleEmailInputUpdates() {
+        emailInputField.getDocument().addDocumentListener(new DocumentListener() {
+            public void documentEventListener() {
+                final LoginState currentState = loginViewModel.getState();
+                currentState.setEmail(emailInputField.getText());
+                loginViewModel.setState(currentState);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+        });
+    }
+
+    private void handlePasswordInputUpdates() {
+        passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
+            public void documentEventListener() {
+                final LoginState currentState = loginViewModel.getState();
+                currentState.setPassword(new String(passwordInputField.getPassword()));
+                loginViewModel.setState(currentState);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                documentEventListener();
+            }
+        });
+    }
+
+    private void handleLogin() {
+        loginButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        if (evt.getSource().equals(loginButton)) {
+                            final LoginState currentState = loginViewModel.getState();
+
+                            loginController.execute(
+                                    currentState.getEmail(),
+                                    currentState.getPassword());
+                        }
+                    }
+                });
+    }
+
     private void addEventListeners() {
         addPlaceholderBehavior(emailInputField, "Enter your email");
 
         addPlaceholderBehavior(passwordInputField, "Enter your password");
 
-        loginButton.addActionListener(e -> handleLogin());
+        handleEmailInputUpdates();
+
+        handlePasswordInputUpdates();
+
+        handleLogin(); 
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
         InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -171,13 +247,13 @@ public class LoginView extends JPanel {
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
-        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setFont(UIConstants.fontStyle);
 
         button.setOpaque(true);
         button.setContentAreaFilled(true);
         button.setBorderPainted(false);
 
-        button.setBackground(new Color(76, 175, 80));
+        button.setBackground(UIConstants.loginButtonColor);
         button.setForeground(Color.WHITE);
         button.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
         button.setFocusPainted(false);
@@ -186,16 +262,34 @@ public class LoginView extends JPanel {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(69, 160, 73));
+                button.setBackground(UIConstants.loginButtonColorHovered);
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(new Color(76, 175, 80));
+                button.setBackground(UIConstants.loginButtonColor);
             }
         });
 
         return button;
+    }
+
+    private JLabel createStyledSignUp(String text) {
+        JLabel label = new JLabel(text); 
+        label.setForeground(UIConstants.signUpTextColor);
+        label.setFont(UIConstants.fontStyle);
+        label.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                label.setForeground(Color.white);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                label.setForeground(UIConstants.signUpTextColor);
+            }
+        });
+        return label; 
     }
 
     private JPanel createCenteredPanel(JComponent component) {
@@ -231,81 +325,12 @@ public class LoginView extends JPanel {
         });
     }
 
-    private void handleLogin() {
-        String email = getEmailText();
-        String password = getPasswordText();
-
-        if (email.isEmpty() || email.equals("Enter your email")) {
-            showStatus("Please enter your email address", Color.RED);
-            emailInputField.requestFocus();
-            return;
-        }
-
-        if (password.isEmpty() || password.equals("Enter your password")) {
-            showStatus("Please enter your password", Color.RED);
-            passwordInputField.requestFocus();
-            return;
-        }
-
-        if (!isValidEmail(email)) {
-            showStatus("Please enter a valid email address", Color.RED);
-            emailInputField.requestFocus();
-            return;
-        }
-
-        showStatus("Logging in...", new Color(76, 175, 80));
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Thread.sleep(1000);
-                showStatus("Login successful!", new Color(76, 175, 80));
-                if (onLoginSuccess != null) {
-                    onLoginSuccess.run();
-                }
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-        });
-    }
-
-    private String getEmailText() {
-        String text = emailInputField.getText();
-        return text.equals("Enter your email") ? "" : text;
-    }
-
-    private String getPasswordText() {
-        String text = new String(passwordInputField.getPassword());
-        return text.equals("Enter your password") ? "" : text;
-    }
-
-    private boolean isValidEmail(String email) {
-        return email.matches("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
-    }
-
-    private void showStatus(String message, Color color) {
-        statusLabel.setText(message);
-        statusLabel.setForeground(color);
-    }
-
-    public String getViewName() {
-        return viewName;
-    }
-
-    public JTextField getEmailInputField() {
-        return emailInputField;
-    }
-
-    public JPasswordField getPasswordInputField() {
-        return passwordInputField;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
+    public void setLoginController(LoginController loginController) {
+        this.loginController = loginController;
     }
 
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PANEL_WIDTH, PANEL_HEIGHT);
     }
-
 }

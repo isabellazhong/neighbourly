@@ -1,11 +1,13 @@
 // java
-package main.java.app;
+package app;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 
 import javax.swing.*;
-import main.java.view.start_interface.LoginView;
+
+import interface_adapter.login.LoginViewModel;
+import view.homepage.HomepageView;
+import view.start_interface.LoginView;
 
 public class AppBuilder {
 
@@ -28,7 +30,7 @@ public class AppBuilder {
             frame.repaint();
         });
 
-        LoginView loginView = new LoginView(onLoginSuccess);
+        LoginView loginView = new LoginView(new LoginViewModel());
         frame.add(loginView, BorderLayout.CENTER);
 
         frame.pack();
