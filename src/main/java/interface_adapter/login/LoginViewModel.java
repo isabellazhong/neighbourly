@@ -1,7 +1,7 @@
-package main.java.interface_adapter.login;
+package interface_adapter.login;
 
-import main.java.interface_adapter.ViewModel;
-import main.java.use_case.login.LoginState;
+import interface_adapter.ViewModel;
+import use_case.login.LoginState;
 
 public class LoginViewModel extends ViewModel<LoginState> {
     public LoginViewModel () {

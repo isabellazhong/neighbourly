@@ -1,14 +1,14 @@
-package main.java.view.start_interface;
+package view.start_interface;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 
-import main.java.interface_adapter.login.LoginController;
-import main.java.interface_adapter.login.LoginViewModel;
-import main.java.use_case.login.LoginState;
-import main.java.view.UIConstants;
+import interface_adapter.login.LoginController;
+import interface_adapter.login.LoginViewModel;
+import use_case.login.LoginState;
+import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;

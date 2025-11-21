@@ -1,15 +1,13 @@
 // java
-package main.java.app;
+package app;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 
 import javax.swing.*;
 
-import main.java.interface_adapter.login.LoginController;
-import main.java.interface_adapter.login.LoginViewModel;
-import main.java.use_case.login.LoginInteractor;
-import main.java.view.start_interface.LoginView;
+import interface_adapter.login.LoginViewModel;
+import view.homepage.HomepageView;
+import view.start_interface.LoginView;
 
 public class AppBuilder {
 

@@ -1,4 +1,4 @@
-package main.java.use_case.login;
+package use_case.login;
 
 public class LoginInputData {
     private String email; 
