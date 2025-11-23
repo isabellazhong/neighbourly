@@ -1,4 +1,4 @@
-package main.java.app;
+package view.homepage;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

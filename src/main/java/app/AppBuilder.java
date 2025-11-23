@@ -1,47 +1,40 @@
 // java
-package main.java.app;
+package app;
+
+import java.awt.BorderLayout;
 
 import javax.swing.*;
-import java.awt.*;
 
+import interface_adapter.login.LoginViewModel;
+import view.homepage.HomepageView;
+import view.start_interface.LoginView;
 
 public class AppBuilder {
-    private static CardLayout cardLayout;
-    private static JPanel cards;
-
-    public static final String CARD_LOGIN = "login";
-    public static final String CARD_HOME = "home";
 
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
-
-        SwingUtilities.invokeLater(AppBuilder::createAndShowGUI);
+        SwingUtilities.invokeLater(() -> {
+            createAndShowGUI();
+        });
     }
 
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Neighbourly");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
 
-        cardLayout = new CardLayout();
-        cards = new JPanel(cardLayout);
+        Runnable onLoginSuccess = () -> SwingUtilities.invokeLater(() -> {
+            frame.getContentPane().removeAll();
+            HomepageView homepageView = new HomepageView();
+            frame.add(homepageView, BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
+        });
 
-        HomepageView homepageView = new HomepageView();
+        LoginView loginView = new LoginView(new LoginViewModel());
+        frame.add(loginView, BorderLayout.CENTER);
 
-        cards.add(homepageView, CARD_HOME);
-
-        cardLayout.show(cards, CARD_LOGIN); // start with login
-
-        frame.add(cards, BorderLayout.CENTER);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-    public static void showCard(String name) {
-        if (cardLayout != null && cards != null) {
-            cardLayout.show(cards, name);
-        }
     }
 }
