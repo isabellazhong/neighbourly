@@ -35,6 +35,16 @@ public class MongoDB {
         collection.insertOne(userDocument);
     }
 
+    public void addOffer(Offer offer) {
+        Document offerDocument = new Document("id", offer.getId().toString())
+                .append("title", offer.getTitle())
+                .append("details", offer.getAlternativeDetails())
+                .append("postDate", offer.getPostDate())
+                .append("accepted", offer.isAccepted());
+        MongoCollection<Document> offerscollection = database.getCollection("Offers");
+        offerscollection.insertOne(offerDocument);
+    }
+
     public void addRequest(Request request) {
         //TO implement 
     }
