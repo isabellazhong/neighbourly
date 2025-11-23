@@ -113,10 +113,8 @@ public class CreateOfferView extends JPanel {
     }
 
     private void addEventListeners() {
-        // Add placeholder behavior for the title field
         addPlaceholderBehavior(titleInputField, TITLE_PLACEHOLDER);
 
-        // Add placeholder behavior for the details area
         detailsInputField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -152,17 +150,14 @@ public class CreateOfferView extends JPanel {
             return;
         }
 
-        int newId = 1; // Temporary ID
+        int newId = 1;
         HelpOffer newOffer = new HelpOffer(newId, title, details, new Date());
-
-        //pass 'newOffer' object to "interactor" or "controller" to be saved
 
         //temporary
         System.out.println("New Offer Created: " + newOffer.getTitle());
         showStatus("Offer submitted successfully!", UIConstants.successColor);
 
     }
-
 
     private String getTitleText() {
         String text = titleInputField.getText();
@@ -205,7 +200,6 @@ public class CreateOfferView extends JPanel {
 
     private JTextArea createStyledTextArea(String placeholder) {
         JTextArea textArea = new JTextArea();
-        // textArea.setPreferredSize(new Dimension(300, 100)); // Set in layout
         textArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
         textArea.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         textArea.setBackground(Color.WHITE);
@@ -228,7 +222,7 @@ public class CreateOfferView extends JPanel {
         button.setContentAreaFilled(true);
         button.setBorderPainted(false);
 
-        button.setBackground(UIConstants.primaryGreen); // Using the constant
+        button.setBackground(UIConstants.primaryGreen);
         button.setForeground(Color.WHITE);
         button.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
         button.setFocusPainted(false);
