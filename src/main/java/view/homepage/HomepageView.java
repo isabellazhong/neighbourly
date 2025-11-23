@@ -3,8 +3,19 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+//newly imported
+import interface_adapter.offer.CreateOfferController;
+import view.offer_interface.CreateOfferView;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class HomepageView extends JPanel {
-    public HomepageView() {
+    //store controller to pass onto CreateOfferView
+    private final CreateOfferController createOfferController;
+
+    //updated constructor to ask for CreateOfferController
+    public HomepageView(CreateOfferController createOfferController) {
+        this.createOfferController = createOfferController;
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
@@ -73,6 +84,20 @@ public class HomepageView extends JPanel {
         createButton.setOpaque(true);
         createButton.setBorderPainted(false);
         createButton.setToolTipText("Create");
+
+        //button to connect homepage to create offer
+        createButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(HomepageView.this);
+                frame.getContentPane().removeAll();
+                CreateOfferView offerView = new CreateOfferView();
+                offerView.setCreateOfferController(createOfferController);
+                frame.getContentPane().add(offerView);
+                frame.revalidate();
+                frame.repaint();
+            }
+        });
 
         createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         createButton.setMargin(new Insets(0, 0, 0, 0));

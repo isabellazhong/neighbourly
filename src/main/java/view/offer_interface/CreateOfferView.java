@@ -1,7 +1,7 @@
-package main.java.view.offer_interface;
+package view.offer_interface;
 
-import main.java.domain.HelpOffer;
-import main.java.view.UIConstants;
+import interface_adapter.offer.CreateOfferController;
+import view.UIConstants;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,10 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.util.Date;
 
 public class CreateOfferView extends JPanel {
+    public static final String FONT_NAME = "SansSerif";
     private final String viewName = "create offer";
+
+    private CreateOfferController createOfferController;
 
     private static final int PANEL_WIDTH = 400;
     private static final int PANEL_HEIGHT = 500;
@@ -39,9 +41,13 @@ public class CreateOfferView extends JPanel {
         addEventListeners();
     }
 
+    public void setCreateOfferController(CreateOfferController createOfferController) {
+        this.createOfferController = createOfferController;
+    }
+
     private void initializeComponents() {
         pageTitleLabel = new JLabel("Offer Help", SwingConstants.CENTER);
-        pageTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
+        pageTitleLabel.setFont(new Font(FONT_NAME, Font.BOLD, 28));
         pageTitleLabel.setForeground(UIConstants.textColor);
 
         titleLabel = createStyledLabel("Offer Title");
@@ -53,7 +59,7 @@ public class CreateOfferView extends JPanel {
         submitButton = createStyledButton("Submit Offer");
 
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel.setFont(new Font(FONT_NAME, Font.PLAIN, 12));
     }
 
     private void setupLayout() {
@@ -91,7 +97,6 @@ public class CreateOfferView extends JPanel {
         detailsScrollPane.setPreferredSize(new Dimension(300, 100));
         detailsScrollPane.setBorder(BorderFactory.createLineBorder(UIConstants.textColorFaded, 1));
         formPanel.add(detailsScrollPane, gbc);
-
 
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACING, 0);
@@ -150,13 +155,16 @@ public class CreateOfferView extends JPanel {
             return;
         }
 
-        int newId = 1;
-        HelpOffer newOffer = new HelpOffer(newId, title, details, new Date());
-
-        //temporary
-        System.out.println("New Offer Created: " + newOffer.getTitle());
-        showStatus("Offer submitted successfully!", UIConstants.successColor);
-
+        if (createOfferController != null) {
+            createOfferController.execute(title, details);
+            showStatus("Offer submitted successfully!", UIConstants.successColor);
+            titleInputField.setText(TITLE_PLACEHOLDER);
+            titleInputField.setForeground(UIConstants.textColorFaded);
+            detailsInputField.setText(DETAIlS_PLACEHOLDER);
+            detailsInputField.setForeground(UIConstants.textColorFaded);
+        } else {
+            System.out.println("Error: Controller not connected to View");
+        }
     }
 
     private String getTitleText() {
@@ -176,7 +184,7 @@ public class CreateOfferView extends JPanel {
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         label.setForeground(UIConstants.textColor);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -185,7 +193,7 @@ public class CreateOfferView extends JPanel {
     private JTextField createStyledTextField(String placeholder) {
         JTextField textField = new JTextField();
         textField.setPreferredSize(new Dimension(300, INPUT_HEIGHT));
-        textField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        textField.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         textField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIConstants.textColorFaded, 1),
                 BorderFactory.createEmptyBorder(10, 15, 10, 15)));
@@ -200,7 +208,7 @@ public class CreateOfferView extends JPanel {
 
     private JTextArea createStyledTextArea(String placeholder) {
         JTextArea textArea = new JTextArea();
-        textArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        textArea.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         textArea.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         textArea.setBackground(Color.WHITE);
         textArea.setForeground(Color.BLACK);
@@ -216,7 +224,7 @@ public class CreateOfferView extends JPanel {
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
-        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+        button.setFont(new Font(FONT_NAME, Font.BOLD, 16));
 
         button.setOpaque(true);
         button.setContentAreaFilled(true);
