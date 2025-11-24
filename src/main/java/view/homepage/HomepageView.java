@@ -132,7 +132,7 @@ public class HomepageView extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
 
-        setPreferredSize(new Dimension(1200, 320));
+        setPreferredSize(new Dimension(1200, 700));
     }
 
 
