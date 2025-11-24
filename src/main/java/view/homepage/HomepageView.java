@@ -130,7 +130,7 @@ public class HomepageView extends JPanel {
             column.add(titleField);
             column.add(Box.createVerticalStrut(10));
 
-            // Header for offer type
+            // Header for request type
             JLabel sectionHeading = new JLabel("Type");
             sectionHeading.setFont(sectionHeading.getFont().deriveFont(16f));
             sectionHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -138,7 +138,7 @@ public class HomepageView extends JPanel {
             column.add(sectionHeading);
 
 
-            // Offer types (Service / Resource)
+            // Request types (Service / Resource)
             JPanel optionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
             optionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             JRadioButton serviceBtn = new JRadioButton("Service");
@@ -173,10 +173,6 @@ public class HomepageView extends JPanel {
             cancel.addActionListener((ActionEvent e) -> dispose());
             JButton create = new JButton("Post Request");
             create.addActionListener((ActionEvent e) -> {
-                // Access values:
-                // String title = titleField.getText();
-                // String details = detailsArea.getText();
-                // boolean isService = serviceBtn.isSelected();
                 dispose();
             });
             buttons.add(cancel);
