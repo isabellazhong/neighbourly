@@ -128,6 +128,7 @@ public class CreateOfferView extends JPanel {
                     detailsInputField.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (detailsInputField.getText().isEmpty()) {
@@ -150,7 +151,7 @@ public class CreateOfferView extends JPanel {
         String details = getDetailsText();
 
         if (title.isEmpty()) {
-            showStatus("Please enter a title for your offer", UIConstants.errorColor);
+            showStatus("Please enter a title for your offer", UIConstants.errorLoginColor);
             titleInputField.requestFocus();
             return;
         }

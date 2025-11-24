@@ -12,7 +12,6 @@ import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -24,6 +23,7 @@ public class LoginView extends JPanel {
     private final int INPUT_HEIGHT = 45;
     private final int BUTTON_HEIGHT = 50;
     private final int COMPONENT_SPACING = 15;
+    private final int ERROR_SPACING = 5;
     private final int SECTION_SPACING = 25;
 
     private JTextField emailInputField;
@@ -32,12 +32,14 @@ public class LoginView extends JPanel {
     private JLabel titleLabel;
     private JLabel emailLabel;
     private JLabel passwordLabel;
+    private JLabel loginErrorLabel;
+    private JLabel passwordErrorLabel;
 
     // clean architecture dependencies
     private LoginViewModel loginViewModel;
 
-    // sign up button 
-    private JLabel signUpText; 
+    // sign up button
+    private JLabel signUpText;
 
     public LoginView(LoginViewModel loginViewModel) {
         this.loginViewModel = loginViewModel;
@@ -60,7 +62,9 @@ public class LoginView extends JPanel {
 
         loginButton = createStyledButton("Log In");
 
-        signUpText = createStyledSignUp("<html>Don't have account with us? <u> Sign up. </u></html>");
+        signUpText = createStyledSignUp("<html>Don't have account with us? <u> Sign up.</u></html>");
+        loginErrorLabel = createErrorLabel("");
+        passwordErrorLabel = createErrorLabel("");
     }
 
     private void setupLayout() {
@@ -85,23 +89,31 @@ public class LoginView extends JPanel {
         formPanel.add(emailLabel, gbc);
 
         gbc.gridy = 1;
+        gbc.insets = new Insets(ERROR_SPACING, 0, 0, 0);
+        formPanel.add(loginErrorLabel, gbc);
+
+        gbc.gridy = 2;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACING, 0);
         formPanel.add(emailInputField, gbc);
 
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.insets = new Insets(0, 0, 5, 0);
         formPanel.add(passwordLabel, gbc);
 
-        gbc.gridy = 3;
+        gbc.gridy = 4;
+        gbc.insets = new Insets(ERROR_SPACING, 0, 0, 0);
+        formPanel.add(passwordErrorLabel, gbc);
+
+        gbc.gridy = 5;
         gbc.insets = new Insets(0, 0, SECTION_SPACING, 0);
         formPanel.add(passwordInputField, gbc);
 
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACING, 0);
         formPanel.add(loginButton, gbc);
 
-        gbc.gridy = 5;
-        gbc.insets = new Insets(30,0, COMPONENT_SPACING, 0);
+        gbc.gridy = 7;
+        gbc.insets = new Insets(30, 0, COMPONENT_SPACING, 0);
         formPanel.add(signUpText, gbc);
 
         mainPanel.add(titlePanel);
@@ -175,6 +187,9 @@ public class LoginView extends JPanel {
                             loginController.execute(
                                     currentState.getEmail(),
                                     currentState.getPassword());
+
+                            loginErrorLabel.setText(currentState.getLoginError());
+                            passwordErrorLabel.setText(currentState.getPasswordError());
                         }
                     }
                 });
@@ -189,7 +204,7 @@ public class LoginView extends JPanel {
 
         handlePasswordInputUpdates();
 
-        handleLogin(); 
+        handleLogin();
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
         InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -207,6 +222,14 @@ public class LoginView extends JPanel {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
         label.setForeground(UIConstants.textColor);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return label;
+    }
+
+    private JLabel createErrorLabel(String error) {
+        JLabel label = new JLabel(error);
+        label.setFont(UIConstants.errorFontStyle);
+        label.setForeground(UIConstants.errorLoginColor);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
@@ -275,7 +298,7 @@ public class LoginView extends JPanel {
     }
 
     private JLabel createStyledSignUp(String text) {
-        JLabel label = new JLabel(text); 
+        JLabel label = new JLabel(text);
         label.setForeground(UIConstants.signUpTextColor);
         label.setFont(UIConstants.fontStyle);
         label.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -289,7 +312,7 @@ public class LoginView extends JPanel {
                 label.setForeground(UIConstants.signUpTextColor);
             }
         });
-        return label; 
+        return label;
     }
 
     private JPanel createCenteredPanel(JComponent component) {
@@ -307,18 +330,19 @@ public class LoginView extends JPanel {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
                     if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar('•');
+                        JPasswordField field = (JPasswordField) textField;
+                        field.setEchoChar('•');
                     }
                 }
             }
-
             @Override
             public void focusLost(FocusEvent e) {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(UIConstants.textColorFaded);
                     textField.setText(placeholder);
                     if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar((char) 0);
+                        JPasswordField field = (JPasswordField) textField;
+                        field.setEchoChar((char) 0);
                     }
                 }
             }

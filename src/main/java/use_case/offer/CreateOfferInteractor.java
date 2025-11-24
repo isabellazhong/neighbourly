@@ -1,14 +1,15 @@
 package use_case.offer;
 
 import entity.Offer;
-import database.MongoDB;
+import database.MongoDBOfferDataAccessObject;
+
 import java.util.Date;
 
 
 public class CreateOfferInteractor implements CreateOfferInputBoundary {
-    final MongoDB offerDataAccessObject;
+    final MongoDBOfferDataAccessObject offerDataAccessObject;
 
-    public CreateOfferInteractor(MongoDB offerDataAccessObject) {
+    public CreateOfferInteractor(MongoDBOfferDataAccessObject offerDataAccessObject) {
         this.offerDataAccessObject = offerDataAccessObject;
     }
 
