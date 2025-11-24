@@ -13,13 +13,13 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import entity.*;
-import use_case.login.LoginUserDataAcessInterface;
+import use_case.start.UserDataAccessInterface;
 
-public class MongoDBUserDataAcessObject extends MongoDB implements LoginUserDataAcessInterface {
+public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAccessInterface {
     private MongoCollection<Document> collection;
 
     public MongoDBUserDataAcessObject() {
-        super(); 
+        super();
         String collectionName = "Users";
         collection = this.getDatabase().getCollection(collectionName);
     }
@@ -37,14 +37,14 @@ public class MongoDBUserDataAcessObject extends MongoDB implements LoginUserData
         collection.insertOne(userDocument);
     }
 
-    public User getUser(String email, String password) throws Exception{
+    public User getUser(String email, String password) throws Exception {
         try {
             Document document = collection.find(eq("email", email)).first();
             if (document != null) {
                 boolean validPassword = document.get("password").toString() == password;
                 if (!validPassword) {
                     throw new IncorrectPasswordException("Incorrect Password.");
-                } 
+                }
             } else {
                 throw new UserNotFoundException("UserNotFound.");
             }
@@ -60,7 +60,7 @@ public class MongoDBUserDataAcessObject extends MongoDB implements LoginUserData
                     UUID.fromString(document.getObjectId("_id").toString()));
             return user;
         } catch (Exception e) {
-            throw new FetchingErrorException("Unable to fetch user." + e); 
+            throw new FetchingErrorException("Unable to fetch user." + e);
         }
     }
 

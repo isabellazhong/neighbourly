@@ -1,15 +1,16 @@
-package use_case.login;
+package use_case.start.login;
 
 import database.exceptions.IncorrectPasswordException;
 import database.exceptions.UserNotFoundException;
 
 import entity.*;
+import use_case.start.UserDataAccessInterface;
 
 public class LoginInteractor implements LoginInputBoundary {
     LoginOutputBoundary loginPresenter;
-    LoginUserDataAcessInterface userDataAcessObject;
+    UserDataAccessInterface userDataAcessObject;
 
-    public LoginInteractor(LoginOutputBoundary loginPresenter, LoginUserDataAcessInterface userDataAccessObject) {
+    public LoginInteractor(LoginOutputBoundary loginPresenter, UserDataAccessInterface userDataAccessObject) {
         this.loginPresenter = loginPresenter;
         this.userDataAcessObject = userDataAccessObject;
     }
@@ -60,7 +61,8 @@ public class LoginInteractor implements LoginInputBoundary {
         } else if (!checkValidUser(email, password)) {
             loginPresenter.prepareLoginFailInterface("User does not exist.");
         } else if (!checkValidPassword(email, password)) {
-            loginPresenter.prepareWrongPasswordInterface("Incorrect password. Please try again");;
+            loginPresenter.prepareWrongPasswordInterface("Incorrect password. Please try again");
+            ;
         } else {
             try {
                 User user = this.userDataAcessObject.getUser(email, password);

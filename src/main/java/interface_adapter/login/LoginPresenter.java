@@ -1,8 +1,8 @@
 package interface_adapter.login;
 
 import entity.User;
-import use_case.login.LoginOutputBoundary;
-import use_case.login.LoginState;
+import use_case.start.login.LoginOutputBoundary;
+import use_case.start.login.LoginState;
 import view.start_interface.LoginView;
 import view.homepage.*;
 

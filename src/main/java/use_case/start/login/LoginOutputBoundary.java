@@ -1,4 +1,4 @@
-package use_case.login;
+package use_case.start.login;
 import entity.*;
 
 public interface LoginOutputBoundary {

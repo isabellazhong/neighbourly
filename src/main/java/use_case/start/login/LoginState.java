@@ -1,4 +1,4 @@
-package use_case.login;
+package use_case.start.login;
 
 public class LoginState {
     private String email = "";

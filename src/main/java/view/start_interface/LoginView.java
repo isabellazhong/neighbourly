@@ -7,7 +7,7 @@ import javax.swing.event.DocumentEvent;
 
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginViewModel;
-import use_case.login.LoginState;
+import use_case.start.login.LoginState;
 import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;

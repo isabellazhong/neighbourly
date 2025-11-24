@@ -1,4 +1,4 @@
-package use_case.login;
+package use_case.start.login;
 
 public interface LoginInputBoundary {
     void execute(LoginInputData loginInputData); 
