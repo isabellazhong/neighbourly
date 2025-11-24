@@ -78,11 +78,26 @@ public class HomepageView extends JPanel {
         createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         createButton.setMargin(new Insets(0, 0, 0, 0));
 
-        // Show modal popup when clicked
+        // Show a choice dialog
         createButton.addActionListener(e -> {
             Window owner = SwingUtilities.getWindowAncestor(HomepageView.this);
-            CreateDialog dialog = new CreateDialog(owner);
-            dialog.setVisible(true);
+            String[] options = {"Create rquest", "Create Offer", "Cancel"};
+            int choice = JOptionPane.showOptionDialog(
+                    owner,
+                    "What would you like to create?",
+                    "Create",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+            if (choice == 0) {
+                CreateRequest dialog = new CreateRequest(owner);
+                dialog.setVisible(true);
+            } else if (choice == 1) {
+                // Create Offer implementation
+            }
         });
 
 
@@ -95,8 +110,9 @@ public class HomepageView extends JPanel {
         setPreferredSize(new Dimension(1200, 320));
     }
 
-    public class CreateDialog extends JDialog {
-        public CreateDialog(Window owner) {
+
+    public class CreateRequest extends JDialog {
+        public CreateRequest(Window owner) {
             super(owner, "Request", ModalityType.APPLICATION_MODAL);
             initUI();
         }
