@@ -2,6 +2,7 @@ package view.homepage;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 //newly imported
 import interface_adapter.offer.CreateOfferController;
@@ -103,6 +104,15 @@ public class HomepageView extends JPanel {
 
         createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         createButton.setMargin(new Insets(0, 0, 0, 0));
+
+        // Show modal popup when clicked
+        createButton.addActionListener(e -> {
+            Window owner = SwingUtilities.getWindowAncestor(HomepageView.this);
+            CreateDialog dialog = new CreateDialog(owner);
+            dialog.setVisible(true);
+        });
+
+
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 12));
         bottomPanel.setOpaque(false);
         bottomPanel.add(createButton);
@@ -111,4 +121,99 @@ public class HomepageView extends JPanel {
 
         setPreferredSize(new Dimension(1200, 320));
     }
+
+    public class CreateDialog extends JDialog {
+        public CreateDialog(Window owner) {
+            super(owner, "Request", ModalityType.APPLICATION_MODAL);
+            initUI();
+        }
+
+        private void initUI() {
+            JPanel root = new JPanel(new BorderLayout(12, 12));
+            root.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+
+            // REQUEST HEADER
+            JLabel header = new JLabel("Create a Request", SwingConstants.LEFT);
+            header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
+            root.add(header, BorderLayout.NORTH);
+
+            // Content
+            JPanel column = new JPanel();
+            column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
+            column.setOpaque(false);
+
+
+            // Title label
+            JLabel titleLabel = new JLabel("Title");
+            titleLabel.setFont(titleLabel.getFont().deriveFont(16f));
+            titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            column.add(titleLabel);
+
+            JTextField titleField = new JTextField();
+            titleField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26)); // slim height
+            titleField.setPreferredSize(new Dimension(400, 26));
+            titleField.setAlignmentX(Component.LEFT_ALIGNMENT);
+            titleField.setToolTipText("Short title");
+            column.add(titleField);
+            column.add(Box.createVerticalStrut(10));
+
+            // Header for request type
+            JLabel sectionHeading = new JLabel("Type");
+            sectionHeading.setFont(sectionHeading.getFont().deriveFont(16f));
+            sectionHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
+            sectionHeading.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
+            column.add(sectionHeading);
+
+
+            // Request types (Service / Resource)
+            JPanel optionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+            optionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JRadioButton serviceBtn = new JRadioButton("Service");
+            JRadioButton resourceBtn = new JRadioButton("Resource");
+            ButtonGroup bg = new ButtonGroup();
+            bg.add(serviceBtn);
+            bg.add(resourceBtn);
+            serviceBtn.setSelected(true);
+            optionPanel.add(serviceBtn);
+            optionPanel.add(resourceBtn);
+            column.add(optionPanel);
+            column.add(Box.createVerticalStrut(12));
+
+            // Additional details heading + larger text area
+            JLabel detailsLabel = new JLabel("Additional details");
+            detailsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            column.add(detailsLabel);
+
+            JTextArea detailsArea = new JTextArea(8, 40);
+            detailsArea.setLineWrap(true);
+            detailsArea.setWrapStyleWord(true);
+            JScrollPane detailsScroll = new JScrollPane(detailsArea);
+            detailsScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+            column.add(detailsScroll);
+
+            root.add(column, BorderLayout.CENTER);
+
+
+            // Buttons
+            JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            JButton cancel = new JButton("Back");
+            cancel.addActionListener((ActionEvent e) -> dispose());
+            JButton create = new JButton("Post Request");
+            create.addActionListener((ActionEvent e) -> {
+                dispose();
+            });
+            buttons.add(cancel);
+            buttons.add(create);
+
+            root.add(buttons, BorderLayout.SOUTH);
+
+            setContentPane(root);
+            setPreferredSize(new Dimension(720, 460));
+            pack();
+            setResizable(false);
+            setLocationRelativeTo(getOwner());
+        }
+    }
+
+
 }
