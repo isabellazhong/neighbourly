@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
-    //store controller to pass onto CreateOfferView
+    //stores controller to pass onto CreateOfferView
     private final CreateOfferController createOfferController;
 
     //updated constructor to ask for CreateOfferController
@@ -96,6 +96,8 @@ public class HomepageView extends JPanel {
                 frame.getContentPane().add(offerView);
                 frame.revalidate();
                 frame.repaint();
+                frame.pack();
+                frame.setLocationRelativeTo(null);
             }
         });
 

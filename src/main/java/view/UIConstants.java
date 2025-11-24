@@ -24,5 +24,6 @@ public class UIConstants {
     //offers
     public static final Color errorColor = new Color(244, 67, 54);
     public static final Color successColor = new Color(76, 175, 80);
+    public static final Color darkGray = new Color(64, 64, 64);
 
 }

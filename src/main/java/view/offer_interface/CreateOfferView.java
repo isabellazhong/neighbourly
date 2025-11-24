@@ -17,8 +17,8 @@ public class CreateOfferView extends JPanel {
 
     private CreateOfferController createOfferController;
 
-    private static final int PANEL_WIDTH = 400;
-    private static final int PANEL_HEIGHT = 500;
+    private static final int PANEL_WIDTH = 500;
+    private static final int PANEL_HEIGHT = 600;
     private static final int INPUT_HEIGHT = 45;
     private static final int BUTTON_HEIGHT = 50;
     private static final int COMPONENT_SPACING = 15;
@@ -47,8 +47,8 @@ public class CreateOfferView extends JPanel {
 
     private void initializeComponents() {
         pageTitleLabel = new JLabel("Offer Help", SwingConstants.CENTER);
-        pageTitleLabel.setFont(new Font(FONT_NAME, Font.BOLD, 28));
-        pageTitleLabel.setForeground(UIConstants.textColor);
+        pageTitleLabel.setFont(new Font(FONT_NAME, Font.BOLD, 30));
+        pageTitleLabel.setForeground(UIConstants.darkGray);
 
         titleLabel = createStyledLabel("Offer Title");
         titleInputField = createStyledTextField(TITLE_PLACEHOLDER);
@@ -113,7 +113,7 @@ public class CreateOfferView extends JPanel {
     }
 
     private void setupStyling() {
-        setBackground(UIConstants.backgroundColor);
+        setBackground(UIConstants.textFieldBackground);
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
     }
 
@@ -185,7 +185,7 @@ public class CreateOfferView extends JPanel {
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
-        label.setForeground(UIConstants.textColor);
+        label.setForeground(UIConstants.darkGray);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
