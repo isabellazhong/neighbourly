@@ -9,7 +9,6 @@ import interface_adapter.login.LoginViewModel;
 import view.homepage.HomepageView;
 import view.start_interface.LoginView;
 
-import database.MongoDB;
 import use_case.offer.CreateOfferInteractor;
 import interface_adapter.offer.CreateOfferController;
 
@@ -26,8 +25,7 @@ public class AppBuilder {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        MongoDB mongoDB = new MongoDB();
-        CreateOfferInteractor offerInteractor = new CreateOfferInteractor(mongoDB);
+        CreateOfferInteractor offerInteractor = new CreateOfferInteractor(null);
         CreateOfferController offerController = new CreateOfferController(offerInteractor);
 
         Runnable onLoginSuccess = () -> SwingUtilities.invokeLater(() -> {
