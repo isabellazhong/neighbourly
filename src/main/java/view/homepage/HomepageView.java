@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 
 //newly imported
 import interface_adapter.offer.CreateOfferController;
-import view.UIConstants;
 import view.offer_interface.CreateOfferView;
 import java.awt.event.ActionListener;
 
