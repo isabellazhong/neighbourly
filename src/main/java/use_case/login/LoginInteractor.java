@@ -23,8 +23,8 @@ public class LoginInteractor implements LoginInputBoundary {
             try {
                 this.userDataAcessObject.getUser(email, password);
             } catch (Exception e) {
-                if (e instanceof UserNotFoundException) {
-                    throw (UserNotFoundException) e;
+                if (e instanceof UserNotFoundException exception) {
+                    throw exception;
                 }
                 throw new RuntimeException(e);
             }
@@ -39,8 +39,8 @@ public class LoginInteractor implements LoginInputBoundary {
             try {
                 this.userDataAcessObject.getUser(email, password);
             } catch (Exception e) {
-                if (e instanceof IncorrectPasswordException) {
-                    throw (IncorrectPasswordException) e;
+                if (e instanceof IncorrectPasswordException exception) {
+                    throw exception;
                 }
                 throw new RuntimeException(e);
             }

@@ -331,8 +331,8 @@ public class LoginView extends JPanel {
                 if (textField.getText().equals(placeholder)) {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
-                    if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar('•');
+                    if (textField instanceof JPasswordField field) {
+                        field.setEchoChar('•');
                     }
                 }
             }
@@ -342,8 +342,8 @@ public class LoginView extends JPanel {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(UIConstants.textColorFaded);
                     textField.setText(placeholder);
-                    if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar((char) 0);
+                    if (textField instanceof JPasswordField field) {
+                        field.setEchoChar((char) 0);
                     }
                 }
             }
