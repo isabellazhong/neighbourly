@@ -1,9 +1,5 @@
 package database;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
-
 import database.exceptions.FetchingErrorException;
 import database.exceptions.IncorrectPasswordException;
 import database.exceptions.UserNotFoundException;
@@ -19,22 +15,13 @@ import org.bson.types.ObjectId;
 import entity.*;
 import use_case.login.LoginUserDataAcessInterface;
 
-public class MongoDBUserDataAcessObject implements LoginUserDataAcessInterface {
-    private String uri;
-    private String databaseName;
-    private String collectionName;
-    private MongoClient mongoClient;
-    private MongoDatabase database;
+public class MongoDBUserDataAcessObject extends MongoDB implements LoginUserDataAcessInterface {
     private MongoCollection<Document> collection;
 
     public MongoDBUserDataAcessObject() {
-        uri = System.getenv("mongodbURI");
-        databaseName = "Neighbourly";
-        collectionName = "Users";
-
-        mongoClient = MongoClients.create(uri);
-        database = mongoClient.getDatabase(databaseName);
-        collection = database.getCollection(collectionName);
+        super(); 
+        String collectionName = "Users";
+        collection = this.getDatabase().getCollection(collectionName);
     }
 
     public void addUser(User user) {
@@ -78,8 +65,8 @@ public class MongoDBUserDataAcessObject implements LoginUserDataAcessInterface {
     }
 
     public void closeConnection() {
-        if (mongoClient != null) {
-            mongoClient.close();
+        if (this.getMongoClient() != null) {
+            this.getMongoClient().close();
         }
     }
 }
