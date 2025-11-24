@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 
 //newly imported
 import interface_adapter.offer.CreateOfferController;
+import view.UIConstants;
 import view.offer_interface.CreateOfferView;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
@@ -86,32 +86,46 @@ public class HomepageView extends JPanel {
         createButton.setBorderPainted(false);
         createButton.setToolTipText("Create");
 
-        //button to connect homepage to create offer
+        //create menu to choose between what to create when button is clicked
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(HomepageView.this);
-                frame.getContentPane().removeAll();
-                CreateOfferView offerView = new CreateOfferView();
-                offerView.setCreateOfferController(createOfferController);
-                frame.getContentPane().add(offerView);
-                frame.revalidate();
-                frame.repaint();
-                frame.pack();
-                frame.setLocationRelativeTo(null);
+                JPopupMenu menu = new JPopupMenu();
+                JMenuItem requestItem = new JMenuItem("Create New Request");
+                JMenuItem offerItem = new JMenuItem("Offer Help");
+
+                Font menuFont = new Font("SansSerif", Font.PLAIN, 14);
+                requestItem.setFont(menuFont);
+                offerItem.setFont(menuFont);
+
+                requestItem.addActionListener(evt -> {
+                    Window owner = SwingUtilities.getWindowAncestor(HomepageView.this);
+                    CreateDialog dialog = new CreateDialog(owner);
+                    dialog.setVisible(true);
+                });
+
+                offerItem.addActionListener(evt -> {
+                    JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(HomepageView.this);
+                    JDialog popup = new JDialog(topFrame, "Offer Help", true);
+
+                    CreateOfferView offerView = new CreateOfferView();
+                    offerView.setCreateOfferController(createOfferController);
+
+                    popup.setContentPane(offerView);
+                    popup.pack();
+                    popup.setLocationRelativeTo(topFrame);
+                    popup.setVisible(true);
+                });
+
+                menu.add(requestItem);
+                menu.add(offerItem);
+                int yOffset = -menu.getPreferredSize().height;
+                menu.show(createButton, 0, yOffset);
             }
         });
 
         createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         createButton.setMargin(new Insets(0, 0, 0, 0));
-
-        // Show modal popup when clicked
-        createButton.addActionListener(e -> {
-            Window owner = SwingUtilities.getWindowAncestor(HomepageView.this);
-            CreateDialog dialog = new CreateDialog(owner);
-            dialog.setVisible(true);
-        });
-
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 12));
         bottomPanel.setOpaque(false);
