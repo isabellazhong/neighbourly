@@ -20,5 +20,7 @@ public class UIConstants {
     public static final Color loginButtonColor = new Color(76, 175, 80); 
     public static final Color loginButtonColorHovered = new Color(69, 160, 73); 
     public static final Font fontStyle = new Font("SansSerif", Font.BOLD, 16); 
+    public static final Font errorFontStyle = new Font("SansSerif", Font.BOLD, 10);
+    public static final Color errorColor = new Color(206, 206, 206);
 
 }

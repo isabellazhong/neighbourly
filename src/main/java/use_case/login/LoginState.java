@@ -3,6 +3,7 @@ package use_case.login;
 public class LoginState {
     private String email = "";
     private String loginError;
+    private String passwordError;
     private String password = "";
 
     public String getEmail() {
@@ -13,6 +14,10 @@ public class LoginState {
         return loginError;
     }
 
+    public String getPasswordError() {
+        return passwordError; 
+    }
+
     public String getPassword() {
         return password;
     }
@@ -21,8 +26,12 @@ public class LoginState {
         this.email = email;
     }
 
-    public void setLoginError(String emailError) {
-        this.loginError = emailError;
+    public void setUserError(String loginError) {
+        this.loginError = loginError;
+    }
+
+    public void setPasswordError(String passwordError) {
+        this.passwordError = passwordError; 
     }
 
     public void setPassword(String password) {

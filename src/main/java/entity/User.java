@@ -1,5 +1,4 @@
 package entity;
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -17,26 +16,33 @@ public class User {
     private String lastName;
     private String email; 
     private String gender; 
-    private Map<UUID, Request> requests;
-    private Map<UUID, Offer> offers;
+    private List<UUID> requests;
+    private List<UUID> offers;
     private UUID id; 
 
-    public User(String name, String lastName, String email, Gender gender) {
+    public User(String name, 
+        String lastName, 
+        String email, 
+        Gender gender, 
+        List<UUID> requests, 
+        List<UUID> offers,
+        UUID id) 
+    {
         this.name = name; 
         this.lastName = lastName; 
         this.email = email;
-        this.requests = new HashMap<>();
-        this.offers = new HashMap<>();
+        this.requests = requests;
+        this.offers = offers;
         this.gender = gender.getLabel(); 
         this.id = java.util.UUID.randomUUID(); 
     }
 
-    public void addRequest(Request request) {
-        this.requests.put(request.getId(), request); 
+    public void addRequest(UUID id) {
+        this.requests.add(id); 
     }
 
-    public void addOffer(Offer offer) {
-        this.offers.put(offer.getId(), offer); 
+    public void addOffer(UUID id) {
+        this.offers.add(id); 
     }
 
     public String getName() {
@@ -55,13 +61,15 @@ public class User {
         return this.gender;
     }
 
+    public List<UUID> getRequestIDs() {
+        return this.requests;
+    }
+
+    public List<UUID> getOfferIDs() {
+        return this.offers;
+    }
+
     public UUID getID() {
         return this.id; 
     }
-
-    public UUID[] getAllRequestIDs() {
-        Set<UUID> keySet = this.requests.keySet(); 
-        return keySet.toArray(new UUID[0]);
-    }
- 
 }
