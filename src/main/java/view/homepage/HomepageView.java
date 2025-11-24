@@ -135,8 +135,9 @@ public class HomepageView extends JPanel {
         setPreferredSize(new Dimension(1200, 320));
     }
 
-    public class CreateDialog extends JDialog {
-        public CreateDialog(Window owner) {
+
+    public class CreateRequest extends JDialog {
+        public CreateRequest(Window owner) {
             super(owner, "Request", ModalityType.APPLICATION_MODAL);
             initUI();
         }
