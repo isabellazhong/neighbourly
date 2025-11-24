@@ -17,9 +17,10 @@ public class Request {
         this.title = title;
         this.details = details;
         this.service = service;
+        this.expirationDate = expirationDate;
         this.fulfilled = false;
         this.imagePath = null;
-        this.expirationDate = expirationDate;
+
     }
 
 
