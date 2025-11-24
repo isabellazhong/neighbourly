@@ -32,14 +32,14 @@ public class LoginView extends JPanel {
     private JLabel titleLabel;
     private JLabel emailLabel;
     private JLabel passwordLabel;
-    private JLabel loginErrorLabel; 
+    private JLabel loginErrorLabel;
     private JLabel passwordErrorLabel;
 
     // clean architecture dependencies
     private LoginViewModel loginViewModel;
 
-    // sign up button 
-    private JLabel signUpText; 
+    // sign up button
+    private JLabel signUpText;
 
     public LoginView(LoginViewModel loginViewModel) {
         this.loginViewModel = loginViewModel;
@@ -64,7 +64,7 @@ public class LoginView extends JPanel {
 
         signUpText = createStyledSignUp("<html>Don't have account with us? <u> Sign up.</u></html>");
         loginErrorLabel = createErrorLabel("");
-        passwordErrorLabel = createErrorLabel(""); 
+        passwordErrorLabel = createErrorLabel("");
     }
 
     private void setupLayout() {
@@ -81,7 +81,6 @@ public class LoginView extends JPanel {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -114,7 +113,7 @@ public class LoginView extends JPanel {
         formPanel.add(loginButton, gbc);
 
         gbc.gridy = 7;
-        gbc.insets = new Insets(30,0, COMPONENT_SPACING, 0);
+        gbc.insets = new Insets(30, 0, COMPONENT_SPACING, 0);
         formPanel.add(signUpText, gbc);
 
         mainPanel.add(titlePanel);
@@ -187,8 +186,7 @@ public class LoginView extends JPanel {
 
                             loginController.execute(
                                     currentState.getEmail(),
-                                    currentState.getPassword()
-                            );
+                                    currentState.getPassword());
 
                             loginErrorLabel.setText(currentState.getLoginError());
                             passwordErrorLabel.setText(currentState.getPasswordError());
@@ -206,7 +204,7 @@ public class LoginView extends JPanel {
 
         handlePasswordInputUpdates();
 
-        handleLogin(); 
+        handleLogin();
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
         InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -231,7 +229,7 @@ public class LoginView extends JPanel {
     private JLabel createErrorLabel(String error) {
         JLabel label = new JLabel(error);
         label.setFont(UIConstants.errorFontStyle);
-        label.setForeground(UIConstants.errorColor);
+        label.setForeground(UIConstants.errorLoginColor);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
     }
@@ -300,7 +298,7 @@ public class LoginView extends JPanel {
     }
 
     private JLabel createStyledSignUp(String text) {
-        JLabel label = new JLabel(text); 
+        JLabel label = new JLabel(text);
         label.setForeground(UIConstants.signUpTextColor);
         label.setFont(UIConstants.fontStyle);
         label.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -314,7 +312,7 @@ public class LoginView extends JPanel {
                 label.setForeground(UIConstants.signUpTextColor);
             }
         });
-        return label; 
+        return label;
     }
 
     private JPanel createCenteredPanel(JComponent component) {
@@ -332,18 +330,19 @@ public class LoginView extends JPanel {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
                     if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar('•');
+                        JPasswordField field = (JPasswordField) textField;
+                        field.setEchoChar('•');
                     }
                 }
             }
-
             @Override
             public void focusLost(FocusEvent e) {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(UIConstants.textColorFaded);
                     textField.setText(placeholder);
                     if (textField instanceof JPasswordField) {
-                        ((JPasswordField) textField).setEchoChar((char) 0);
+                        JPasswordField field = (JPasswordField) textField;
+                        field.setEchoChar((char) 0);
                     }
                 }
             }
