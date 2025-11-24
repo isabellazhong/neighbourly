@@ -99,7 +99,7 @@ public class HomepageView extends JPanel {
 
                 requestItem.addActionListener(evt -> {
                     Window owner = SwingUtilities.getWindowAncestor(HomepageView.this);
-                    CreateDialog dialog = new CreateDialog(owner);
+                    CreateRequest dialog = new CreateRequest(owner);
                     dialog.setVisible(true);
                 });
 
