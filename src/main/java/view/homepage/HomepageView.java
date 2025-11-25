@@ -10,6 +10,7 @@ import view.offer_interface.CreateOfferView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
+    private String viewName = "homepage";
     //stores controller to pass onto CreateOfferView
     private final CreateOfferController createOfferController;
 
@@ -229,5 +230,7 @@ public class HomepageView extends JPanel {
         }
     }
 
-
+    public String getViewName() {
+        return this.viewName; 
+    }
 }

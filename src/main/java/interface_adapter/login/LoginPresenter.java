@@ -4,25 +4,21 @@ import entity.User;
 import interface_adapter.ViewManagerModel;
 import use_case.start.login.LoginOutputBoundary;
 import use_case.start.login.LoginState;
-import view.start_interface.LoginView;
 import view.start_interface.SignUpView;
 import view.homepage.*;
 
 public class LoginPresenter implements LoginOutputBoundary {
     private LoginViewModel loginViewModel;
     private ViewManagerModel viewManagerModel; 
-    private LoginView loginView; 
     private HomepageView homepageView;
     private SignUpView signUpView; 
 
     public LoginPresenter(LoginViewModel loginViewModel, 
-                        LoginView loginView, 
                         HomepageView homepageView, 
                         SignUpView signUpView,
                         ViewManagerModel viewManagerModel) {
         this.viewManagerModel = viewManagerModel; 
         this.loginViewModel = loginViewModel; 
-        this.loginView = loginView; 
         this.homepageView = homepageView; 
         this.signUpView = signUpView; 
     }
@@ -31,14 +27,22 @@ public class LoginPresenter implements LoginOutputBoundary {
     public void prepareLoginFailInterface(String error) {
         LoginState state = new LoginState(); 
         state.setUserError(error);
+        loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
+
+        viewManagerModel.setState(loginViewModel.getViewName());
+        viewManagerModel.firePropertyChange();
     }
 
     @Override
     public void prepareWrongPasswordInterface(String error) {
         LoginState state = new LoginState(); 
-        state.setUserError(error);
+        state.setPasswordError(error);
+        loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
+
+        viewManagerModel.setState(loginViewModel.getViewName());
+        viewManagerModel.firePropertyChange();
     }
 
     @Override
@@ -49,6 +53,8 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareLoginSucessInterface(User user) {
-
+        // add in user logic later 
+        viewManagerModel.setState(homepageView.getViewName());
+        viewManagerModel.firePropertyChange();
     }
 }

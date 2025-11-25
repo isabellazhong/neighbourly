@@ -12,7 +12,6 @@ import javax.swing.event.DocumentEvent;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginViewModel;
 import use_case.start.login.LoginState;
-import use_case.start.signup.SignupState;
 import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -53,6 +52,7 @@ public class LoginView extends JPanel {
         setupLayout();
         setupStyling();
         addEventListeners();
+        bindViewModel();
     }
 
     private void initializeComponents() {
@@ -189,14 +189,13 @@ public class LoginView extends JPanel {
                     public void actionPerformed(ActionEvent evt) {
                         if (evt.getSource().equals(loginButton)) {
                             final LoginState currentState = loginViewModel.getState();
+                            loginViewModel.setState(currentState);
+                            updateErrorLabels();
 
                             loginController.execute(
                                     currentState.getEmail(),
                                     currentState.getPassword());
-
-                            loginErrorLabel.setText(currentState.getLoginError());
-                            passwordErrorLabel.setText(currentState.getPasswordError());
-                            loginViewModel.setState(currentState);
+                            
                         }
                     }
                 });
@@ -367,6 +366,16 @@ public class LoginView extends JPanel {
             }
         });
     }
+
+    private void updateErrorLabels() {
+        LoginState currentState = loginViewModel.getState();
+        loginErrorLabel.setText(currentState.getLoginError());
+        passwordErrorLabel.setText(currentState.getPasswordError());
+    }
+
+	private void bindViewModel() {
+		loginViewModel.addPropertyChangeListener(evt -> SwingUtilities.invokeLater(this::updateErrorLabels));
+	}
 
     public String getViewName() {
         return this.viewName; 

@@ -62,7 +62,6 @@ public class LoginInteractor implements LoginInputBoundary {
             loginPresenter.prepareLoginFailInterface("User does not exist.");
         } else if (!checkValidPassword(email, password)) {
             loginPresenter.prepareWrongPasswordInterface("Incorrect password. Please try again");
-            ;
         } else {
             try {
                 User user = this.userDataAcessObject.getUser(email, password);
