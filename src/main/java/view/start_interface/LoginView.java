@@ -3,11 +3,16 @@ package view.start_interface;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.event.DocumentEvent;
 
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginViewModel;
 import use_case.start.login.LoginState;
+import use_case.start.signup.SignupState;
 import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -17,6 +22,7 @@ import java.awt.event.ActionListener;
 
 public class LoginView extends JPanel {
     private LoginController loginController;
+    private final String viewName = "log in"; 
 
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 500;
@@ -190,9 +196,20 @@ public class LoginView extends JPanel {
 
                             loginErrorLabel.setText(currentState.getLoginError());
                             passwordErrorLabel.setText(currentState.getPasswordError());
+                            loginViewModel.setState(currentState);
                         }
                     }
                 });
+    }
+
+    public void handleSignUp() {
+        signUpText.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        signUpText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                loginController.switchToSignUp();
+            }
+        });
     }
 
     private void addEventListeners() {
@@ -203,6 +220,8 @@ public class LoginView extends JPanel {
         handleEmailInputUpdates();
 
         handlePasswordInputUpdates();
+
+        handleSignUp();
 
         handleLogin();
 
@@ -347,6 +366,10 @@ public class LoginView extends JPanel {
                 }
             }
         });
+    }
+
+    public String getViewName() {
+        return this.viewName; 
     }
 
     public void setLoginController(LoginController loginController) {

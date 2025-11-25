@@ -7,4 +7,6 @@ public interface LoginOutputBoundary {
     void prepareWrongPasswordInterface(String error); 
 
     void prepareLoginSucessInterface(User user); 
+
+    void prepareSignupView(); 
 }

@@ -12,13 +12,14 @@ import java.util.*;
  * @param id is the id of the user 
  */
 public class User {
-    private String name;
-    private String lastName;
-    private String email; 
-    private String gender; 
-    private List<UUID> requests;
-    private List<UUID> offers;
-    private UUID id; 
+    private final String name;
+    private final String lastName;
+    private final String email; 
+    private final String gender; 
+    private final List<UUID> requests;
+    private final List<UUID> offers;
+    private final UUID id; 
+    private final String address;
 
     public User(String name, 
         String lastName, 
@@ -26,7 +27,8 @@ public class User {
         Gender gender, 
         List<UUID> requests, 
         List<UUID> offers,
-        UUID id) 
+        UUID id,
+        String address) 
     {
         this.name = name; 
         this.lastName = lastName; 
@@ -35,6 +37,7 @@ public class User {
         this.offers = offers;
         this.gender = gender.getLabel(); 
         this.id = java.util.UUID.randomUUID(); 
+        this.address = address;
     }
 
     public void addRequest(UUID id) {
@@ -71,5 +74,9 @@ public class User {
 
     public UUID getID() {
         return this.id; 
+    }
+
+    public String getAddress() {
+        return this.address; 
     }
 }

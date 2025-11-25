@@ -25,7 +25,6 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
     }
 
     public void addUser(User user) {
-        // add in offers later
         ObjectId objectId = new ObjectId(user.getID().toString());
         Document userDocument = new Document("_id", objectId)
                 .append("first_name", user.getName())
@@ -33,7 +32,8 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
                 .append("email", user.getLastName())
                 .append("gender", user.getGender())
                 .append("request_ids", user.getRequestIDs())
-                .append("offer_ids", user.getOfferIDs());
+                .append("offer_ids", user.getOfferIDs())
+                .append("address", user.getAddress());
         collection.insertOne(userDocument);
     }
 
@@ -57,7 +57,8 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
                     gender,
                     document.getList("request_ids", UUID.class),
                     document.getList("offer_ids", UUID.class),
-                    UUID.fromString(document.getObjectId("_id").toString()));
+                    UUID.fromString(document.getObjectId("_id").toString()),
+                    document.getString("address"));
             return user;
         } catch (Exception e) {
             throw new FetchingErrorException("Unable to fetch user." + e);

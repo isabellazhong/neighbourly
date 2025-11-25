@@ -2,47 +2,73 @@
 package app;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 
 import javax.swing.*;
 
+import database.MongoDBUserDataAcessObject;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.login.LoginController;
+import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import view.ViewManager;
 import view.homepage.HomepageView;
 import view.start_interface.LoginView;
-
+import view.start_interface.SignUpView;
 import use_case.offer.CreateOfferInteractor;
+import use_case.start.UserDataAccessInterface;
+import use_case.start.login.LoginInputBoundary;
+import use_case.start.login.LoginInteractor;
+import use_case.start.login.LoginOutputBoundary;
 import interface_adapter.offer.CreateOfferController;
+import interface_adapter.signup.SignupViewModel;
 
 public class AppBuilder {
+    private LoginViewModel loginViewModel; 
+    private LoginView loginView; 
+    private HomepageView homepageView; 
+    private SignupViewModel signupViewModel; 
+    private SignUpView signUpView; 
+    private final MongoDBUserDataAcessObject userDataAcessObject = new MongoDBUserDataAcessObject();  
+    private final ViewManagerModel viewManagerModel = new ViewManagerModel(); 
+    private final CardLayout cardLayout = new CardLayout(); 
+    private final JPanel cardPanel = new JPanel(); 
+    ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel); 
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            createAndShowGUI();
-        });
+    public AppBuilder() {
+        cardPanel.setLayout(cardLayout);
     }
 
-    private static void createAndShowGUI() {
+    public AppBuilder addSignupView() {
+        signupViewModel = new SignupViewModel(); 
+        signUpView = new SignUpView(signupViewModel);
+        cardPanel.add(signUpView, signUpView.getViewName()); 
+        return this; 
+    }
+
+    public AppBuilder addLoginView() {
+        loginViewModel = new LoginViewModel(); 
+        loginView = new LoginView(loginViewModel);
+        cardPanel.add(loginView, loginView.getViewName()); 
+        return this; 
+    }
+
+    public AppBuilder addLoginUseCase() {
+        LoginOutputBoundary loginPresenter = new LoginPresenter(loginViewModel, loginView, homepageView, signUpView, viewManagerModel);
+        LoginInputBoundary loginInteractor = new LoginInteractor(loginPresenter, userDataAcessObject);
+        LoginController loginController = new LoginController(loginInteractor);
+        loginView.setLoginController(loginController);
+        return this; 
+    }
+
+    public JFrame build() {
         JFrame frame = new JFrame("Neighbourly");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.add(cardPanel, BorderLayout.CENTER);
 
-        CreateOfferInteractor offerInteractor = new CreateOfferInteractor(null);
-        CreateOfferController offerController = new CreateOfferController(offerInteractor);
-
-        Runnable onLoginSuccess = () -> SwingUtilities.invokeLater(() -> {
-            frame.getContentPane().removeAll();
-            HomepageView homepageView = new HomepageView(offerController);
-            frame.add(homepageView, BorderLayout.CENTER);
-            frame.revalidate();
-            frame.repaint();
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-        });
-
-        LoginView loginView = new LoginView(new LoginViewModel());
-        frame.add(loginView, BorderLayout.CENTER);
-
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        viewManagerModel.setState(loginView.getViewName());
+        viewManagerModel.firePropertyChange();
+        return frame; 
     }
 }

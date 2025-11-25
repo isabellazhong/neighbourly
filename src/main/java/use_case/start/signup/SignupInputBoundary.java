@@ -1,5 +1,5 @@
 package use_case.start.signup;
 
-public class SignupInputBoundary {
-    
+public interface SignupInputBoundary {
+    void execute(SignupInputData signupInputData);
 }
