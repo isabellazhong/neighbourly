@@ -3,19 +3,24 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 //newly imported
 import interface_adapter.offer.CreateOfferController;
 import view.offer_interface.CreateOfferView;
+import view.map.RequestLocation;
+import view.map.RequestMapView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
     //stores controller to pass onto CreateOfferView
     private final CreateOfferController createOfferController;
+    private final String mapboxToken;
 
     //updated constructor to ask for CreateOfferController
-    public HomepageView(CreateOfferController createOfferController) {
+    public HomepageView(CreateOfferController createOfferController, String mapboxToken) {
         this.createOfferController = createOfferController;
+        this.mapboxToken = mapboxToken;
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
@@ -73,6 +78,9 @@ public class HomepageView extends JPanel {
         content.add(bottomFiller, gbc);
 
         add(content, BorderLayout.CENTER);
+
+        // Simple demo list of requests you can accept to open the map view
+        add(buildRequestsPanel(), BorderLayout.NORTH);
 
         JButton createButton = new JButton("+");
         createButton.setFont(createButton.getFont().deriveFont(Font.PLAIN, 28f));
@@ -133,6 +141,83 @@ public class HomepageView extends JPanel {
 
 
         setPreferredSize(new Dimension(1200, 320));
+    }
+
+    private JPanel buildRequestsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        JLabel header = new JLabel("Nearby requests");
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 16f));
+        panel.add(header);
+        panel.add(Box.createVerticalStrut(8));
+
+        List<RequestLocation> demoRequests = List.of(
+                new RequestLocation("REQ-001", "Grocery drop-off (Toronto)", 43.6532, -79.3832, 43.6617, -79.3950),
+                new RequestLocation("REQ-002", "Medication pickup (Toronto)", 43.7000, -79.4000, 43.7100, -79.4200)
+        );
+
+        for (RequestLocation location : demoRequests) {
+            panel.add(createRequestRow(location));
+            panel.add(Box.createVerticalStrut(6));
+        }
+
+        if (mapboxToken == null || mapboxToken.isBlank()) {
+            JLabel warning = new JLabel("Set MAPBOX_TOKEN env/system property to enable maps + ETA");
+            warning.setForeground(Color.RED.darker());
+            warning.setFont(warning.getFont().deriveFont(Font.PLAIN, 12f));
+            panel.add(Box.createVerticalStrut(6));
+            panel.add(warning);
+        }
+
+        return panel;
+    }
+
+    private JPanel createRequestRow(RequestLocation location) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        row.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                new EmptyBorder(6, 8, 6, 8)
+        ));
+
+        JLabel title = new JLabel(location.title());
+        row.add(title, BorderLayout.CENTER);
+
+        JButton accept = new JButton("Accept & view map");
+        accept.addActionListener(evt -> openRequestOnMap(location));
+        row.add(accept, BorderLayout.EAST);
+
+        return row;
+    }
+
+    private void openRequestOnMap(RequestLocation location) {
+        if (mapboxToken == null || mapboxToken.isBlank()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Mapbox token not set. Add MAPBOX_TOKEN as an environment variable or JVM property.",
+                    "Map unavailable",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Request location", Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.setContentPane(new RequestMapView(mapboxToken, location));
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to open map: " + ex.getMessage(),
+                    "Map error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
 
