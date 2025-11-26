@@ -5,12 +5,9 @@ import database.exceptions.IncorrectPasswordException;
 import database.exceptions.UserNotFoundException;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.MongoTimeoutException;
+import com.mongodb.MongoSocketException;
 import static com.mongodb.client.model.Filters.eq;
-
-import java.util.UUID;
-
-import org.bson.Document;
-import org.bson.types.ObjectId;
 
 import entity.*;
 import use_case.start.UserDataAccessInterface;
@@ -32,7 +29,7 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
         try {
             User userDoc = collection.find(eq("email", email)).first();
             if (userDoc != null) {
-                boolean validPassword = userDoc.getPassword() == password;
+                boolean validPassword = userDoc.getPassword().equals(password);
                 if (!validPassword) {
                     throw new IncorrectPasswordException("Incorrect Password.");
                 }
@@ -40,8 +37,14 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
                 throw new UserNotFoundException("UserNotFound.");
             }
             return userDoc;
+        } catch (MongoTimeoutException e) {
+            throw new UserNotFoundException("User does not exist.");
+        } catch (MongoSocketException e) {
+            throw new UserNotFoundException("User does not exist.");
+        } catch (UserNotFoundException | IncorrectPasswordException e) {
+            throw e;
         } catch (Exception e) {
-            throw new FetchingErrorException("Unable to fetch user." + e);
+            throw new FetchingErrorException("Unable to fetch user: " + e.getMessage());
         }
     }
 

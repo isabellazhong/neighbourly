@@ -15,6 +15,8 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
@@ -35,11 +37,16 @@ public class MongoDB {
 
         CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
         CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                                                     pojoCodecRegistry);
+                pojoCodecRegistry);
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(uri))
                 .codecRegistry(codecRegistry)
+                .applyToConnectionPoolSettings(builder -> builder.maxConnectionLifeTime(30, TimeUnit.SECONDS)
+                        .maxConnectionIdleTime(15, TimeUnit.SECONDS))
+                .applyToSocketSettings(builder -> builder.connectTimeout(2, TimeUnit.SECONDS)
+                        .readTimeout(2, TimeUnit.SECONDS))
+                .applyToClusterSettings(builder -> builder.serverSelectionTimeout(5, TimeUnit.SECONDS))
                 .build();
 
         mongoClient = MongoClients.create(settings);
