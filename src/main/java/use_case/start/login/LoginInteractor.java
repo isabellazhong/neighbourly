@@ -19,6 +19,14 @@ public class LoginInteractor implements LoginInputBoundary {
         return email.matches("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
     }
 
+    public boolean checkEmailEmpty(String email) {
+        return email == null || email.trim().isEmpty();
+    }
+
+    public boolean checkPasswordEmpty(String password) {
+        return password == null || password.trim().isEmpty();
+    }
+
     public boolean checkValidUser(String email, String password) {
         try {
             try {
@@ -56,8 +64,16 @@ public class LoginInteractor implements LoginInputBoundary {
         String email = loginInputData.getEmail();
         String password = loginInputData.getPassword();
 
-        if (!checkEmailFormat(email)) {
-            loginPresenter.prepareLoginFailInterface("Invalid username. Please try again");
+        if (checkEmailEmpty(email) && checkPasswordEmpty(password)) {
+            loginPresenter.prepareLoginFailInterface("Email and password not entered");
+        } else if (!checkEmailFormat(email)) {
+            if (checkEmailEmpty(email)) {
+                loginPresenter.prepareLoginFailInterface("Please enter an email");
+            } else {
+                loginPresenter.prepareLoginFailInterface("Invalid email. Please try again");
+            }
+        }  else if (checkPasswordEmpty(password)) {
+            loginPresenter.prepareWrongPasswordInterface("Please enter your password");
         } else if (!checkValidUser(email, password)) {
             loginPresenter.prepareLoginFailInterface("User does not exist.");
         } else if (!checkValidPassword(email, password)) {

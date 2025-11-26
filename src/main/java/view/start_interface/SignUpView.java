@@ -47,7 +47,6 @@ public class SignUpView extends JPanel {
 	private JButton createAccountButton;
 	private JLabel loginLinkLabel;
 
-	private Runnable onLoginNavigation;
 	private String viewName; 
 
 	public SignUpView(SignupViewModel signupViewModel) {
@@ -84,7 +83,7 @@ public class SignUpView extends JPanel {
 		generalErrorLabel = createErrorLabel("");
 		generalErrorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		createAccountButton = createStyledButton("Next");
+		createAccountButton = createStyledButton("Get Verfied");
 		loginLinkLabel = createStyledLink("<html>Already a neighbour? <u>Log in.</u></html>");
 
 		setLayout(new BorderLayout());
@@ -271,9 +270,7 @@ public class SignUpView extends JPanel {
 		loginLinkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
-				if (onLoginNavigation != null) {
-					onLoginNavigation.run();
-				}
+				signupController.switchToLogin();
 			}
 
 			@Override
@@ -436,10 +433,6 @@ public class SignUpView extends JPanel {
 
 	public void setSignupController(SignupController signupController) {
 		this.signupController = signupController;
-	}
-
-	public void setOnLoginNavigation(Runnable onLoginNavigation) {
-		this.onLoginNavigation = onLoginNavigation;
 	}
 
 	public String getViewName() {

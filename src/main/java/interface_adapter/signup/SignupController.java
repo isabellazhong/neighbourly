@@ -15,4 +15,12 @@ public class SignupController {
         SignupInputData data = new SignupInputData(firstName, lastName, email, password, confirmPassword);
         signupUseCaseInteractor.execute(data);
     }
+
+    public void switchToVerify(SignupInputData ignupInputData) {
+        signupUseCaseInteractor.switchToVerify(ignupInputData); 
+    }
+
+    public void switchToLogin() {
+        signupUseCaseInteractor.switchToLogin();
+    }
 }

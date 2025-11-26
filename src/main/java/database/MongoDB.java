@@ -6,9 +6,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MongoDB {
     private static final String URI_KEY = "mongodbURI";
@@ -25,8 +33,17 @@ public class MongoDB {
         uri = resolveConnectionString();
         databaseName = "Neighbourly";
 
-        mongoClient = MongoClients.create(uri);
-        database = mongoClient.getDatabase(databaseName);
+        CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+        CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                                                     pojoCodecRegistry);
+
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(uri))
+                .codecRegistry(codecRegistry)
+                .build();
+
+        mongoClient = MongoClients.create(settings);
+        database = mongoClient.getDatabase(databaseName).withCodecRegistry(codecRegistry);
     }
 
     public MongoDatabase getDatabase() {

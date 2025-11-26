@@ -212,16 +212,9 @@ public class LoginView extends JPanel {
     }
 
     private void addEventListeners() {
-        addPlaceholderBehavior(emailInputField, "Enter your email");
-
-        addPlaceholderBehavior(passwordInputField, "Enter your password");
-
-        handleEmailInputUpdates();
-
-        handlePasswordInputUpdates();
-
         handleSignUp();
-
+        handleEmailInputUpdates();
+        handlePasswordInputUpdates();
         handleLogin();
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
@@ -231,9 +224,15 @@ public class LoginView extends JPanel {
         actionMap.put("login", new AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleEmailInputUpdates();
+                handlePasswordInputUpdates();
                 handleLogin();
             }
         });
+
+        addPlaceholderBehavior(emailInputField, "Enter your email");
+        addPlaceholderBehavior(passwordInputField, "Enter your password");
+
     }
 
     private JLabel createStyledLabel(String text) {

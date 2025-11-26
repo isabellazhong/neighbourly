@@ -9,23 +9,26 @@ import view.homepage.*;
 
 public class LoginPresenter implements LoginOutputBoundary {
     private LoginViewModel loginViewModel;
-    private ViewManagerModel viewManagerModel; 
+    private ViewManagerModel viewManagerModel;
     private HomepageView homepageView;
-    private SignUpView signUpView; 
+    private SignUpView signUpView;
 
-    public LoginPresenter(LoginViewModel loginViewModel, 
-                        HomepageView homepageView, 
-                        SignUpView signUpView,
-                        ViewManagerModel viewManagerModel) {
-        this.viewManagerModel = viewManagerModel; 
-        this.loginViewModel = loginViewModel; 
-        this.homepageView = homepageView; 
-        this.signUpView = signUpView; 
+    public LoginPresenter(LoginViewModel loginViewModel,
+            HomepageView homepageView,
+            SignUpView signUpView,
+            ViewManagerModel viewManagerModel) {
+        this.viewManagerModel = viewManagerModel;
+        this.loginViewModel = loginViewModel;
+        this.homepageView = homepageView;
+        this.signUpView = signUpView;
     }
 
     @Override
     public void prepareLoginFailInterface(String error) {
-        LoginState state = new LoginState(); 
+        LoginState state = loginViewModel.getState();
+        if (state == null) {
+            state = new LoginState();
+        }
         state.setUserError(error);
         loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
@@ -36,7 +39,10 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareWrongPasswordInterface(String error) {
-        LoginState state = new LoginState(); 
+        LoginState state = loginViewModel.getState();
+        if (state == null) {
+            state = new LoginState();
+        }
         state.setPasswordError(error);
         loginViewModel.setState(state);
         loginViewModel.firePropertyChange();
@@ -47,13 +53,13 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareSignupView() {
-        viewManagerModel.setState(signUpView.getViewName()); 
-        viewManagerModel.firePropertyChange(); 
+        viewManagerModel.setState(signUpView.getViewName());
+        viewManagerModel.firePropertyChange();
     }
 
     @Override
     public void prepareLoginSucessInterface(User user) {
-        // add in user logic later 
+        // add in user logic later
         viewManagerModel.setState(homepageView.getViewName());
         viewManagerModel.firePropertyChange();
     }

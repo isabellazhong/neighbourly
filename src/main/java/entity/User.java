@@ -19,7 +19,8 @@ public class User {
     private final List<UUID> requests;
     private final List<UUID> offers;
     private final UUID id; 
-    private final String address;
+    private final Address address;
+    private final String password;
 
     public User(String name, 
         String lastName, 
@@ -28,7 +29,8 @@ public class User {
         List<UUID> requests, 
         List<UUID> offers,
         UUID id,
-        String address) 
+        Address address,
+        String password) 
     {
         this.name = name; 
         this.lastName = lastName; 
@@ -38,6 +40,7 @@ public class User {
         this.gender = gender.getLabel(); 
         this.id = java.util.UUID.randomUUID(); 
         this.address = address;
+        this.password = password; 
     }
 
     public void addRequest(UUID id) {
@@ -76,7 +79,12 @@ public class User {
         return this.id; 
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return this.address; 
+    }
+
+    public String getPassword() {
+        // change later to store hashed password instead 
+        return this.password;
     }
 }

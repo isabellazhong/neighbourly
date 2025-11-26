@@ -8,6 +8,7 @@ public class Main {
                     .addLoginView()
                     .addSignupView()
                     .addLoginUseCase()
+                    .addSignupUseCase()
                     .build(); 
         app.pack();
         app.setLocationRelativeTo(null);
