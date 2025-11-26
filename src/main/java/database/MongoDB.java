@@ -21,7 +21,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MongoDB {
-    private static final String URI_KEY = "mongodbURI";
+    private static final String URI_KEY = "MONDODB_URI";
     private static final List<Path> DOT_ENV_LOCATIONS = List.of(
             Paths.get(".env"),
             Paths.get("src/main/java/.env"));
