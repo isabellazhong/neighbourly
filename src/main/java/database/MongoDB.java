@@ -10,7 +10,10 @@ public class MongoDB {
     private MongoDatabase database;
 
     public MongoDB() {
-        uri = System.getenv("mongodbURI"); 
+        uri = System.getenv("mongodbURI");
+        if (uri == null || uri.isEmpty()) {
+            uri = "mongodb://localhost:27017"; // Default fallback
+        }
         databaseName = "Neighbourly";
         
         mongoClient = MongoClients.create(uri);
