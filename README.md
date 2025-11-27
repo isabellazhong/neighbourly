@@ -8,8 +8,10 @@ neighbours are able to request and offer services and resources, allowing for a 
 1. Make a .env file to store keys 
 ```bash
 touch .env
-echo MONDODB_URI=YOUR_MONGODB_URI >> .env ## replace with actual uri 
-echo GEMINI_API=YOUR_GEMINI_API
+## replace with actual uri 
+echo MONDODB_URI=YOUR_MONGODB_URI >> .env 
+## replace with actual gemini api 
+echo GEMINI_API=YOUR_GEMINI_API >> .env 
 ```
 
 2. Run main.py
@@ -18,5 +20,23 @@ cd /Users/isabellazhong/neighbourly
 mvn clean compile
 mvn exec:java -Dexec.mainClass="app.Main"
 ```
+
+# Contributors 
+
+## Isabella 
+### 1. Use case 
+
+#### User story: 
+As a user, I want to be able to sign up into my app and login in whenever I want. 
+
+#### Features:
+- Add ID verfication to prevent suspicious memebers from joining 
+- Send user entity to the database once signed up 
+- Display signing up/logging errors if there are invalid inputs 
+- Allow for retries if verfication fails 
+
+### 2. Implementaion and Contributions:
+
+
 
 

@@ -17,15 +17,12 @@ import view.homepage.HomepageView;
 import view.start_interface.LoginView;
 import view.start_interface.SignUpView;
 import view.start_interface.VerificationView;
-import use_case.offer.CreateOfferInteractor;
-import use_case.start.UserDataAccessInterface;
 import use_case.start.login.LoginInputBoundary;
 import use_case.start.login.LoginInteractor;
 import use_case.start.login.LoginOutputBoundary;
 import use_case.start.signup.SignupInputBoundary;
 import use_case.start.signup.SignupInteractor;
 import use_case.start.signup.SignupOutputBoundary;
-import interface_adapter.offer.CreateOfferController;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -64,9 +61,9 @@ public class AppBuilder {
 
     public AppBuilder addVerificationView() {
         verificationViewModel = new VerificationViewModel();
-        verificationView = new VerificationView();
-        cardPanel.add(verificationView, loginView.getViewName()); 
-        return this; 
+        verificationView = new VerificationView(verificationViewModel);
+        cardPanel.add(verificationView, verificationView.getViewName());
+        return this;
     }
 
     public AppBuilder addLoginUseCase() {
@@ -91,7 +88,7 @@ public class AppBuilder {
         frame.setLayout(new BorderLayout());
         frame.add(cardPanel, BorderLayout.CENTER);
 
-        viewManagerModel.setState(loginView.getViewName());
+        viewManagerModel.setState(verificationView.getViewName());
         viewManagerModel.firePropertyChange();
         return frame; 
     }

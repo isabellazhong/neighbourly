@@ -7,6 +7,7 @@ public class Main {
         JFrame app = appBuilder
                     .addLoginView()
                     .addSignupView()
+                    .addVerificationView()
                     .addLoginUseCase()
                     .addSignupUseCase()
                     .build(); 

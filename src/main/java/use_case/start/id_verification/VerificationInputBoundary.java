@@ -1,5 +1,7 @@
 package use_case.start.id_verification;
 
-public class VerificationInputBoundary {
-    
+public interface VerificationInputBoundary {
+	void verifyDocument(VerificationInputData inputData);
+
+	void continueSignup();
 }
