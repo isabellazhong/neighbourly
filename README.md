@@ -16,7 +16,6 @@ echo GEMINI_API=YOUR_GEMINI_API >> .env
 
 2. Run main.py
 ```bash
-cd /Users/isabellazhong/neighbourly
 mvn clean compile
 mvn exec:java -Dexec.mainClass="app.Main"
 ```

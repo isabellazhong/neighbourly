@@ -18,10 +18,6 @@ public class SignupController {
         signupUseCaseInteractor.execute(data);
     }
 
-    public void switchToVerify(SignupInputData ignupInputData) {
-        signupUseCaseInteractor.switchToVerify(ignupInputData); 
-    }
-
     public void switchToLogin() {
         signupUseCaseInteractor.switchToLogin();
     }

@@ -44,7 +44,7 @@ public class SignUpView extends JPanel {
 	private JLabel confirmPasswordErrorLabel;
 	private JLabel generalErrorLabel;
 
-	private JButton createAccountButton;
+	private JButton getVerifiedButton;
 	private JLabel loginLinkLabel;
 
 	private String viewName; 
@@ -83,7 +83,7 @@ public class SignUpView extends JPanel {
 		generalErrorLabel = createErrorLabel("");
 		generalErrorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		createAccountButton = createStyledButton("Get Verfied");
+		getVerifiedButton = createStyledButton("Get Verfied");
 		loginLinkLabel = createStyledLink("<html>Already a neighbour? <u>Log in.</u></html>");
 
 		setLayout(new BorderLayout());
@@ -147,7 +147,7 @@ public class SignUpView extends JPanel {
 
 		gbc.gridy = row++;
 		gbc.insets = new Insets(SECTION_SPACING, 0, COMPONENT_SPACING, 0);
-		panel.add(createAccountButton, gbc);
+		panel.add(getVerifiedButton, gbc);
 
 		gbc.gridy = row;
 		gbc.insets = new Insets(10, 0, 0, 0);
@@ -250,7 +250,7 @@ public class SignUpView extends JPanel {
 	}
 
 	private void handleSignupButton() {
-		createAccountButton.addActionListener(e -> handleSignupRequest());
+		getVerifiedButton.addActionListener(e -> handleSignupRequest());
 	}
 
 	private void handleKeyboardSubmit() {
