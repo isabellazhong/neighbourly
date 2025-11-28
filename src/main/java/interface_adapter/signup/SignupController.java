@@ -1,5 +1,6 @@
 package interface_adapter.signup;
 
+import entity.Gender;
 import use_case.start.signup.SignupInputBoundary;
 import use_case.start.signup.SignupInputData;
 
@@ -12,7 +13,8 @@ public class SignupController {
 
     public void execute(String firstName, String lastName, String email,
                         String password, String confirmPassword) {
-        SignupInputData data = new SignupInputData(firstName, lastName, email, password, confirmPassword);
+        // add in the gender option later 
+        SignupInputData data = new SignupInputData(firstName, lastName, email, password, confirmPassword,  Gender.FEMALE);
         signupUseCaseInteractor.execute(data);
     }
 

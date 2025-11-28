@@ -2,20 +2,21 @@ package interface_adapter.verification;
 
 import use_case.start.id_verification.VerificationInputBoundary;
 import use_case.start.id_verification.VerificationInputData;
+import use_case.start.signup.SignupInputData;
 
 public class VerificationController {
-    private final VerificationInputBoundary verificationInputBoundary;
+    private final VerificationInputBoundary verificationInteractor;
 
     public VerificationController(VerificationInputBoundary verificationInputBoundary) {
-        this.verificationInputBoundary = verificationInputBoundary;
+        this.verificationInteractor = verificationInputBoundary;
     }
 
-    public void verifyDocument(String filePath) {
-        VerificationInputData inputData = new VerificationInputData(filePath);
-        verificationInputBoundary.verifyDocument(inputData);
+    public void execute(String filePath, SignupInputData signupInputData) {
+        VerificationInputData inputData = new VerificationInputData(filePath, signupInputData);
+        verificationInteractor.execute(inputData);
     }
 
     public void continueSignup() {
-        verificationInputBoundary.continueSignup();
+        verificationInteractor.continueToHomepage();
     }
 }

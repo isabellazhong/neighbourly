@@ -65,7 +65,8 @@ public class IDVerfication {
     public String getResponse(String filePath) throws IOException {
         String query = ("You are a fraud dectector. Verify whether this photo is a valid government ID or not." +
                 "Return in a JSON format containing only the address and success of validity." +
-                "Example of response: {\"success\": <boolean_value_of_success>, \"address\": \"<address>\"}" +
+                "Example of response: {\"success\": <boolean_value_of_success>, \"address\": {\"street\": \"<street>\"," + 
+                "\"city\": \"<city>\", \"region\": \"<region>\", \"postal_code\": \"<postal_code>\", \"country\": \"<country>\"}}" +
                 "Please do not include any preamble or postamble in your response.");
         byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
         Part textPart = Part.builder().text(query).build();

@@ -1,7 +1,7 @@
 package view.start_interface;
 
-import interface_adapter.VerificationViewModel;
 import interface_adapter.verification.VerificationController;
+import interface_adapter.verification.VerificationViewModel;
 import use_case.start.id_verification.VerificationViewState;
 import view.UIConstants;
 
@@ -131,7 +131,8 @@ public class VerificationView extends JPanel {
         verifyButton.addActionListener(e -> handleVerifyRequest());
         continueButton.addActionListener(e -> {
             if (verificationController != null) {
-                verificationController.continueSignup();
+                VerificationViewState currentState = verificationViewModel.getState();
+                verificationController.execute(currentState.getSelectedFilePath(), currentState.getSignupInputData());
             } else {
                 setErrorMessage("Verification flow not connected yet.");
             }
@@ -152,7 +153,7 @@ public class VerificationView extends JPanel {
 
         selectedFileLabel.setText(state.getSelectedFileName());
         selectedFileLabel.setForeground(UIConstants.darkGray);
-        
+
         statusLabel.setText(state.getStatusMessage());
         errorLabel.setText(state.getErrorMessage() == null ? "" : state.getErrorMessage());
 
@@ -202,8 +203,9 @@ public class VerificationView extends JPanel {
         state.setErrorMessage("");
         verificationViewModel.setState(state);
         verificationViewModel.firePropertyChange();
+        VerificationViewState verificationViewState = verificationViewModel.getState();
 
-        verificationController.verifyDocument(state.getSelectedFilePath());
+        verificationController.execute(state.getSelectedFilePath(), verificationViewState.getSignupInputData());
     }
 
     private void setErrorMessage(String message) {
@@ -277,5 +279,9 @@ public class VerificationView extends JPanel {
             }
         });
         return button;
+    }
+
+    public void setController(VerificationController controller) {
+        verificationController = controller; 
     }
 }

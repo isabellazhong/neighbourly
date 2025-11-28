@@ -10,6 +10,7 @@ public class Main {
                     .addVerificationView()
                     .addLoginUseCase()
                     .addSignupUseCase()
+                    .addVerificationUseCase()
                     .build(); 
         app.pack();
         app.setLocationRelativeTo(null);

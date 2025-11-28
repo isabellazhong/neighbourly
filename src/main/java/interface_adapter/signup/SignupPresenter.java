@@ -4,8 +4,8 @@ import use_case.start.id_verification.VerificationViewState;
 import use_case.start.signup.SignupInputData;
 import use_case.start.signup.SignupOutputBoundary;
 import use_case.start.signup.SignupState;
-import interface_adapter.VerificationViewModel;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.verification.VerificationViewModel;
 import view.start_interface.LoginView;
 import view.start_interface.VerificationView;
 
