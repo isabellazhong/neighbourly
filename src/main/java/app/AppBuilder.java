@@ -106,7 +106,7 @@ public class AppBuilder {
         frame.setLayout(new BorderLayout());
         frame.add(cardPanel, BorderLayout.CENTER);
 
-        viewManagerModel.setState(signUpView.getViewName());
+        viewManagerModel.setState(loginView.getViewName());
         viewManagerModel.firePropertyChange();
         return frame;
     }
