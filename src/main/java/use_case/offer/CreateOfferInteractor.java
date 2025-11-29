@@ -1,14 +1,14 @@
 package use_case.offer;
 
 import entity.Offer;
-import database.MongoDB;
+
 import java.util.Date;
 
 
 public class CreateOfferInteractor implements CreateOfferInputBoundary {
-    final MongoDB offerDataAccessObject;
+    final OfferDataAccessInterface offerDataAccessObject;
 
-    public CreateOfferInteractor(MongoDB offerDataAccessObject) {
+    public CreateOfferInteractor(OfferDataAccessInterface offerDataAccessObject) {
         this.offerDataAccessObject = offerDataAccessObject;
     }
 
@@ -19,9 +19,6 @@ public class CreateOfferInteractor implements CreateOfferInputBoundary {
                 inputData.getDetails(),
                 new Date()
         );
-        // add current user's id
-
-        //save it to database
         offerDataAccessObject.addOffer(newOffer);
 
         System.out.println("Interactor: Offer saved to MongoDB with ID: " + newOffer.getId());

@@ -34,6 +34,14 @@ public class MongoDB {
         }
     }
 
+    public MongoDatabase getDatabase() {
+        return this.database; 
+    }
+
+    public MongoClient getMongoClient() {
+        return this.mongoClient; 
+    }
+
     public void addUser(User user) {
         if (collection == null) {
             System.err.println("Error: MongoDB connection not initialized");
@@ -42,9 +50,9 @@ public class MongoDB {
         Document userDocument = new Document("id", user.getID())
                 .append("first_name", user.getName())
                 .append("last_name", user.getLastName())
-                .append("email", user.getLastName())
+                .append("email", user.getEmail())
                 .append("gender", user.getGender())
-                .append("request_id", user.getAllRequestIDs()); 
+                .append("request_id", user.getRequestIDs()); 
         collection.insertOne(userDocument);
     }
 
