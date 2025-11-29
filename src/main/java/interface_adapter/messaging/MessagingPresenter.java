@@ -1,8 +1,7 @@
-package messaging.interface_adapter;
+package interface_adapter.messaging;
 
-import messaging.use_case.MessagingOutputBoundary;
-import messaging.use_case.MessagingOutputData;
-import messaging.use_case.MessagingState;
+import use_case.messaging.MessagingOutputBoundary;
+import use_case.messaging.MessagingOutputData;
 
 public class MessagingPresenter implements MessagingOutputBoundary {
     private final MessagingViewModel messagingViewModel;

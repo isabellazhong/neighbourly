@@ -1,5 +1,7 @@
 package database;
 
+import java.util.UUID;
+
 import org.bson.Document;
 
 import com.mongodb.client.MongoCollection;
@@ -7,9 +9,8 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import entity.Offer;
-import java.util.UUID;
 
-public class MongoDBOfferDataAccessObject extends MongoDB{
+public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAccessInterface {
     private MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {

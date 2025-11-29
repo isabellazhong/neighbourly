@@ -1,6 +1,6 @@
-package messaging.use_case;
+package use_case.messaging;
 
-import messaging.MessageDTO;
+import entity.MessageDTO;
 import java.util.List;
 
 public class MessagingOutputData {

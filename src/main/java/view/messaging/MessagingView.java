@@ -1,9 +1,9 @@
-package messaging;
+package view.messaging;
 
-import messaging.interface_adapter.MessagingController;
-import messaging.interface_adapter.MessagingViewModel;
-import messaging.use_case.MessagingState;
-import messaging.MessageDTO;
+import interface_adapter.messaging.MessagingController;
+import interface_adapter.messaging.MessagingViewModel;
+import interface_adapter.messaging.MessagingState;
+import entity.MessageDTO;
 import view.UIConstants;
 
 import javax.swing.*;

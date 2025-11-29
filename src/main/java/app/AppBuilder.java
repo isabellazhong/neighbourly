@@ -1,4 +1,3 @@
-// java
 package app;
 
 import java.awt.BorderLayout;
@@ -9,16 +8,16 @@ import javax.swing.SwingUtilities;
 
 import database.MongoDBOfferDataAccessObject;
 import database.MongoDBRequestDataAccessObject;
+import interface_adapter.SendbirdMessagingService;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.messaging.MessagingController;
+import interface_adapter.messaging.MessagingPresenter;
+import interface_adapter.messaging.MessagingViewModel;
 import interface_adapter.offer.CreateOfferController;
-import messaging.MessagingView;
-import messaging.SendbirdMessagingService;
-import messaging.interface_adapter.MessagingController;
-import messaging.interface_adapter.MessagingPresenter;
-import messaging.interface_adapter.MessagingViewModel;
-import messaging.use_case.MessagingInteractor;
+import use_case.messaging.MessagingInteractor;
 import use_case.offer.CreateOfferInteractor;
 import view.homepage.HomepageView;
+import view.messaging.MessagingView;
 import view.start_interface.LoginView;
 
 public class AppBuilder {

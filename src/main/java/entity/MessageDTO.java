@@ -1,4 +1,4 @@
-package messaging;
+package entity;
 
 public class MessageDTO {
     private String messageId;

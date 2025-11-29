@@ -1,4 +1,4 @@
-package messaging.use_case;
+package use_case.messaging;
 
 import java.util.UUID;
 
@@ -17,25 +17,32 @@ public class MessagingInputData {
     // For refreshMessages
     private long lastTimestamp;
     
-    // Constructor for openChat
-    public MessagingInputData(UUID requestId, UUID offerId, String userId, boolean isRequest) {
+    private MessagingInputData(UUID requestId, UUID offerId, String userId, boolean isRequest,
+                              String channelId, String senderId, String messageText,
+                              long lastTimestamp) {
         this.requestId = requestId;
         this.offerId = offerId;
         this.userId = userId;
         this.isRequest = isRequest;
-    }
-    
-    // Constructor for sendMessage
-    public MessagingInputData(String channelId, String senderId, String messageText) {
         this.channelId = channelId;
         this.senderId = senderId;
         this.messageText = messageText;
+        this.lastTimestamp = lastTimestamp;
     }
     
-    // Constructor for refreshMessages
-    public MessagingInputData(String channelId, long lastTimestamp) {
-        this.channelId = channelId;
-        this.lastTimestamp = lastTimestamp;
+    public static MessagingInputData forOpenChat(UUID requestId, UUID offerId, String userId, boolean isRequest) {
+        return new MessagingInputData(requestId, offerId, userId, isRequest,
+                null, null, null, 0);
+    }
+
+    public static MessagingInputData forSendMessage(String channelId, String senderId, String messageText) {
+        return new MessagingInputData(null, null, null, false,
+                channelId, senderId, messageText, 0);
+    }
+
+    public static MessagingInputData forRefresh(String channelId, long timestamp) {
+        return new MessagingInputData(null, null, null, false,
+                channelId, null, null, timestamp);
     }
     
     public UUID getRequestId() {

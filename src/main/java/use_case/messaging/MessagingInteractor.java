@@ -1,25 +1,24 @@
-package messaging.use_case;
-
-import database.MongoDBRequestDataAccessObject;
-import database.MongoDBOfferDataAccessObject;
-import messaging.SendbirdMessagingService;
-import messaging.MessageDTO;
+package use_case.messaging;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+
+import database.OfferDataAccessInterface;
+import database.RequestDataAccessInterface;
+import entity.MessageDTO;
+import interface_adapter.SendbirdMessagingService;
 
 public class MessagingInteractor implements MessagingInputBoundary {
     private final MessagingOutputBoundary messagingOutputBoundary;
     private final SendbirdMessagingService sendbirdMessagingService;
-    private final MongoDBRequestDataAccessObject requestDAO;
-    private final MongoDBOfferDataAccessObject offerDAO;
+    private final RequestDataAccessInterface requestDAO;
+    private final OfferDataAccessInterface offerDAO;
     
     public MessagingInteractor(
             MessagingOutputBoundary messagingOutputBoundary,
             SendbirdMessagingService sendbirdMessagingService,
-            MongoDBRequestDataAccessObject requestDAO,
-            MongoDBOfferDataAccessObject offerDAO) {
+            RequestDataAccessInterface requestDAO,
+            OfferDataAccessInterface offerDAO) {
         this.messagingOutputBoundary = messagingOutputBoundary;
         this.sendbirdMessagingService = sendbirdMessagingService;
         this.requestDAO = requestDAO;
@@ -37,7 +36,7 @@ public class MessagingInteractor implements MessagingInputBoundary {
                 
                 // If channel doesn't exist, the request hasn't been accepted yet
                 if (channelId == null || channelId.isEmpty()) {
-                    messagingOutputBoundary.prepareFailView("This request has not been accepted yet. Please accept the request first to start messaging.");
+                    messagingOutputBoundary.prepareFailView("Channel not found for this request.");
                     return;
                 }
             } else {
@@ -46,7 +45,7 @@ public class MessagingInteractor implements MessagingInputBoundary {
                 
                 // If channel doesn't exist, the offer hasn't been accepted yet
                 if (channelId == null || channelId.isEmpty()) {
-                    messagingOutputBoundary.prepareFailView("This offer has not been accepted yet. Please accept the offer first to start messaging.");
+                    messagingOutputBoundary.prepareFailView("Channel not found for this offer.");
                     return;
                 }
             }

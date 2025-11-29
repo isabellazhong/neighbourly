@@ -1,8 +1,9 @@
-package messaging.use_case;
+package interface_adapter.messaging;
 
-import messaging.MessageDTO;
 import java.util.ArrayList;
 import java.util.List;
+
+import entity.MessageDTO;
 
 public class MessagingState {
     private String channelId = "";

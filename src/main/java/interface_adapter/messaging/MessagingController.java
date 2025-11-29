@@ -1,9 +1,9 @@
-package messaging.interface_adapter;
-
-import messaging.use_case.MessagingInputBoundary;
-import messaging.use_case.MessagingInputData;
+package interface_adapter.messaging;
 
 import java.util.UUID;
+
+import use_case.messaging.MessagingInputBoundary;
+import use_case.messaging.MessagingInputData;
 
 public class MessagingController {
     private final MessagingInputBoundary messagingInputBoundary;
@@ -13,23 +13,22 @@ public class MessagingController {
     }
 
     public void openChat(UUID requestId, UUID offerId, String userId, boolean isRequest) {
-        MessagingInputData inputData = new MessagingInputData(requestId, offerId, userId, isRequest);
+        MessagingInputData inputData = MessagingInputData.forOpenChat(requestId, offerId, userId, isRequest);
         messagingInputBoundary.openChat(inputData);
     }
 
     public void sendMessage(String channelId, String senderId, String messageText) {
-        MessagingInputData inputData = new MessagingInputData(channelId, senderId, messageText);
+        MessagingInputData inputData = MessagingInputData.forSendMessage(channelId, senderId, messageText);
         messagingInputBoundary.sendMessage(inputData);
     }
 
     public void refreshMessages(String channelId, long lastTimestamp) {
-        MessagingInputData inputData = new MessagingInputData(channelId, lastTimestamp);
+        MessagingInputData inputData = MessagingInputData.forRefresh(channelId, lastTimestamp);
         messagingInputBoundary.refreshMessages(inputData);
     }
 
     public void fetchAllMessages(String channelId) {
-        // Fetch all messages by using timestamp 0
-        MessagingInputData inputData = new MessagingInputData(channelId, 0);
+        MessagingInputData inputData = MessagingInputData.forRefresh(channelId, 0);
         messagingInputBoundary.refreshMessages(inputData);
     }
 }

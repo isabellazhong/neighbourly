@@ -1,4 +1,4 @@
-package messaging.use_case;
+package use_case.messaging;
 
 public interface MessagingOutputBoundary {
     void prepareSuccessView(MessagingOutputData outputData);

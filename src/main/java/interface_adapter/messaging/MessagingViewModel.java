@@ -1,7 +1,6 @@
-package messaging.interface_adapter;
+package interface_adapter.messaging;
 
 import interface_adapter.ViewModel;
-import messaging.use_case.MessagingState;
 
 public class MessagingViewModel extends ViewModel<MessagingState> {
     public MessagingViewModel() {

@@ -1,13 +1,14 @@
 package database;
 
+import java.util.UUID;
+
 import org.bson.Document;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-import entity.Request;
-import java.util.UUID;
 
-public class MongoDBRequestDataAccessObject extends MongoDB {
+public class MongoDBRequestDataAccessObject extends MongoDB implements RequestDataAccessInterface {
     private MongoCollection<Document> requestsCollection;
 
     public MongoDBRequestDataAccessObject() {
