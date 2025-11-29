@@ -28,6 +28,3 @@ public class UserSession {
         this.currentUser = null;
     }
 }
-
-
-

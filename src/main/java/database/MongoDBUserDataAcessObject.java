@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAccessInterface {
-    private MongoCollection<Document> collection;
+    private final MongoCollection<Document> collection;
 
     public MongoDBUserDataAcessObject() {
         super();

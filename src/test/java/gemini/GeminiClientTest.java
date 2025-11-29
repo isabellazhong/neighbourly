@@ -1,4 +1,4 @@
-package test.gemini;
+package gemini;
 
 import entity.IDVerfication;
 
