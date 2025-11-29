@@ -7,6 +7,8 @@ import javax.swing.*;
 
 import interface_adapter.login.LoginViewModel;
 import view.homepage.HomepageView;
+import view.navigator.PageNavigator;
+import view.navigator.SwingPageNavigator;
 import view.start_interface.LoginView;
 
 import use_case.offer.CreateOfferInteractor;
@@ -28,9 +30,11 @@ public class AppBuilder {
         CreateOfferInteractor offerInteractor = new CreateOfferInteractor(null);
         CreateOfferController offerController = new CreateOfferController(offerInteractor);
 
+        PageNavigator navigator = new SwingPageNavigator(offerController);
+
         Runnable onLoginSuccess = () -> SwingUtilities.invokeLater(() -> {
             frame.getContentPane().removeAll();
-            HomepageView homepageView = new HomepageView(offerController);
+            HomepageView homepageView = new HomepageView(navigator);
             frame.add(homepageView, BorderLayout.CENTER);
             frame.revalidate();
             frame.repaint();
@@ -38,8 +42,8 @@ public class AppBuilder {
             frame.setLocationRelativeTo(null);
         });
 
-        LoginView loginView = new LoginView(new LoginViewModel());
-        frame.add(loginView, BorderLayout.CENTER);
+        HomepageView homepageView = new HomepageView(navigator);
+        frame.add(homepageView, BorderLayout.CENTER);
 
         frame.pack();
         frame.setLocationRelativeTo(null);
