@@ -1,13 +1,15 @@
 package use_case.start.signup;
-
 import java.util.regex.Pattern;
+import use_case.start.UserDataAccessInterface;
 
 public class SignupInteractor implements SignupInputBoundary {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$");
     private SignupOutputBoundary signUpPresenter;
+    private UserDataAccessInterface userDataAccessObject;  
 
-    public SignupInteractor(SignupOutputBoundary signUpPresenter) {
+    public SignupInteractor(SignupOutputBoundary signUpPresenter, UserDataAccessInterface userDataAccessObject) {
         this.signUpPresenter = signUpPresenter;
+        this.userDataAccessObject = userDataAccessObject; 
     }
 
     public boolean checkEmptyField(String input) {
@@ -60,6 +62,8 @@ public class SignupInteractor implements SignupInputBoundary {
             signUpPresenter.prepareEmailError("Please enter your email address.");
         } else if (!checkValidEmail(email)) {
             signUpPresenter.prepareEmailError("Please enter a valid email address.");
+        } else if (userDataAccessObject.checkExistingUser(email)){
+            signUpPresenter.prepareEmailError("User already exists.");
         } else if (checkEmptyField(password)) {
             signUpPresenter.preparePasswordError("Please enter a password.");
         } else if (checkEmptyField(confirmPassword)) {

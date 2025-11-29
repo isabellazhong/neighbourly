@@ -60,9 +60,8 @@ public class VerificationInteractor implements VerificationInputBoundary {
                         signupInputData.getPassword());
                 userDataAcessObject.addUser(user);
                 verficationPresenter.prepareVerficationSuccessButton(); 
-            } else {
-                // verficationPresenter.prepareVerificationErrorView(inputData);
             }
+            
         } catch (IOException e) {
             System.out.println("Gemini agent could not be called." + e);
             return;

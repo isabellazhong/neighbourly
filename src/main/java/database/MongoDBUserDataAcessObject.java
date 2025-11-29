@@ -25,6 +25,10 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
         collection = this.getDatabase().getCollection(collectionName);
     }
 
+    public boolean checkExistingUser(String email) {
+        return collection.find(eq("email", email)) != null;
+    }
+
     public void addUser(User user) {
         Document userDoc = new Document()
                 .append("name", user.getName())

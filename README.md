@@ -35,6 +35,9 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - Allow for retries if verfication fails 
 
 ### 2. Implementaion and Contributions:
+- Integrated MongoDB database to store users/requests/offers
+- Used Gemini API to verify user id during signup process 
+- Implemented the start interface flow from login -> hompage and login -> signup -> homepage 
 
 
 
