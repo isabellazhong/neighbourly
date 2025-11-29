@@ -2,10 +2,8 @@ package use_case.start.id_verification;
 
 import database.MongoDBUserDataAcessObject;
 import entity.Address;
-import entity.Gender;
 import entity.IDVerfication;
 import entity.User;
-import interface_adapter.verification.VerficationPresenter;
 import use_case.start.signup.SignupInputData;
 
 import java.io.IOException;
@@ -26,6 +24,10 @@ public class VerificationInteractor implements VerificationInputBoundary {
         this.idVerfication = idVerfication;
         this.userDataAcessObject = userDataAcessObject;
         this.verficationPresenter = verficationPresenter;
+    }
+
+    public void handleError(String error) {
+        verficationPresenter.prepareVerificationErrorView(error);
     }
 
     @Override
@@ -57,8 +59,9 @@ public class VerificationInteractor implements VerificationInputBoundary {
                                 address.get("country")),
                         signupInputData.getPassword());
                 userDataAcessObject.addUser(user);
+                verficationPresenter.prepareVerficationSuccessButton(); 
             } else {
-                verficationPresenter.prepareVerificationErrorView();
+                // verficationPresenter.prepareVerificationErrorView(inputData);
             }
         } catch (IOException e) {
             System.out.println("Gemini agent could not be called." + e);

@@ -16,7 +16,11 @@ public class VerificationController {
         verificationInteractor.execute(inputData);
     }
 
-    public void continueSignup() {
+    public void continueToHomepage() {
         verificationInteractor.continueToHomepage();
+    }
+
+    public void prepareErrorView(String error) {
+        verificationInteractor.handleError(error); 
     }
 }

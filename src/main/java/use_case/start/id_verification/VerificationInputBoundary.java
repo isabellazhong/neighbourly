@@ -4,4 +4,5 @@ public interface VerificationInputBoundary {
     void continueToHomepage();
 
     void execute(VerificationInputData inputData);
+    void handleError(String error); 
 }

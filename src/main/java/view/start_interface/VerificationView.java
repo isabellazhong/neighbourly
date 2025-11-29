@@ -32,7 +32,7 @@ public class VerificationView extends JPanel {
     private JButton continueButton;
     private JLabel statusLabel;
     private JLabel errorLabel;
-    
+
     public VerificationView(VerificationViewModel verificationViewModel) {
         this.viewName = "verification view";
         this.verificationViewModel = verificationViewModel;
@@ -131,8 +131,8 @@ public class VerificationView extends JPanel {
         verifyButton.addActionListener(e -> handleVerifyRequest());
         continueButton.addActionListener(e -> {
             if (verificationController != null) {
-                VerificationViewState currentState = verificationViewModel.getState();
-                verificationController.execute(currentState.getSelectedFilePath(), currentState.getSignupInputData());
+                // VerificationViewState currentState = verificationViewModel.getState();
+                verificationController.continueToHomepage();
             } else {
                 setErrorMessage("Verification flow not connected yet.");
             }
@@ -145,7 +145,7 @@ public class VerificationView extends JPanel {
     }
 
     private void refreshFromState() {
-        VerificationViewState state = verificationViewModel.getState();
+        VerificationViewState state = ensureState();
         if (state == null) {
             state = new VerificationViewState();
             verificationViewModel.setState(state);
@@ -168,6 +168,9 @@ public class VerificationView extends JPanel {
         verifyButton.setEnabled(state.getSelectedFilePath() != null && !state.isVerifying());
         continueButton.setVisible(state.isVerificationSuccessful());
         continueButton.setEnabled(state.isVerificationSuccessful());
+        if (state.isVerificationSuccessful()) {
+            state.setStatusMessage("Verfication complete.");
+        }
     }
 
     private void handleFileSelection(File file) {
@@ -204,16 +207,11 @@ public class VerificationView extends JPanel {
         verificationViewModel.setState(state);
         verificationViewModel.firePropertyChange();
         VerificationViewState verificationViewState = verificationViewModel.getState();
-
         verificationController.execute(state.getSelectedFilePath(), verificationViewState.getSignupInputData());
     }
 
     private void setErrorMessage(String message) {
-        VerificationViewState state = ensureState();
-        state.setErrorMessage(message);
-        state.setVerifying(false);
-        verificationViewModel.setState(state);
-        verificationViewModel.firePropertyChange();
+        verificationController.prepareErrorView(message); 
     }
 
     private VerificationViewState ensureState() {

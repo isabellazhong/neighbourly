@@ -6,7 +6,7 @@ public enum Gender {
     NONBINARY("Non-binary"),
     OTHER("Other");
 
-    private final String label;
+    private String label;
 
     Gender(String label) {
         this.label = label;

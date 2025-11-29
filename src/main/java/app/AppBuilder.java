@@ -29,7 +29,7 @@ import use_case.start.signup.SignupOutputBoundary;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
-import interface_adapter.verification.VerficationPresenter;
+import interface_adapter.verification.VerificationPresenter;
 import interface_adapter.verification.VerificationController;
 import interface_adapter.verification.VerificationViewModel;
 
@@ -74,8 +74,14 @@ public class AppBuilder {
         return this;
     }
 
+    public AppBuilder addHomePageView() {
+        homepageView = new HomepageView(null); 
+        cardPanel.add(homepageView, homepageView.getViewName()); 
+        return this;
+    }
+
     public AppBuilder addVerificationUseCase() {
-        VerificationOutputBoundary verificationPresenter = new VerficationPresenter(); 
+        VerificationOutputBoundary verificationPresenter = new VerificationPresenter(homepageView, viewManagerModel, verificationViewModel); 
         VerificationInputBoundary verificationInteractor = new VerificationInteractor(idVerfication, userDataAcessObject, verificationPresenter);
         VerificationController verificationController = new VerificationController(verificationInteractor);
         verificationView.setController(verificationController);
