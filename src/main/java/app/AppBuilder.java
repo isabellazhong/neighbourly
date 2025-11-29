@@ -1,4 +1,3 @@
-// java
 package app;
 
 import java.awt.BorderLayout;
@@ -12,11 +11,18 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.profile.ProfileController;
+import interface_adapter.profile.ProfilePresenter;
+import interface_adapter.profile.ProfileViewModel;
 import view.ViewManager;
 import view.homepage.HomepageView;
+import view.profile_interface.ProfileView;
 import view.start_interface.LoginView;
 import view.start_interface.SignUpView;
 import view.start_interface.VerificationView;
+import use_case.profile.ProfileInputBoundary;
+import use_case.profile.ProfileInteractor;
+import use_case.profile.ProfileOutputBoundary;
 import use_case.start.id_verification.VerificationInputBoundary;
 import use_case.start.id_verification.VerificationInteractor;
 import use_case.start.id_verification.VerificationOutputBoundary;
@@ -39,6 +45,8 @@ public class AppBuilder {
     private HomepageView homepageView;
     private VerificationView verificationView;
     private VerificationViewModel verificationViewModel;
+    private ProfileView profileView; 
+    private ProfileViewModel profileViewModel; 
     private IDVerfication idVerfication; 
     private SignupViewModel signupViewModel;
     private SignUpView signUpView;
@@ -80,6 +88,13 @@ public class AppBuilder {
         return this;
     }
 
+    public AppBuilder addProfileView() {
+        profileViewModel = new ProfileViewModel(); 
+        profileView = new ProfileView(profileViewModel); 
+        cardPanel.add(profileView, profileView.getViewName());
+        return this;
+    }
+
     public AppBuilder addVerificationUseCase() {
         VerificationOutputBoundary verificationPresenter = new VerificationPresenter(homepageView, viewManagerModel, verificationViewModel); 
         VerificationInputBoundary verificationInteractor = new VerificationInteractor(idVerfication, userDataAcessObject, verificationPresenter);
@@ -100,19 +115,26 @@ public class AppBuilder {
     public AppBuilder addSignupUseCase() {
         SignupOutputBoundary signupPresenter = new SignupPresenter(signupViewModel, viewManagerModel, verificationView,
                 loginView, verificationViewModel);
-        SignupInputBoundary signupInteractor = new SignupInteractor(signupPresenter);
+        SignupInputBoundary signupInteractor = new SignupInteractor(signupPresenter, userDataAcessObject);
         SignupController signupController = new SignupController(signupInteractor);
         signUpView.setSignupController(signupController);
         return this;
     }
 
+    public AppBuilder addProfileViewUseCase() {
+        ProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(profileViewModel);
+        ProfileInputBoundary profileInteractor = new ProfileInteractor(profileOutputBoundary, userDataAcessObject);
+        ProfileController profileController = new ProfileController(profileInteractor);
+        profileView.setProfileController(profileController);
+        return this;
+    }
     public JFrame build() {
         JFrame frame = new JFrame("Neighbourly");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(cardPanel, BorderLayout.CENTER);
 
-        viewManagerModel.setState(signUpView.getViewName());
+        viewManagerModel.setState(loginView.getViewName());
         viewManagerModel.firePropertyChange();
         return frame;
     }

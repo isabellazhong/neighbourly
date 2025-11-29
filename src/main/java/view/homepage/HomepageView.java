@@ -4,22 +4,35 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-//newly imported
 import interface_adapter.offer.CreateOfferController;
+import interface_adapter.profile.ProfileController;
+import interface_adapter.profile.ProfileViewModel;
 import view.offer_interface.CreateOfferView;
+import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
-    private String viewName = "homepage";
-    //stores controller to pass onto CreateOfferView
     private final CreateOfferController createOfferController;
+    private ProfileController profileController;
+    private ProfileViewModel profileViewModel;
+    private String viewName;
 
-    //updated constructor to ask for CreateOfferController
     public HomepageView(CreateOfferController createOfferController) {
+        this.viewName = "homepage";
         this.createOfferController = createOfferController;
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setOpaque(false);
+        topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JButton profileButton = new JButton("Profile");
+        profileButton.setFont(profileButton.getFont().deriveFont(14f));
+        profileButton.addActionListener(e -> openProfile());
+        topPanel.add(profileButton);
+        add(topPanel, BorderLayout.NORTH);
+
         JPanel content = new JPanel(new GridBagLayout());
         content.setBorder(new EmptyBorder(24, 24, 24, 24));
         content.setOpaque(false);
@@ -136,6 +149,26 @@ public class HomepageView extends JPanel {
         setPreferredSize(new Dimension(1200, 700));
     }
 
+    public void setProfileController(ProfileController profileController) {
+        this.profileController = profileController;
+    }
+
+    public void setProfileViewModel(ProfileViewModel profileViewModel) {
+        this.profileViewModel = profileViewModel;
+    }
+
+    private void openProfile() {
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (topFrame != null && profileController != null && profileViewModel != null) {
+            JDialog profileDialog = new JDialog(topFrame, "Profile", true);
+            ProfileView profileView = new ProfileView(profileViewModel);
+            profileView.setProfileController(profileController);
+            profileDialog.setContentPane(profileView);
+            profileDialog.pack();
+            profileDialog.setLocationRelativeTo(topFrame);
+            profileDialog.setVisible(true);
+        }
+    }
 
     public class CreateRequest extends JDialog {
         public CreateRequest(Window owner) {

@@ -5,6 +5,8 @@ import database.exceptions.IncorrectPasswordException;
 import database.exceptions.UserNotFoundException;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.MongoSocketException;
 import static com.mongodb.client.model.Filters.eq;
@@ -64,10 +66,6 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
                 String gender = userDoc.getString("gender");
                 String userPassword = userDoc.getString("password");
 
-                System.out.println("User found - Name: '" + name + "'");
-                System.out.println("User found - Password: '" + userPassword + "'");
-                System.out.println("Input password: '" + password + "'");
-
                 boolean validPassword = userPassword.equals(password);
                 if (!validPassword) {
                     throw new IncorrectPasswordException("Incorrect Password.");
@@ -121,6 +119,16 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
         } catch (Exception e) {
             throw new FetchingErrorException("Unable to fetch user: " + e.getMessage());
         }
+    }
+
+    public boolean updateUser(User user) {
+        collection.updateMany(
+                Filters.eq("iD", user.getID()),
+                Updates.combine(
+                        Updates.set("name", user.getName()),
+                        Updates.set("lastName", user.getLastName()),
+                        Updates.set("gender", user.getGender())));
+        return true; 
     }
 
     public void closeConnection() {
