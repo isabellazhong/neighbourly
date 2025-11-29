@@ -7,7 +7,7 @@ import com.mongodb.client.MongoCollection;
 import entity.Offer;
 
 public class MongoDBOfferDataAccessObject extends MongoDB{
-    private MongoCollection<Document> offersCollection;
+    private final MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {
         super(); 

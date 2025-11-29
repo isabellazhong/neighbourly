@@ -29,33 +29,25 @@ public class LoginInteractor implements LoginInputBoundary {
 
     public boolean checkValidUser(String email, String password) {
         try {
-            try {
-                this.userDataAcessObject.getUser(email, password);
-            } catch (Exception e) {
-                if (e instanceof UserNotFoundException) {
-                    throw (UserNotFoundException) e;
-                }
-                throw new RuntimeException(e);
-            }
+            this.userDataAcessObject.getUser(email, password);
             return true;
         } catch (UserNotFoundException e) {
             return false;
+        } catch (IncorrectPasswordException e) {
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     public boolean checkValidPassword(String email, String password) {
         try {
-            try {
-                this.userDataAcessObject.getUser(email, password);
-            } catch (Exception e) {
-                if (e instanceof IncorrectPasswordException) {
-                    throw (IncorrectPasswordException) e;
-                }
-                throw new RuntimeException(e);
-            }
+            this.userDataAcessObject.getUser(email, password);
             return true;
         } catch (IncorrectPasswordException e) {
             return false;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,7 +64,7 @@ public class LoginInteractor implements LoginInputBoundary {
             } else {
                 loginPresenter.prepareLoginFailInterface("Invalid email. Please try again");
             }
-        }  else if (checkPasswordEmpty(password)) {
+        } else if (checkPasswordEmpty(password)) {
             loginPresenter.prepareWrongPasswordInterface("Please enter your password");
         } else if (!checkValidUser(email, password)) {
             loginPresenter.prepareLoginFailInterface("User does not exist.");
@@ -89,6 +81,6 @@ public class LoginInteractor implements LoginInputBoundary {
     }
 
     public void switchToSignUp() {
-        loginPresenter.prepareSignupView(); 
+        loginPresenter.prepareSignupView();
     }
 }
