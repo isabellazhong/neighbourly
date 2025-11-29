@@ -57,4 +57,5 @@ public class SignupInputData {
     public Boolean getVerfied() {
         return this.verified; 
     }
+
 }

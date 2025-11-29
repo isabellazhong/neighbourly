@@ -1,11 +1,14 @@
 package use_case.start.signup;
 
+import entity.Gender;
+
 public class SignupState {
 	private String firstName = "";
 	private String lastName = "";
 	private String email = "";
 	private String password = "";
 	private String confirmPassword = "";
+	private Gender gender = Gender.FEMALE;
 
 	private String firstNameError = "";
 	private String lastNameError = "";
@@ -36,6 +39,14 @@ public class SignupState {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	public String getPassword() {

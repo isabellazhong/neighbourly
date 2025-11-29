@@ -12,9 +12,8 @@ public class SignupController {
     }
 
     public void execute(String firstName, String lastName, String email,
-                        String password, String confirmPassword) {
-        // add in the gender option later 
-        SignupInputData data = new SignupInputData(firstName, lastName, email, password, confirmPassword,  Gender.FEMALE);
+                        String password, String confirmPassword, Gender gender) {
+        SignupInputData data = new SignupInputData(firstName, lastName, email, password, confirmPassword, gender);
         signupUseCaseInteractor.execute(data);
     }
 

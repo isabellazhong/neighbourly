@@ -12,6 +12,9 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.HashMap;
+
+import entity.Gender;
 
 public class SignUpView extends JPanel {
 	private SignupController signupController;
@@ -36,6 +39,7 @@ public class SignUpView extends JPanel {
 	private JLabel emailLabel;
 	private JLabel passwordLabel;
 	private JLabel confirmPasswordLabel;
+	private JLabel genderLabel;
 
 	private JLabel firstNameErrorLabel;
 	private JLabel lastNameErrorLabel;
@@ -43,15 +47,20 @@ public class SignUpView extends JPanel {
 	private JLabel passwordErrorLabel;
 	private JLabel confirmPasswordErrorLabel;
 	private JLabel generalErrorLabel;
+	private JLabel genderErrorLabel;
 
 	private JButton getVerifiedButton;
 	private JLabel loginLinkLabel;
 
-	private String viewName; 
+	private HashMap<String, Gender> genderOptions;
+	private JComboBox<String> genderComboBox;
+
+	private String viewName;
 
 	public SignUpView(SignupViewModel signupViewModel) {
 		this.viewName = "sign up";
 		this.signupViewModel = signupViewModel;
+		initGender();
 		initializeComponents();
 		setupStyling();
 		addEventListeners();
@@ -68,6 +77,7 @@ public class SignUpView extends JPanel {
 		emailLabel = createStyledLabel("Email Address");
 		passwordLabel = createStyledLabel("Password");
 		confirmPasswordLabel = createStyledLabel("Confirm Password");
+		genderLabel = createStyledLabel("Gender");
 
 		firstNameField = createStyledTextField("Enter your first name");
 		lastNameField = createStyledTextField("Enter your last name");
@@ -81,7 +91,9 @@ public class SignUpView extends JPanel {
 		passwordErrorLabel = createErrorLabel("");
 		confirmPasswordErrorLabel = createErrorLabel("");
 		generalErrorLabel = createErrorLabel("");
+		genderErrorLabel = createErrorLabel("");
 		generalErrorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		buildGenderDropdown();
 
 		getVerifiedButton = createStyledButton("Get Verfied");
 		loginLinkLabel = createStyledLink("<html>Already a neighbour? <u>Log in.</u></html>");
@@ -102,6 +114,13 @@ public class SignUpView extends JPanel {
 		mainPanel.add(formPanel);
 
 		add(mainPanel, BorderLayout.CENTER);
+	}
+
+	private void initGender() {
+		this.genderOptions = new HashMap<>();
+		for (Gender gender: Gender.values()) {
+			genderOptions.put(gender.getLabel(), gender);
+		}
 	}
 
 	private JPanel buildNamePanel() {
@@ -142,6 +161,7 @@ public class SignUpView extends JPanel {
 		gbc.insets = new Insets(COMPONENT_SPACING, 0, COMPONENT_SPACING, 0);
 		panel.add(buildNamePanel(), gbc);
 		row = addField(panel, gbc, row, emailLabel, emailErrorLabel, emailField);
+		row = addField(panel, gbc, row, genderLabel, genderErrorLabel, genderComboBox);
 		row = addField(panel, gbc, row, passwordLabel, passwordErrorLabel, passwordField);
 		row = addField(panel, gbc, row, confirmPasswordLabel, confirmPasswordErrorLabel, confirmPasswordField);
 
@@ -154,6 +174,13 @@ public class SignUpView extends JPanel {
 		panel.add(loginLinkLabel, gbc);
 
 		return panel;
+	}
+
+	private void buildGenderDropdown() {
+		genderComboBox = new JComboBox<>(genderOptions.keySet().toArray(new String[0]));
+		genderComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		genderComboBox.setBackground(Color.WHITE);
+		genderComboBox.setForeground(UIConstants.darkGray);
 	}
 
 	private int addField(JPanel panel, GridBagConstraints gbc, int row,
@@ -187,6 +214,7 @@ public class SignUpView extends JPanel {
 
 		handleTextUpdates();
 		handleSignupButton();
+		handleGenderSelection();
 		handleKeyboardSubmit();
 		handleLoginLinkNavigation();
 	}
@@ -219,6 +247,15 @@ public class SignUpView extends JPanel {
 		attachDocumentListener(confirmPasswordField, value -> {
 			SignupState state = signupViewModel.getState();
 			state.setConfirmPassword(value);
+			signupViewModel.setState(state);
+		});
+	}
+
+	private void handleGenderSelection() {
+		genderComboBox.addActionListener(e -> {
+			String selectedGender = (String) genderComboBox.getSelectedItem();
+			SignupState state = signupViewModel.getState();
+			state.setGender(genderOptions.get(selectedGender));
 			signupViewModel.setState(state);
 		});
 	}
@@ -300,7 +337,8 @@ public class SignUpView extends JPanel {
 				currentState.getLastName(),
 				currentState.getEmail(),
 				currentState.getPassword(),
-				currentState.getConfirmPassword());
+				currentState.getConfirmPassword(),
+				currentState.getGender());
 	}
 
 	private void bindViewModel() {
@@ -436,7 +474,7 @@ public class SignUpView extends JPanel {
 	}
 
 	public String getViewName() {
-		return this.viewName; 
+		return this.viewName;
 	}
 
 	@Override

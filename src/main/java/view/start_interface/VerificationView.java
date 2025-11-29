@@ -32,7 +32,7 @@ public class VerificationView extends JPanel {
     private JButton continueButton;
     private JLabel statusLabel;
     private JLabel errorLabel;
-
+    
     public VerificationView(VerificationViewModel verificationViewModel) {
         this.viewName = "verification view";
         this.verificationViewModel = verificationViewModel;
