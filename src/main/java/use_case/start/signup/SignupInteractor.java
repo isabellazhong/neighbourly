@@ -50,47 +50,28 @@ public class SignupInteractor implements SignupInputBoundary {
 
         if (checkEmptyField(firstName)) {
             signUpPresenter.prepareFirstNameError("Please enter your first name.");
-        }
-
-        if (!checkValidName(firstName)) {
+        } else if (!checkValidName(firstName)) {
             signUpPresenter.prepareFirstNameError("First name cannot contain numbers.");
-        }
-
-        if (checkEmptyField(lastName)) {
+        } else if(checkEmptyField(lastName)) {
             signUpPresenter.prepareLastNameError("Please enter your last name.");
-        }
-
-        if (!checkValidName(lastName)) {
+        } else if (!checkValidName(lastName)) {
             signUpPresenter.prepareLastNameError("Last name cannot contain numbers.");
-        }
-
-        if (checkEmptyField(email)) {
+        } else if (checkEmptyField(email)) {
             signUpPresenter.prepareEmailError("Please enter your email address.");
-        }
-
-        if (!checkValidEmail(email)) {
+        } else if (!checkValidEmail(email)) {
             signUpPresenter.prepareEmailError("Please enter a valid email address.");
-        }
-
-        if (checkEmptyField(password)) {
+        } else if (checkEmptyField(password)) {
             signUpPresenter.preparePasswordError("Please enter a password.");
-        }
-
-        if (checkEmptyField(confirmPassword)) {
+        } else if (checkEmptyField(confirmPassword)) {
             signUpPresenter.prepareConfirmPasswordError("Please confirm your password.");
-        }
-
-        if (!checkCorrectPassword(password, confirmPassword)) {
+        } else if (!checkCorrectPassword(password, confirmPassword)) {
             signUpPresenter.prepareConfirmPasswordError("Passwords do not match.");
-        }
-    }
-
-    @Override
-    public void switchToVerify(SignupInputData signupInputData) {
-        try {
-            signUpPresenter.prepareVerificationPage(signupInputData);
-        } catch (Exception exception) {
-            signUpPresenter.prepareGeneralError("Something went wrong. Please try signing up again.");
+        } else {
+            try {
+                signUpPresenter.prepareVerificationPage(signupInputData);
+            } catch (Exception exception) {
+                signUpPresenter.prepareGeneralError("Something went wrong. Please try signing up again.");
+            }
         }
     }
 

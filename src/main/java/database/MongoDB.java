@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
@@ -21,7 +22,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MongoDB {
-    private static final String URI_KEY = "mongodbURI";
+    private static final String URI_KEY = "MONDODB_URI";
     private static final List<Path> DOT_ENV_LOCATIONS = List.of(
             Paths.get(".env"),
             Paths.get("src/main/java/.env"));
@@ -42,6 +43,7 @@ public class MongoDB {
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(uri))
                 .codecRegistry(codecRegistry)
+                .uuidRepresentation(UuidRepresentation.STANDARD)
                 .applyToConnectionPoolSettings(builder -> builder.maxConnectionLifeTime(30, TimeUnit.SECONDS)
                         .maxConnectionIdleTime(15, TimeUnit.SECONDS))
                 .applyToSocketSettings(builder -> builder.connectTimeout(2, TimeUnit.SECONDS)

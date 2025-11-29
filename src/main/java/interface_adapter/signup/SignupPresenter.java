@@ -4,8 +4,8 @@ import use_case.start.id_verification.VerificationViewState;
 import use_case.start.signup.SignupInputData;
 import use_case.start.signup.SignupOutputBoundary;
 import use_case.start.signup.SignupState;
-import interface_adapter.VerificationViewModel;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.verification.VerificationViewModel;
 import view.start_interface.LoginView;
 import view.start_interface.VerificationView;
 
@@ -29,12 +29,19 @@ public class SignupPresenter implements SignupOutputBoundary {
         this.loginView = loginView;
     }
 
+    public void refreshFromState(SignupState state) {
+        state.setFirstNameError(null);
+        state.setLastNameError(null);
+        state.setPasswordError(null);
+        state.setEmailError(null);
+        state.setConfirmPasswordError(null);
+        state.setGeneralError(null);
+    }
+
     @Override
     public void prepareFirstNameError(String errorMessage) {
         SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        refreshFromState(state);
         state.setFirstNameError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();
@@ -44,10 +51,8 @@ public class SignupPresenter implements SignupOutputBoundary {
 
     @Override
     public void prepareLastNameError(String errorMessage) {
-        SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        SignupState state =  signupViewModel.getState();
+        refreshFromState(state);
         state.setLastNameError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();
@@ -57,10 +62,8 @@ public class SignupPresenter implements SignupOutputBoundary {
 
     @Override
     public void prepareEmailError(String errorMessage) {
-        SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        SignupState state =  signupViewModel.getState();
+        refreshFromState(state);
         state.setEmailError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();
@@ -70,10 +73,8 @@ public class SignupPresenter implements SignupOutputBoundary {
 
     @Override
     public void preparePasswordError(String errorMessage) {
-        SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        SignupState state =  signupViewModel.getState();
+        refreshFromState(state);
         state.setPasswordError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();
@@ -84,9 +85,7 @@ public class SignupPresenter implements SignupOutputBoundary {
     @Override
     public void prepareConfirmPasswordError(String errorMessage) {
         SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        refreshFromState(state);
         state.setConfirmPasswordError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();
@@ -97,9 +96,7 @@ public class SignupPresenter implements SignupOutputBoundary {
     @Override
     public void prepareGeneralError(String errorMessage) {
         SignupState state = signupViewModel.getState();
-        if (state == null) {
-            state = new SignupState();
-        }
+        refreshFromState(state);
         state.setGeneralError(errorMessage);
         signupViewModel.setState(state);
         signupViewModel.firePropertyChange();

@@ -1,10 +1,12 @@
 package entity;
 
 public enum Gender {
-    FEMALE("female"),
-    MALE("male");
+    FEMALE("Female"),
+    MALE("Male"),
+    NONBINARY("Non-binary"),
+    OTHER("Other");
 
-    private final String label;
+    private String label;
 
     Gender(String label) {
         this.label = label;

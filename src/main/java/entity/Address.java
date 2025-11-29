@@ -1,11 +1,20 @@
 package entity;
 
 public class Address {
-    private final String street;
-    private final String city; 
-    private final String region; 
-    private final String postalCode; 
-    private final String country; 
+    private String street;
+    private String city; 
+    private String region; 
+    private String postalCode; 
+    private String country; 
+
+    // default constructor for mongodb use case
+    public Address() {
+        street = "";
+        city = "";
+        region = "";
+        postalCode = "";
+        country = ""; 
+    }
 
     public Address(String street,
         String city,
