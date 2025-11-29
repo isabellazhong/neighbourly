@@ -31,6 +31,16 @@ public class User {
         this.id = java.util.UUID.randomUUID(); 
     }
 
+    public User(UUID id, String name, String lastName, String email, String gender) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.gender = gender;
+        this.requests = new HashMap<>();
+        this.offers = new HashMap<>();
+    }
+
     public void addRequest(Request request) {
         this.requests.put(request.getId(), request); 
     }
@@ -62,6 +72,18 @@ public class User {
     public UUID[] getAllRequestIDs() {
         Set<UUID> keySet = this.requests.keySet(); 
         return keySet.toArray(new UUID[0]);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
  
 }
