@@ -3,6 +3,7 @@ package interface_adapter.verification;
 import use_case.start.id_verification.VerificationInputBoundary;
 import use_case.start.id_verification.VerificationInputData;
 import use_case.start.signup.SignupInputData;
+import java.io.File; 
 
 public class VerificationController {
     private final VerificationInputBoundary verificationInteractor;
@@ -22,5 +23,13 @@ public class VerificationController {
 
     public void prepareErrorView(String error) {
         verificationInteractor.handleError(error); 
+    }
+
+    public void prepareFileUploadView(File file) {
+        verificationInteractor.uploadFileStatus(file);
+    }
+
+    public void prepareVerifyingView() {
+        verificationInteractor.prepareVerifyingView(); 
     }
 }

@@ -3,6 +3,7 @@ package view.start_interface;
 import interface_adapter.verification.VerificationController;
 import interface_adapter.verification.VerificationViewModel;
 import use_case.start.id_verification.VerificationViewState;
+import use_case.start.signup.SignupInputData;
 import view.UIConstants;
 
 import javax.swing.*;
@@ -17,6 +18,7 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
 import java.util.List;
+import javax.swing.SwingWorker;
 
 public class VerificationView extends JPanel {
     private final String viewName;
@@ -131,7 +133,6 @@ public class VerificationView extends JPanel {
         verifyButton.addActionListener(e -> handleVerifyRequest());
         continueButton.addActionListener(e -> {
             if (verificationController != null) {
-                // VerificationViewState currentState = verificationViewModel.getState();
                 verificationController.continueToHomepage();
             } else {
                 setErrorMessage("Verification flow not connected yet.");
@@ -146,10 +147,6 @@ public class VerificationView extends JPanel {
 
     private void refreshFromState() {
         VerificationViewState state = ensureState();
-        if (state == null) {
-            state = new VerificationViewState();
-            verificationViewModel.setState(state);
-        }
 
         selectedFileLabel.setText(state.getSelectedFileName());
         selectedFileLabel.setForeground(UIConstants.darkGray);
@@ -169,7 +166,7 @@ public class VerificationView extends JPanel {
         continueButton.setVisible(state.isVerificationSuccessful());
         continueButton.setEnabled(state.isVerificationSuccessful());
         if (state.isVerificationSuccessful()) {
-            state.setStatusMessage("Verfication complete.");
+            state.setStatusMessage("Verification complete.");
         }
     }
 
@@ -178,40 +175,36 @@ public class VerificationView extends JPanel {
             return;
         }
 
-        VerificationViewState currentState = ensureState();
-        currentState.setSelectedFileName(file.getName());
-        currentState.setSelectedFilePath(file.getAbsolutePath());
-        currentState.setStatusMessage("File ready. Click verify to continue.");
-        currentState.setErrorMessage("");
-        currentState.resetVerificationFlags();
-
-        verificationViewModel.setState(currentState);
-        verificationViewModel.firePropertyChange();
+        verificationController.prepareFileUploadView(file);
     }
 
     private void handleVerifyRequest() {
-        VerificationViewState state = ensureState();
-        if (state.getSelectedFilePath() == null) {
-            setErrorMessage("Please select a file before verifying.");
-            return;
-        }
-
+        VerificationViewState verificationViewState = ensureState();
         if (verificationController == null) {
             setErrorMessage("Verification flow not connected yet.");
             return;
         }
 
-        state.setVerifying(true);
-        state.setStatusMessage("Verifying your document...");
-        state.setErrorMessage("");
-        verificationViewModel.setState(state);
-        verificationViewModel.firePropertyChange();
-        VerificationViewState verificationViewState = verificationViewModel.getState();
-        verificationController.execute(state.getSelectedFilePath(), verificationViewState.getSignupInputData());
+        String selectedFilePath = verificationViewState.getSelectedFilePath();
+        if (selectedFilePath == null) {
+            setErrorMessage("Please upload a file before verifying.");
+            return;
+        }
+
+        verificationController.prepareVerifyingView();
+
+        SignupInputData signupData = verificationViewState.getSignupInputData();
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                verificationController.execute(selectedFilePath, signupData);
+                return null;
+            }
+        }.execute();
     }
 
     private void setErrorMessage(String message) {
-        verificationController.prepareErrorView(message); 
+        verificationController.prepareErrorView(message);
     }
 
     private VerificationViewState ensureState() {
@@ -280,6 +273,6 @@ public class VerificationView extends JPanel {
     }
 
     public void setController(VerificationController controller) {
-        verificationController = controller; 
+        verificationController = controller;
     }
 }
