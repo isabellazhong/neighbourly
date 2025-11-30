@@ -158,7 +158,7 @@ public class CreateOfferView extends JPanel {
 
         if (createOfferController != null) {
             createOfferController.execute(title, details);
-            showStatus("Offer submitted successfully!", UIConstants.successColor);
+            showStatus("Offer submitted successfully", UIConstants.darkGray);
             titleInputField.setText(TITLE_PLACEHOLDER);
             titleInputField.setForeground(UIConstants.textColorFaded);
             detailsInputField.setText(DETAIlS_PLACEHOLDER);
