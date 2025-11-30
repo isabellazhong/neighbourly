@@ -1,4 +1,4 @@
-package view.RequestInterface;
+package view.request_interface;
 import entity.Request;
 
 import javax.swing.*;
