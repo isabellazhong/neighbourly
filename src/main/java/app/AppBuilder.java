@@ -5,15 +5,20 @@ import java.awt.CardLayout;
 
 import javax.swing.*;
 
+import database.MongoDBOfferDataAccessObject;
 import database.MongoDBUserDataAcessObject;
 import entity.IDVerfication;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offer.CreateOfferPresenter;
+import interface_adapter.offer.CreateOfferViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
+import use_case.offer.CreateOfferInteractor;
 import view.ViewManager;
 import view.homepage.HomepageView;
 import view.profile_interface.ProfileView;
@@ -50,7 +55,9 @@ public class AppBuilder {
     private IDVerfication idVerfication; 
     private SignupViewModel signupViewModel;
     private SignUpView signUpView;
+    private CreateOfferController createOfferController;
     private final MongoDBUserDataAcessObject userDataAcessObject = new MongoDBUserDataAcessObject();
+    private final MongoDBOfferDataAccessObject offerDataAccessObject = new MongoDBOfferDataAccessObject();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cardPanel = new JPanel();
@@ -83,7 +90,7 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomePageView() {
-        homepageView = new HomepageView(null); 
+        homepageView = new HomepageView(createOfferController);
         cardPanel.add(homepageView, homepageView.getViewName()); 
         return this;
     }
@@ -126,6 +133,14 @@ public class AppBuilder {
         ProfileInputBoundary profileInteractor = new ProfileInteractor(profileOutputBoundary, userDataAcessObject);
         ProfileController profileController = new ProfileController(profileInteractor);
         profileView.setProfileController(profileController);
+        return this;
+    }
+
+    public AppBuilder addOfferUseCase() {
+        CreateOfferViewModel createOfferViewModel = new CreateOfferViewModel();
+        CreateOfferPresenter createOfferPresenter = new CreateOfferPresenter(createOfferViewModel);
+        CreateOfferInteractor createOfferInteractor = new CreateOfferInteractor(offerDataAccessObject, createOfferPresenter);
+        this.createOfferController = new CreateOfferController(createOfferInteractor);
         return this;
     }
     public JFrame build() {

@@ -5,8 +5,9 @@ import org.bson.Document;
 import com.mongodb.client.MongoCollection;
 
 import entity.Offer;
+import use_case.offer.OfferDataAccessInterface;
 
-public class MongoDBOfferDataAccessObject extends MongoDB{
+public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAccessInterface {
     private final MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {
