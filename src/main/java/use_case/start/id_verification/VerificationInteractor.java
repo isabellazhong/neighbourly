@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
+import java.io.File;
 
 import com.google.gson.Gson;
 
@@ -26,6 +27,7 @@ public class VerificationInteractor implements VerificationInputBoundary {
         this.verficationPresenter = verficationPresenter;
     }
 
+    @Override
     public void handleError(String error) {
         verficationPresenter.prepareVerificationErrorView(error);
     }
@@ -60,6 +62,8 @@ public class VerificationInteractor implements VerificationInputBoundary {
                         signupInputData.getPassword());
                 userDataAcessObject.addUser(user);
                 verficationPresenter.prepareVerficationSuccessButton(); 
+            } else {
+                verficationPresenter.prepareVerificationErrorView("Government ID inavlid. Please try again.");
             }
             
         } catch (IOException e) {
@@ -70,5 +74,15 @@ public class VerificationInteractor implements VerificationInputBoundary {
     @Override
     public void continueToHomepage() {
         verficationPresenter.prepareVerficationSuccess();
+    }
+
+    @Override 
+    public void uploadFileStatus(File file) {
+        verficationPresenter.prepareUploadFileView(file);
+    }
+
+    @Override 
+    public void prepareVerifyingView() {
+        verficationPresenter.prepareVerifyingView();
     }
 }

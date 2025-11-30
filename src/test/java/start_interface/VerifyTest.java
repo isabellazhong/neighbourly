@@ -136,10 +136,10 @@ class VerifyTest {
         VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
                 mock(MongoDBUserDataAcessObject.class), presenter);
 
-        interactor.continueToHomepage();
+		interactor.continueToHomepage();
 
-        assertTrue(presenter.successFlowCompleted);
-    }
+		assertTrue(presenter.successFlowCompleted);
+	}
 
     @Test
     void uploadFileStatus_notifiesPresenterOfFileProgress() {

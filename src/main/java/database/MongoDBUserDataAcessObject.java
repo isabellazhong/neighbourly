@@ -28,7 +28,7 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
     }
 
     public boolean checkExistingUser(String email) {
-        return collection.find(eq("email", email)) != null;
+        return collection.find(eq("email", email)).first() != null;
     }
 
     public void addUser(User user) {
@@ -128,7 +128,7 @@ public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAcces
                         Updates.set("name", user.getName()),
                         Updates.set("lastName", user.getLastName()),
                         Updates.set("gender", user.getGender())));
-        return true; 
+        return true;
     }
 
     public void closeConnection() {
