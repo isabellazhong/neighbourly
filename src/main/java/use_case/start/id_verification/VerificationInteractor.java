@@ -64,7 +64,6 @@ public class VerificationInteractor implements VerificationInputBoundary {
             
         } catch (IOException e) {
             System.out.println("Gemini agent could not be called." + e);
-            return;
         }
     }
 
