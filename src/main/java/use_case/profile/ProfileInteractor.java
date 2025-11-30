@@ -3,12 +3,13 @@ package use_case.profile;
 import app.UserSession;
 import database.MongoDB;
 import entity.User;
+import use_case.start.UserDataAccessInterface;
 
 public class ProfileInteractor implements ProfileInputBoundary {
     final ProfileOutputBoundary profilePresenter;
-    final MongoDB userDataAccessObject;
+    final UserDataAccessInterface userDataAccessObject;
 
-    public ProfileInteractor(ProfileOutputBoundary profilePresenter, MongoDB userDataAccessObject) {
+    public ProfileInteractor(ProfileOutputBoundary profilePresenter, UserDataAccessInterface userDataAccessObject) {
         this.profilePresenter = profilePresenter;
         this.userDataAccessObject = userDataAccessObject;
     }

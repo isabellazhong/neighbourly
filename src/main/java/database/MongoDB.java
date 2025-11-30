@@ -1,126 +1,108 @@
 package database;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import org.bson.UuidRepresentation;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
-import org.bson.Document;
-import entity.*;
-import java.util.UUID; 
+
+import java.util.concurrent.TimeUnit;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MongoDB {
-    private String uri; 
-    private String databaseName; 
-    private String collectionName;
+    private static final String URI_KEY = "MONDODB_URI";
+    private static final List<Path> DOT_ENV_LOCATIONS = List.of(
+            Paths.get(".env"),
+            Paths.get("src/main/java/.env"));
+
+    private String uri;
+    private String databaseName;
     private MongoClient mongoClient;
     private MongoDatabase database;
-    private MongoCollection<Document> collection;
 
     public MongoDB() {
-        uri = System.getenv("mongodbURI");
+        uri = resolveConnectionString();
         databaseName = "Neighbourly";
-        collectionName = "Users";
-        
-        if (uri == null || uri.isEmpty()) {
-            System.err.println("Warning: mongodbURI environment variable not set. MongoDB operations will fail.");
-            mongoClient = null;
-            database = null;
-            collection = null;
-        } else {
-            mongoClient = MongoClients.create(uri);
-            database = mongoClient.getDatabase(databaseName);
-            collection = database.getCollection(collectionName);
-        }
+
+        CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+        CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                pojoCodecRegistry);
+
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(uri))
+                .codecRegistry(codecRegistry)
+                .uuidRepresentation(UuidRepresentation.STANDARD)
+                .applyToConnectionPoolSettings(builder -> builder.maxConnectionLifeTime(30, TimeUnit.SECONDS)
+                        .maxConnectionIdleTime(15, TimeUnit.SECONDS))
+                .applyToSocketSettings(builder -> builder.connectTimeout(2, TimeUnit.SECONDS)
+                        .readTimeout(2, TimeUnit.SECONDS))
+                .applyToClusterSettings(builder -> builder.serverSelectionTimeout(5, TimeUnit.SECONDS))
+                .build();
+
+        mongoClient = MongoClients.create(settings);
+        database = mongoClient.getDatabase(databaseName).withCodecRegistry(codecRegistry);
     }
 
     public MongoDatabase getDatabase() {
-        return this.database; 
+        return this.database;
     }
 
     public MongoClient getMongoClient() {
-        return this.mongoClient; 
+        return this.mongoClient;
     }
 
-    public void addUser(User user) {
-        if (collection == null) {
-            System.err.println("Error: MongoDB connection not initialized");
-            return;
-        }
-        Document userDocument = new Document("id", user.getID())
-                .append("first_name", user.getName())
-                .append("last_name", user.getLastName())
-                .append("email", user.getEmail())
-                .append("gender", user.getGender())
-                .append("request_id", user.getRequestIDs()); 
-        collection.insertOne(userDocument);
-    }
-
-    public void addOffer(Offer offer) {
-        if (database == null) {
-            System.err.println("Error: MongoDB connection not initialized");
-            return;
-        }
-        Document offerDocument = new Document("id", offer.getId().toString())
-                .append("title", offer.getTitle())
-                .append("details", offer.getAlternativeDetails())
-                .append("postDate", offer.getPostDate())
-                .append("accepted", offer.isAccepted());
-        MongoCollection<Document> offerscollection = database.getCollection("Offers");
-        offerscollection.insertOne(offerDocument);
-    }
-
-    public void addRequest(Request request) {
-        //TO implement 
-    }
-
-    public User getUserByEmail(String email) {
-        if (collection == null) {
-            System.err.println("Error: MongoDB connection not initialized");
-            return null;
-        }
-        Document userDoc = collection.find(Filters.eq("email", email)).first();
-        if (userDoc == null) {
-            return null;
-        }
-        Object idObj = userDoc.get("id");
-        UUID id;
-        if (idObj instanceof UUID) {
-            id = (UUID) idObj;
-        } else if (idObj instanceof String) {
-            id = UUID.fromString((String) idObj);
-        } else {
-            return null;
-        }
-        String firstName = userDoc.getString("first_name");
-        String lastName = userDoc.getString("last_name");
-        String gender = userDoc.getString("gender");
-        return new User(id, firstName, lastName, email, gender);
-    }
-
-    public boolean updateUser(User user) {
-        if (collection == null) {
-            return false;
-        }
-        try {
-            collection.updateOne(
-                Filters.eq("id", user.getID()),
-                Updates.combine(
-                    Updates.set("first_name", user.getName()),
-                    Updates.set("last_name", user.getLastName()),
-                    Updates.set("email", user.getEmail()),
-                    Updates.set("gender", user.getGender())
-                )
-            );
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
     public void closeConnection() {
         if (mongoClient != null) {
             mongoClient.close();
         }
+    }
+
+    private String resolveConnectionString() {
+        String envValue = System.getenv(URI_KEY);
+        if (envValue != null && !envValue.isBlank()) {
+            return envValue.trim();
+        }
+
+        for (Path path : DOT_ENV_LOCATIONS) {
+            if (!Files.exists(path)) {
+                continue;
+            }
+
+            try {
+                for (String line : Files.readAllLines(path)) {
+                    String trimmedLine = line.trim();
+                    if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
+                        continue;
+                    }
+
+                    int separatorIndex = trimmedLine.indexOf('=');
+                    if (separatorIndex == -1) {
+                        continue;
+                    }
+
+                    String key = trimmedLine.substring(0, separatorIndex).trim();
+                    String value = trimmedLine.substring(separatorIndex + 1).trim();
+                    if (URI_KEY.equals(key) && !value.isEmpty()) {
+                        return value;
+                    }
+                }
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to read .env file at " + path, e);
+            }
+        }
+
+        throw new IllegalStateException("mongodbURI not configured. Set the env var or add it to a .env file.");
     }
 }

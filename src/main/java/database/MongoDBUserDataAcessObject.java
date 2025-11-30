@@ -5,63 +5,130 @@ import database.exceptions.IncorrectPasswordException;
 import database.exceptions.UserNotFoundException;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import com.mongodb.MongoTimeoutException;
+import com.mongodb.MongoSocketException;
 import static com.mongodb.client.model.Filters.eq;
 
+import entity.*;
+import use_case.start.UserDataAccessInterface;
+import org.bson.Document;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
-import org.bson.Document;
-import org.bson.types.ObjectId;
-
-import entity.*;
-import use_case.login.LoginUserDataAcessInterface;
-
-public class MongoDBUserDataAcessObject extends MongoDB implements LoginUserDataAcessInterface {
-    private MongoCollection<Document> collection;
+public class MongoDBUserDataAcessObject extends MongoDB implements UserDataAccessInterface {
+    private final MongoCollection<Document> collection;
 
     public MongoDBUserDataAcessObject() {
-        super(); 
+        super();
         String collectionName = "Users";
         collection = this.getDatabase().getCollection(collectionName);
     }
 
-    public void addUser(User user) {
-        // add in offers later
-        ObjectId objectId = new ObjectId(user.getID().toString());
-        Document userDocument = new Document("_id", objectId)
-                .append("first_name", user.getName())
-                .append("last_name", user.getLastName())
-                .append("email", user.getLastName())
-                .append("gender", user.getGender())
-                .append("request_ids", user.getRequestIDs())
-                .append("offer_ids", user.getOfferIDs());
-        collection.insertOne(userDocument);
+    public boolean checkExistingUser(String email) {
+        return collection.find(eq("email", email)).first() != null;
     }
 
-    public User getUser(String email, String password) throws Exception{
+    public void addUser(User user) {
+        Document userDoc = new Document()
+                .append("name", user.getName())
+                .append("lastName", user.getLastName())
+                .append("email", user.getEmail())
+                .append("gender", user.getGender())
+                .append("password", user.getPassword())
+                .append("iD", user.getID())
+                .append("requestIDs", user.getRequestIDs())
+                .append("offerIDs", user.getOfferIDs());
+
+        if (user.getAddress() != null) {
+            Document addressDoc = new Document()
+                    .append("street", user.getAddress().getStreet())
+                    .append("city", user.getAddress().getCity())
+                    .append("region", user.getAddress().getRegion())
+                    .append("postalCode", user.getAddress().getPostalCode())
+                    .append("country", user.getAddress().getCountry());
+            userDoc.append("address", addressDoc);
+        }
+
+        collection.insertOne(userDoc);
+        System.out.println("Successfully inserted");
+    }
+
+    public User getUser(String email, String password) throws Exception {
         try {
-            Document document = collection.find(eq("email", email)).first();
-            if (document != null) {
-                boolean validPassword = document.get("password").toString() == password;
+            Document userDoc = collection.find(eq("email", email)).first();
+            if (userDoc != null) {
+                String name = userDoc.getString("name");
+                String lastName = userDoc.getString("lastName");
+                String userEmail = userDoc.getString("email");
+                String gender = userDoc.getString("gender");
+                String userPassword = userDoc.getString("password");
+
+                boolean validPassword = userPassword.equals(password);
                 if (!validPassword) {
                     throw new IncorrectPasswordException("Incorrect Password.");
-                } 
+                }
+
+                List<UUID> requests = new ArrayList<>();
+                List<UUID> offers = new ArrayList<>();
+
+                UUID userId = null;
+                Object idField = userDoc.get("iD");
+                if (idField instanceof org.bson.types.Binary) {
+                    org.bson.types.Binary binaryId = (org.bson.types.Binary) idField;
+                    java.nio.ByteBuffer bb = java.nio.ByteBuffer.wrap(binaryId.getData());
+                    long high = bb.getLong();
+                    long low = bb.getLong();
+                    userId = new UUID(high, low);
+                }
+
+                Address address = null;
+                Document addressDoc = userDoc.get("address", Document.class);
+                if (addressDoc != null) {
+                    address = new Address(
+                            addressDoc.getString("street"),
+                            addressDoc.getString("city"),
+                            addressDoc.getString("region"),
+                            addressDoc.getString("postalCode"),
+                            addressDoc.getString("country"));
+                }
+
+                User user = new User();
+                user.setName(name);
+                user.setLastName(lastName);
+                user.setEmail(userEmail);
+                user.setGender(gender);
+                user.setPassword(userPassword);
+                user.setId(userId);
+                user.setRequests(requests);
+                user.setOffers(offers);
+                user.setAddress(address);
+
+                return user;
             } else {
                 throw new UserNotFoundException("UserNotFound.");
             }
-
-            Gender gender = Gender.valueOf(document.get("gender").toString().toUpperCase());
-            User user = new User(
-                    document.getString("first_name"),
-                    document.getString("last_name"),
-                    document.getString("email"),
-                    gender,
-                    document.getList("request_ids", UUID.class),
-                    document.getList("offer_ids", UUID.class),
-                    UUID.fromString(document.getObjectId("_id").toString()));
-            return user;
+        } catch (MongoTimeoutException e) {
+            throw new UserNotFoundException("User does not exist.");
+        } catch (MongoSocketException e) {
+            throw new UserNotFoundException("User does not exist.");
+        } catch (UserNotFoundException | IncorrectPasswordException e) {
+            throw e;
         } catch (Exception e) {
-            throw new FetchingErrorException("Unable to fetch user." + e); 
+            throw new FetchingErrorException("Unable to fetch user: " + e.getMessage());
         }
+    }
+
+    public boolean updateUser(User user) {
+        collection.updateMany(
+                Filters.eq("iD", user.getID()),
+                Updates.combine(
+                        Updates.set("name", user.getName()),
+                        Updates.set("lastName", user.getLastName()),
+                        Updates.set("gender", user.getGender())));
+        return true;
     }
 
     public void closeConnection() {

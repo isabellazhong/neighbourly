@@ -1,7 +1,7 @@
 package interface_adapter.login;
 
-import use_case.login.LoginInputBoundary;
-import use_case.login.LoginInputData;
+import use_case.start.login.LoginInputBoundary;
+import use_case.start.login.LoginInputData;
 
 public class LoginController {
     private LoginInputBoundary loginUseCaseInteractor; 
@@ -13,6 +13,10 @@ public class LoginController {
     public void execute(String email, String password) {
         LoginInputData data = new LoginInputData(email, password); 
         loginUseCaseInteractor.execute(data); 
+    }
+
+    public void switchToSignUp() {
+        loginUseCaseInteractor.switchToSignUp();
     }
 
 }

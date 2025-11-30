@@ -15,8 +15,10 @@ public class HomepageView extends JPanel {
     private final CreateOfferController createOfferController;
     private ProfileController profileController;
     private ProfileViewModel profileViewModel;
+    private String viewName;
 
     public HomepageView(CreateOfferController createOfferController) {
+        this.viewName = "homepage";
         this.createOfferController = createOfferController;
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
@@ -261,5 +263,7 @@ public class HomepageView extends JPanel {
         }
     }
 
-
+    public String getViewName() {
+        return this.viewName; 
+    }
 }
