@@ -50,15 +50,115 @@ class SignupTest {
 		assertNull(presenter.forwardedInputData);
 	}
 
+	@Test
+	void execute_emptyFirstNameTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("", "Li", "ava@example.com", "Secret123!", "Secret123!"));
+
+		assertEquals("Please enter your first name.", presenter.firstNameErrorMessage);
+	}
+
+	@Test
+	void execute_firstNameWithDigitsTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Av4", "Li", "ava@example.com", "Secret123!", "Secret123!"));
+
+		assertEquals("First name cannot contain numbers.", presenter.firstNameErrorMessage);
+	}
+
+	@Test
+	void execute_emptyLastNameTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "", "ava@example.com", "Secret123!", "Secret123!"));
+
+		assertEquals("Please enter your last name.", presenter.lastNameErrorMessage);
+	}
+
+	@Test
+	void execute_lastNameWithDigitsTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "L1", "ava@example.com", "Secret123!", "Secret123!"));
+
+		assertEquals("Last name cannot contain numbers.", presenter.lastNameErrorMessage);
+	}
+
+	@Test
+	void execute_emptyEmailTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "Li", "", "Secret123!", "Secret123!"));
+
+		assertEquals("Please enter your email address.", presenter.emailErrorMessage);
+	}
+
+	@Test
+	void execute_invalidEmailTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "Li", "invalid-email", "Secret123!", "Secret123!"));
+
+		assertEquals("Please enter a valid email address.", presenter.emailErrorMessage);
+	}
+
+	@Test
+	void execute_emptyPasswordTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "Li", "ava@example.com", "", "Secret123!"));
+
+		assertEquals("Please enter a password.", presenter.passwordErrorMessage);
+	}
+
+	@Test
+	void execute_emptyConfirmPasswordTriggersError() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "Li", "ava@example.com", "Secret123!", ""));
+
+		assertEquals("Please confirm your password.", presenter.confirmPasswordErrorMessage);
+	}
+
+	@Test
+	void execute_presenterFailureSurfacesGeneralError() {
+		SignupPresenterSpy presenter = new ThrowingSignupPresenter();
+		SignUpInteractorBuilder builder = new SignUpInteractorBuilder(presenter);
+
+		builder.create().execute(buildInputData("Ava", "Li", "ava@example.com", "Secret123!", "Secret123!"));
+
+		assertEquals("Something went wrong. Please try signing up again.", presenter.generalErrorMessage);
+	}
+
+	@Test
+	void switchToLogin_requestsLoginView() {
+		SignupPresenterSpy presenter = new SignupPresenterSpy();
+		SignupInteractor interactor = new SignUpInteractorBuilder(presenter).create();
+
+		interactor.switchToLogin();
+
+		assertTrue(presenter.backToLogin);
+	}
+
 	private static SignupInputData buildInputData(String firstName,
-												  String lastName,
-												  String email,
-												  String password,
-												  String confirmPassword) {
+			String lastName,
+			String email,
+			String password,
+			String confirmPassword) {
 		return new SignupInputData(firstName, lastName, email, password, confirmPassword, Gender.FEMALE);
 	}
 
-	private static final class SignupPresenterSpy implements SignupOutputBoundary {
+	private static class SignupPresenterSpy implements SignupOutputBoundary {
 		private String firstNameErrorMessage;
 		private String lastNameErrorMessage;
 		private String emailErrorMessage;
@@ -106,6 +206,13 @@ class SignupTest {
 		@Override
 		public void prepareBackToLoginPage() {
 			this.backToLogin = true;
+		}
+	}
+
+	private static final class ThrowingSignupPresenter extends SignupPresenterSpy {
+		@Override
+		public void prepareVerificationPage(SignupInputData signupInputData) {
+			throw new RuntimeException("renderer down");
 		}
 	}
 

@@ -4,6 +4,7 @@ import entity.Address;
 import entity.Gender;
 import entity.User;
 import org.junit.jupiter.api.Test;
+import use_case.start.UserDataAccessInterface;
 import use_case.start.login.LoginInputData;
 import use_case.start.login.LoginInteractor;
 import use_case.start.login.LoginOutputBoundary;
@@ -59,6 +60,86 @@ class LoginTest {
 		assertNull(presenter.passwordError);
 	}
 
+	@Test
+	void execute_blankEmailAndPasswordShowsCombinedError() {
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, new InMemoryUserDataAccessObject());
+
+		interactor.execute(new LoginInputData("", ""));
+
+		assertEquals("Email and password not entered", presenter.loginError);
+		assertNull(presenter.passwordError);
+	}
+
+	@Test
+	void execute_emptyEmailShowsEmailPrompt() {
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, new InMemoryUserDataAccessObject());
+
+		interactor.execute(new LoginInputData("   ", "secret"));
+
+		assertEquals("Please enter an email", presenter.loginError);
+	}
+
+	@Test
+	void execute_invalidEmailShowsFormatError() {
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, new InMemoryUserDataAccessObject());
+
+		interactor.execute(new LoginInputData("not-an-email", "secret"));
+
+		assertEquals("Invalid email. Please try again", presenter.loginError);
+	}
+
+	@Test
+	void execute_emptyPasswordShowsPrompt() {
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, new InMemoryUserDataAccessObject());
+
+		interactor.execute(new LoginInputData("paul@example.com", "  "));
+
+		assertEquals("Please enter your password", presenter.passwordError);
+	}
+
+	@Test
+	void execute_fetchFailureSurfacesGenericError() {
+		FlakyUserDataAccessObject repository = new FlakyUserDataAccessObject();
+		User user = createUser("paul@example.com", "password123");
+		repository.addUser(user);
+
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, repository);
+
+		interactor.execute(new LoginInputData(user.getEmail(), user.getPassword()));
+
+		assertEquals("Unable to fetch. 504 error.", presenter.loginError);
+		assertNull(presenter.successUser);
+	}
+
+	@Test
+	void switchToSignUp_requestsSignupView() {
+		LoginPresenterSpy presenter = new LoginPresenterSpy();
+		LoginInteractor interactor = new LoginInteractor(presenter, new InMemoryUserDataAccessObject());
+
+		interactor.switchToSignUp();
+
+		assertTrue(presenter.signupViewRequested);
+	}
+
+	@Test
+	void checkValidUser_unexpectedExceptionThrowsRuntime() {
+		LoginInteractor interactor = new LoginInteractor(new LoginPresenterSpy(), new ExplodingUserDataAccessObject());
+
+		assertThrows(RuntimeException.class, () -> interactor.checkValidUser("paul@example.com", "password123"));
+	}
+
+	@Test
+	void checkValidPassword_unexpectedExceptionThrowsRuntime() {
+		LoginInteractor interactor = new LoginInteractor(new LoginPresenterSpy(), new ExplodingUserDataAccessObject());
+
+		assertThrows(RuntimeException.class, () -> interactor.checkValidPassword("paul@example.com", "password123"));
+	}
+
 	private static User createUser(String email, String password) {
 		return new User(
 				"Paul",
@@ -96,6 +177,40 @@ class LoginTest {
 		@Override
 		public void prepareSignupView() {
 			this.signupViewRequested = true;
+		}
+	}
+
+	private static final class FlakyUserDataAccessObject extends InMemoryUserDataAccessObject {
+		private int callCount;
+
+		@Override
+		public User getUser(String email, String password) throws Exception {
+			callCount++;
+			if (callCount >= 3) {
+				throw new Exception("Timeout");
+			}
+			return super.getUser(email, password);
+		}
+	}
+
+	private static final class ExplodingUserDataAccessObject implements UserDataAccessInterface {
+		@Override
+		public boolean checkExistingUser(String email) {
+			return false;
+		}
+
+		@Override
+		public void addUser(User user) {
+		}
+
+		@Override
+		public User getUser(String email, String password) throws Exception {
+			throw new Exception("boom");
+		}
+
+		@Override
+		public boolean updateUser(User user) {
+			return false;
 		}
 	}
 }

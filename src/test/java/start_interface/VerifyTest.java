@@ -12,9 +12,11 @@ import use_case.start.signup.SignupInputData;
 import entity.IDVerfication;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import java.io.File;
+import java.io.IOException;
 
 class VerifyTest {
 
@@ -37,7 +39,46 @@ class VerifyTest {
 		verify(userDao).addUser(userCaptor.capture());
 		assertEquals(signupInputData.getEmail(), userCaptor.getValue().getEmail());
 		assertTrue(presenter.successButtonPrepared, "Presenter should show success button once verification passes");
-		assertTrue(presenter.successFileUpload, "Presenter should show verifying state before processing");
+		assertNull(presenter.errorMessage);
+	}
+
+	@Test
+	void execute_failedVerificationSurfacesError() throws Exception {
+		IDVerfication verificationClient = mock(IDVerfication.class);
+		MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+		VerificationPresenterSpy presenter = new VerificationPresenterSpy();
+		VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
+
+		SignupInputData signupInputData = new SignupInputData("Test", "User", "ava@example.com", "Secret123!",
+				"Secret123!", Gender.FEMALE);
+		VerificationInputData verificationInputData = new VerificationInputData("/fake/path/id.png", signupInputData);
+
+		when(verificationClient.getResponse(anyString())).thenReturn(failedPayload());
+
+		interactor.execute(verificationInputData);
+
+		verify(userDao, never()).addUser(any());
+		assertEquals("Government ID inavlid. Please try again.", presenter.errorMessage);
+		assertFalse(presenter.successButtonPrepared);
+	}
+
+	@Test
+	void execute_handlesVerificationClientIOException() throws Exception {
+		IDVerfication verificationClient = mock(IDVerfication.class);
+		MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+		VerificationPresenterSpy presenter = new VerificationPresenterSpy();
+		VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
+
+		SignupInputData signupInputData = new SignupInputData("Test", "User", "ava@example.com", "Secret123!",
+				"Secret123!", Gender.FEMALE);
+		VerificationInputData verificationInputData = new VerificationInputData("/fake/path/id.png", signupInputData);
+
+		when(verificationClient.getResponse(anyString())).thenThrow(new IOException("down"));
+
+		interactor.execute(verificationInputData);
+
+		verify(userDao, never()).addUser(any());
+		assertFalse(presenter.successButtonPrepared);
 		assertNull(presenter.errorMessage);
 	}
 
@@ -61,8 +102,29 @@ class VerifyTest {
 
 		interactor.uploadFileStatus(uploadedFile);
 
-		assertTrue(presenter.successVerifying, "Presenter should acknowledge successful file upload");
-		assertFalse(presenter.successFileUpload, "Verifying state should not toggle during file upload callback");
+		assertEquals(uploadedFile, presenter.uploadedFile);
+	}
+
+	@Test
+	void prepareVerifyingView_notifiesPresenter() {
+		VerificationPresenterSpy presenter = new VerificationPresenterSpy();
+		VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
+				mock(MongoDBUserDataAcessObject.class), presenter);
+
+		interactor.prepareVerifyingView();
+
+		assertTrue(presenter.verifyingRequested);
+	}
+
+	@Test
+	void handleError_delegatesToPresenter() {
+		VerificationPresenterSpy presenter = new VerificationPresenterSpy();
+		VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
+				mock(MongoDBUserDataAcessObject.class), presenter);
+
+		interactor.handleError("boom");
+
+		assertEquals("boom", presenter.errorMessage);
 	}
 
 	private static String successfulPayload() {
@@ -74,12 +136,16 @@ class VerifyTest {
 				+ "\"country\": \"Canada\"}}";
 	}
 
+	private static String failedPayload() {
+		return "{\"success\": false}";
+	}
+
 	private static final class VerificationPresenterSpy implements VerificationOutputBoundary {
 		private String errorMessage;
 		private boolean successButtonPrepared;
 		private boolean successFlowCompleted;
-		private boolean successVerifying;
-		private boolean successFileUpload;
+		private File uploadedFile;
+		private boolean verifyingRequested;
 
 		@Override
 		public void prepareVerificationErrorView(String error) {
@@ -98,12 +164,12 @@ class VerifyTest {
 
 		@Override
 		public void prepareUploadFileView(File file) {
-			this.successVerifying = true;
+			this.uploadedFile = file;
 		}
 
 		@Override
 		public void prepareVerifyingView() {
-			this.successFileUpload = true;
+			this.verifyingRequested = true;
 		}
 	}
 }
