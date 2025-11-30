@@ -9,7 +9,7 @@ import javax.swing.SwingUtilities;
 
 import app.AppBuilder;
 import database.MongoDBOfferDataAccessObject;
-import interface_adapter.SendbirdMessagingService;
+import entity.SendbirdMessagingService;
 
 public class AcceptOfferInteractor {
     private final MongoDBOfferDataAccessObject offerDAO;

@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 
 import database.MongoDBOfferDataAccessObject;
 import database.MongoDBRequestDataAccessObject;
-import interface_adapter.SendbirdMessagingService;
+import entity.SendbirdMessagingService;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.messaging.MessagingController;
 import interface_adapter.messaging.MessagingPresenter;

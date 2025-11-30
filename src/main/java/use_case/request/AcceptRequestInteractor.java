@@ -1,7 +1,7 @@
 package use_case.request;
 
 import database.MongoDBRequestDataAccessObject;
-import interface_adapter.SendbirdMessagingService;
+import entity.SendbirdMessagingService;
 import app.AppBuilder;
 
 import javax.swing.*;

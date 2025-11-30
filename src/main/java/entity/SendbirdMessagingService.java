@@ -1,4 +1,4 @@
-package interface_adapter;
+package entity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import entity.MessageDTO;
+import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,9 +16,31 @@ import okhttp3.Response;
 
 public class SendbirdMessagingService {
 
-    private static final String APP_ID = "83E62ED2-27B5-4D28-AD74-332D4AAB090D";
-    private static final String MASTER_API_TOKEN = "11f5af485757cf14428eec98745bf3bfbec22f4f";
-    private static final String BASE_URL = "https://api-" + APP_ID + ".sendbird.com/v3";
+    private static final String APP_ID;
+    private static final String MASTER_API_TOKEN;
+    private static final String BASE_URL;
+
+    static {
+        // Load .env file
+        Dotenv dotenv = Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
+        
+        // Get values from environment variables (from .env or system env)
+        String appId = dotenv.get("SENDBIRD_APP_ID", System.getenv("SENDBIRD_APP_ID"));
+        String masterToken = dotenv.get("SENDBIRD_MASTER_TOKEN", System.getenv("SENDBIRD_MASTER_TOKEN"));
+        
+        if (appId == null || appId.isEmpty()) {
+            throw new IllegalStateException("SENDBIRD_APP_ID environment variable is not set. Please check your .env file.");
+        }
+        if (masterToken == null || masterToken.isEmpty()) {
+            throw new IllegalStateException("SENDBIRD_MASTER_TOKEN environment variable is not set. Please check your .env file.");
+        }
+        
+        APP_ID = appId;
+        MASTER_API_TOKEN = masterToken;
+        BASE_URL = "https://api-" + APP_ID + ".sendbird.com/v3";
+    }
 
     private final OkHttpClient client;
 

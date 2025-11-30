@@ -6,7 +6,7 @@ import java.util.List;
 import database.OfferDataAccessInterface;
 import database.RequestDataAccessInterface;
 import entity.MessageDTO;
-import interface_adapter.SendbirdMessagingService;
+import entity.SendbirdMessagingService;
 
 public class MessagingInteractor implements MessagingInputBoundary {
     private final MessagingOutputBoundary messagingOutputBoundary;
