@@ -1,6 +1,6 @@
 package view.offer_interface;
 
-import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferController;
 import view.UIConstants;
 
 import javax.swing.*;

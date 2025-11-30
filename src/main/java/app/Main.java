@@ -9,6 +9,7 @@ public class Main {
                     .addSignupView()
                     .addProfileView()
                     .addOfferUseCase()
+                    .addMyOffersUseCase()
                     .addHomePageView()
                     .addVerificationView()
                     .addLoginUseCase()
