@@ -5,25 +5,56 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-//newly imported
-import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
+import interface_adapter.offers.my_offers.MyOffersController;
+import interface_adapter.profile.ProfileController;
+import interface_adapter.profile.ProfileViewModel;
 import view.offer_interface.CreateOfferView;
 import view.map.RequestLocation;
 import view.map.RequestMapView;
+import view.offer_interface.MyOffersView;
+import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
-    //stores controller to pass onto CreateOfferView
     private final CreateOfferController createOfferController;
-    private final String mapboxToken;
+    private final MyOffersController myOffersController;
+    private final MyOffersViewModel myOffersViewModel;
+    private String mapboxToken;
+    private ProfileController profileController;
+    private ProfileViewModel profileViewModel;
+    private String viewName;
 
-    //updated constructor to ask for CreateOfferController
-    public HomepageView(CreateOfferController createOfferController, String mapboxToken) {
+    public HomepageView(CreateOfferController createOfferController,
+                        MyOffersController myOffersController,
+                        MyOffersViewModel myOffersViewModel) {
+        this.viewName = "homepage";
         this.createOfferController = createOfferController;
-        this.mapboxToken = mapboxToken;
+        this.myOffersController = myOffersController;
+        this.myOffersViewModel = myOffersViewModel;
+        // Try to get mapbox token from environment or system property
+        this.mapboxToken = resolveMapboxToken();
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setOpaque(false);
+        topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JButton myOffersButton = new JButton("My Offers");
+        myOffersButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        myOffersButton.addActionListener(e -> openOffers());
+
+        JButton profileButton = new JButton("Profile");
+        profileButton.setFont(profileButton.getFont().deriveFont(14f));
+        profileButton.addActionListener(e -> openProfile());
+
+        topPanel.add(myOffersButton);
+        topPanel.add(profileButton);
+        add(topPanel, BorderLayout.NORTH);
+
         JPanel content = new JPanel(new GridBagLayout());
         content.setBorder(new EmptyBorder(24, 24, 24, 24));
         content.setOpaque(false);
@@ -78,9 +109,6 @@ public class HomepageView extends JPanel {
         content.add(bottomFiller, gbc);
 
         add(content, BorderLayout.CENTER);
-
-        // Simple demo list of requests you can accept to open the map view
-        add(buildRequestsPanel(), BorderLayout.NORTH);
 
         JButton createButton = new JButton("+");
         createButton.setFont(createButton.getFont().deriveFont(Font.PLAIN, 28f));
@@ -140,7 +168,15 @@ public class HomepageView extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
 
-        setPreferredSize(new Dimension(1200, 320));
+        setPreferredSize(new Dimension(1200, 700));
+    }
+
+    private String resolveMapboxToken() {
+        String token = System.getenv("MAPBOX_TOKEN");
+        if (token == null || token.isBlank()) {
+            token = System.getProperty("MAPBOX_TOKEN");
+        }
+        return token;
     }
 
     private JPanel buildRequestsPanel() {
@@ -220,6 +256,45 @@ public class HomepageView extends JPanel {
         }
     }
 
+    public void setProfileController(ProfileController profileController) {
+        this.profileController = profileController;
+    }
+
+    public void setProfileViewModel(ProfileViewModel profileViewModel) {
+        this.profileViewModel = profileViewModel;
+    }
+
+    private void openProfile() {
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (topFrame != null && profileController != null && profileViewModel != null) {
+            JDialog profileDialog = new JDialog(topFrame, "Profile", true);
+            ProfileView profileView = new ProfileView(profileViewModel);
+            profileView.setProfileController(profileController);
+            profileDialog.setContentPane(profileView);
+            profileDialog.pack();
+            profileDialog.setLocationRelativeTo(topFrame);
+            profileDialog.setVisible(true);
+        }
+    }
+
+    private void openOffers() {
+        if (myOffersController != null) {
+            myOffersController.execute();
+        }
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(topFrame, "My Offers", true);
+
+        MyOffersView myOffersView = new MyOffersView(myOffersViewModel);
+
+        if (myOffersViewModel.getState() != null) {
+            myOffersView.showOffers(myOffersViewModel.getState().getOffers());
+        }
+
+        dialog.setContentPane(myOffersView);
+        dialog.setSize(720, 500);
+        dialog.setLocationRelativeTo(topFrame);
+        dialog.setVisible(true);
+    }
 
     public class CreateRequest extends JDialog {
         public CreateRequest(Window owner) {
@@ -314,5 +389,7 @@ public class HomepageView extends JPanel {
         }
     }
 
-
+    public String getViewName() {
+        return this.viewName; 
+    }
 }

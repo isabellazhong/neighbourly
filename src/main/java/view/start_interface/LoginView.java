@@ -3,11 +3,15 @@ package view.start_interface;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.event.DocumentEvent;
 
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginViewModel;
-import use_case.login.LoginState;
+import use_case.start.login.LoginState;
 import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -16,15 +20,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginView extends JPanel {
-    private LoginController loginController;
+    static LoginController loginController;
+    private final String viewName;
 
-    private final int PANEL_WIDTH = 400;
-    private final int PANEL_HEIGHT = 500;
-    private final int INPUT_HEIGHT = 45;
-    private final int BUTTON_HEIGHT = 50;
-    private final int COMPONENT_SPACING = 15;
-    private final int ERROR_SPACING = 5;
-    private final int SECTION_SPACING = 25;
+    static final int PANEL_WIDTH = 400;
+    static final int PANEL_HEIGHT = 500;
+    static final int INPUT_HEIGHT = 45;
+    static final int BUTTON_HEIGHT = 50;
+    static final int COMPONENT_SPACING = 15;
+    static final int ERROR_SPACING = 5;
+    static final int SECTION_SPACING = 25;
 
     private JTextField emailInputField;
     private JPasswordField passwordInputField;
@@ -36,22 +41,24 @@ public class LoginView extends JPanel {
     private JLabel passwordErrorLabel;
 
     // clean architecture dependencies
-    private LoginViewModel loginViewModel;
+    private final LoginViewModel loginViewModel;
 
     // sign up button
     private JLabel signUpText;
 
     public LoginView(LoginViewModel loginViewModel) {
+        this.viewName =  "log in";
         this.loginViewModel = loginViewModel;
         initializeComponents();
         setupLayout();
         setupStyling();
         addEventListeners();
+        bindViewModel();
     }
 
     private void initializeComponents() {
         titleLabel = new JLabel("Neighbourly", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
+        titleLabel.setFont(UIConstants.titleFontStyle);
         titleLabel.setForeground(UIConstants.textColor);
 
         emailLabel = createStyledLabel("Email Address");
@@ -183,27 +190,32 @@ public class LoginView extends JPanel {
                     public void actionPerformed(ActionEvent evt) {
                         if (evt.getSource().equals(loginButton)) {
                             final LoginState currentState = loginViewModel.getState();
+                            loginViewModel.setState(currentState);
+                            updateErrorLabels();
 
                             loginController.execute(
                                     currentState.getEmail(),
                                     currentState.getPassword());
-
-                            loginErrorLabel.setText(currentState.getLoginError());
-                            passwordErrorLabel.setText(currentState.getPasswordError());
+                            
                         }
                     }
                 });
     }
 
+    public void handleSignUp() {
+        signUpText.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        signUpText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                loginController.switchToSignUp();
+            }
+        });
+    }
+
     private void addEventListeners() {
-        addPlaceholderBehavior(emailInputField, "Enter your email");
-
-        addPlaceholderBehavior(passwordInputField, "Enter your password");
-
+        handleSignUp();
         handleEmailInputUpdates();
-
         handlePasswordInputUpdates();
-
         handleLogin();
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
@@ -213,14 +225,20 @@ public class LoginView extends JPanel {
         actionMap.put("login", new AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleEmailInputUpdates();
+                handlePasswordInputUpdates();
                 handleLogin();
             }
         });
+
+        addPlaceholderBehavior(emailInputField, "Enter your email");
+        addPlaceholderBehavior(passwordInputField, "Enter your password");
+
     }
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setFont(UIConstants.labelFontStyle);
         label.setForeground(UIConstants.textColor);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -329,8 +347,7 @@ public class LoginView extends JPanel {
                 if (textField.getText().equals(placeholder)) {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
-                    if (textField instanceof JPasswordField) {
-                        JPasswordField field = (JPasswordField) textField;
+                    if (textField instanceof JPasswordField field) {
                         field.setEchoChar('•');
                     }
                 }
@@ -340,13 +357,26 @@ public class LoginView extends JPanel {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(UIConstants.textColorFaded);
                     textField.setText(placeholder);
-                    if (textField instanceof JPasswordField) {
-                        JPasswordField field = (JPasswordField) textField;
+                    if (textField instanceof JPasswordField field) {
                         field.setEchoChar((char) 0);
                     }
                 }
             }
         });
+    }
+
+    private void updateErrorLabels() {
+        LoginState currentState = loginViewModel.getState();
+        loginErrorLabel.setText(currentState.getLoginError());
+        passwordErrorLabel.setText(currentState.getPasswordError());
+    }
+
+	private void bindViewModel() {
+		loginViewModel.addPropertyChangeListener(evt -> SwingUtilities.invokeLater(this::updateErrorLabels));
+	}
+
+    public String getViewName() {
+        return this.viewName;
     }
 
     public void setLoginController(LoginController loginController) {
