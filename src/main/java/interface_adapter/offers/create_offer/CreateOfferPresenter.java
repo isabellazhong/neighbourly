@@ -1,8 +1,8 @@
-package interface_adapter.offer;
+package interface_adapter.offers.create_offer;
 
-import use_case.offer.CreateOfferOutputBoundary;
-import use_case.offer.CreateOfferOutputData;
-import use_case.offer.CreateOfferState;
+import use_case.offers.create_offer.CreateOfferOutputBoundary;
+import use_case.offers.create_offer.CreateOfferOutputData;
+import use_case.offers.create_offer.CreateOfferState;
 
 public class CreateOfferPresenter implements CreateOfferOutputBoundary {
     private final CreateOfferViewModel createOfferViewModel;

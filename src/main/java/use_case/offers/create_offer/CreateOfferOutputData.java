@@ -1,4 +1,4 @@
-package use_case.offer;
+package use_case.offers.create_offer;
 
 import entity.Offer;
 

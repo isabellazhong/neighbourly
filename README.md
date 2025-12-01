@@ -34,11 +34,24 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - Display signing up/logging errors if there are invalid inputs 
 - Allow for retries if verfication fails 
 
-### 2. Implementaion and Contributions:
+### 2. Implementation and Contributions:
 - Integrated MongoDB database to store users/requests/offers
 - Used Gemini API to verify user id during signup process 
 - Implemented the start interface flow from login -> hompage and login -> signup -> homepage 
 
+## Anna
+### 2. Use case
 
+#### User story:
+As a user, I want to be able to easily post offers that I can provide and view a history of all the offers I have submitted. 
+
+#### Features:
+- Allow user to create and submit new offers with a title and description
+- Automatically assign creation timestamp for every submitted offer
+- Display clear success/error messages upon submission
+- Provide scrollable page to view all submitted offers made by the current user
+
+### 2. Implementation and Contributions:
+- Implemented Clean Architecture for Create Offer and My Offers use cases
 
 

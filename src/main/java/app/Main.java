@@ -8,6 +8,8 @@ public class Main {
                     .addLoginView()
                     .addSignupView()
                     .addProfileView()
+                    .addOfferUseCase()
+                    .addMyOffersUseCase()
                     .addHomePageView()
                     .addVerificationView()
                     .addLoginUseCase()
