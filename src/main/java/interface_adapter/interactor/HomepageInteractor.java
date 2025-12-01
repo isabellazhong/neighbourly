@@ -1,7 +1,5 @@
 package interface_adapter.interactor;
 
-import interface_adapter.navigator.HomepageViewOutputBoundary;
-
 public class HomepageInteractor implements HomepageInputBoundary {
     private final HomepageViewOutputBoundary presenter;
 

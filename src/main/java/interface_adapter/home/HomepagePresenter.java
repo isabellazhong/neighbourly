@@ -1,11 +1,9 @@
-package interface_adapter.presenter;
+package interface_adapter.home;
 
 import javax.swing.*;
 import java.awt.*;
 
-import interface_adapter.navigator.HomepageViewOutputBoundary;
-import interface_adapter.home.HomepageViewModel;
-import interface_adapter.home.ViewModelManager;
+import interface_adapter.interactor.HomepageViewOutputBoundary;
 import view.offer_interface.CreateOfferView;
 
 public class HomepagePresenter implements HomepageViewOutputBoundary {

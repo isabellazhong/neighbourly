@@ -1,6 +1,6 @@
 package view.homepage;
 
-import interface_adapter.controller.HomepageController;
+import interface_adapter.home.HomepageController;
 import interface_adapter.home.HomepageViewModel;
 import view.request_interface.CreateRequestView;
 

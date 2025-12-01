@@ -1,4 +1,4 @@
-package interface_adapter.controller;
+package interface_adapter.home;
 
 import interface_adapter.interactor.HomepageInputBoundary;
 import interface_adapter.interactor.HomepageInputData;

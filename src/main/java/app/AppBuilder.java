@@ -6,9 +6,9 @@ import javax.swing.*;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.home.HomepageViewModel;
 import interface_adapter.home.ViewModelManager;
-import interface_adapter.presenter.HomepagePresenter;
+import interface_adapter.home.HomepagePresenter;
 import interface_adapter.interactor.HomepageInteractor;
-import interface_adapter.controller.HomepageController;
+import interface_adapter.home.HomepageController;
 import interface_adapter.offer.CreateOfferController;
 
 import use_case.offer.CreateOfferInputBoundary;
