@@ -40,7 +40,7 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - Implemented the start interface flow from login -> hompage and login -> signup -> homepage 
 
 ## Anna
-### 2. Use case
+### 3. Use case
 
 #### User story:
 As a user, I want to be able to easily post offers that I can provide and view a history of all the offers I have submitted. 

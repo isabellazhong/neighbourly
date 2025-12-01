@@ -37,7 +37,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
     }
 
     @Override
-    public List<Offer> AllOffers() {
+    public List<Offer> allOffers() {
         List<Offer> offers = new ArrayList<>();
         FindIterable<Document> iterable = offersCollection.find();
 
@@ -51,9 +51,9 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
     }
 
     @Override
-    public List<Offer> MyOffers(String username) {
+    public List<Offer> myOffers(String username) {
         List<Offer> offers = new ArrayList<>();
-        return AllOffers();
+        return allOffers();
     }
 
     private Offer documentToOffer(Document doc) {
@@ -62,6 +62,8 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         Date date = doc.getDate("postDate");
         Offer offer = new Offer(title, details, date);
         return offer;
+    }
+
     public String getChatChannelId(UUID offerId) {
         Document offerDoc = offersCollection.find(Filters.eq("id", offerId.toString())).first();
         if (offerDoc != null && offerDoc.containsKey("chatChannelId")) {

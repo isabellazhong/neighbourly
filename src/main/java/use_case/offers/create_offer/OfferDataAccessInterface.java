@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface OfferDataAccessInterface {
     void addOffer(Offer offer);
-    List<Offer> AllOffers();
-    List<Offer> MyOffers(String username);
+    List<Offer> allOffers();
+    List<Offer> myOffers(String username);
 }
