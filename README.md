@@ -55,7 +55,7 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - choose the type of request(service, or resource)
 
 ### 2. Implementation and Contributions:
-- Implemented homepage ui: search, create button
+- Implemented homepage ui, search, create button
 - Implemented request window
 
 
