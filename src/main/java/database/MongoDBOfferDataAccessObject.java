@@ -71,8 +71,6 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         return offer;
     }
 
-    }
-
     public String getChatChannelId(UUID offerId) {
         Document offerDoc = offersCollection.find(Filters.eq("id", offerId.toString())).first();
         if (offerDoc != null && offerDoc.containsKey("chatChannelId")) {
