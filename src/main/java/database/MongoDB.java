@@ -27,10 +27,10 @@ public class MongoDB {
             Paths.get(".env"),
             Paths.get("src/main/java/.env"));
 
-    private String uri;
-    private String databaseName;
-    private MongoClient mongoClient;
-    private MongoDatabase database;
+    final String uri;
+    final String databaseName;
+    private final MongoClient mongoClient;
+    private final MongoDatabase database;
 
     public MongoDB() {
         uri = resolveConnectionString();
@@ -81,28 +81,30 @@ public class MongoDB {
             }
 
             try {
-                for (String line : Files.readAllLines(path)) {
-                    String trimmedLine = line.trim();
-                    if (trimmedLine.isEmpty() || trimmedLine.startsWith("#")) {
-                        continue;
-                    }
-
-                    int separatorIndex = trimmedLine.indexOf('=');
-                    if (separatorIndex == -1) {
-                        continue;
-                    }
-
-                    String key = trimmedLine.substring(0, separatorIndex).trim();
-                    String value = trimmedLine.substring(separatorIndex + 1).trim();
-                    if (URI_KEY.equals(key) && !value.isEmpty()) {
-                        return value;
-                    }
-                }
+                String value = getPath(path);
+                if (value != null) return value;
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to read .env file at " + path, e);
             }
         }
 
         throw new IllegalStateException("mongodbURI not configured. Set the env var or add it to a .env file.");
+    }
+
+    private static String getPath(Path path) throws IOException {
+        for (String line : Files.readAllLines(path)) {
+            String trimmedLine = line.trim();
+            int separatorIndex = trimmedLine.indexOf('=');
+            if (separatorIndex == -1) {
+                continue;
+            }
+
+            String key = trimmedLine.substring(0, separatorIndex).trim();
+            String value = trimmedLine.substring(separatorIndex + 1).trim();
+            if (URI_KEY.equals(key) && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return null;
     }
 }

@@ -290,8 +290,6 @@ class SignupTest {
                 "User",
                 email,
                 Gender.FEMALE,
-                new ArrayList<>(),
-                new ArrayList<>(),
                 UUID.randomUUID(),
                 new Address("1 Castle Rd", "Toronto", "ON", "M5V", "Canada"),
                 password);

@@ -6,9 +6,9 @@ import view.homepage.HomepageView;
 import java.io.File;
 
 public class VerificationPresenter implements VerificationOutputBoundary {
-    private HomepageView homepageView;
-    private ViewManagerModel viewManagerModel;
-    private VerificationViewModel verificationViewModel;
+    private final HomepageView homepageView;
+    private final ViewManagerModel viewManagerModel;
+    private final VerificationViewModel verificationViewModel;
 
     public VerificationPresenter(HomepageView homepageView,
             ViewManagerModel viewManagerModel,
@@ -35,13 +35,13 @@ public class VerificationPresenter implements VerificationOutputBoundary {
     }
 
     @Override
-    public void prepareVerficationSuccess() {
+    public void prepareVerificationSuccess() {
         viewManagerModel.setState(homepageView.getViewName());
         viewManagerModel.firePropertyChange();
     }
 
     @Override
-    public void prepareVerficationSuccessButton() {
+    public void prepareVerificationSuccessButton() {
         VerificationViewState state = verificationViewModel.getState();
         state.setVerificationSuccessful(true);
         state.setVerifying(false);

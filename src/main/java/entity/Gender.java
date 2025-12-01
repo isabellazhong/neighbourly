@@ -3,10 +3,10 @@ package entity;
 public enum Gender {
     FEMALE("Female"),
     MALE("Male"),
-    NONBINARY("Non-binary"),
+    NON_BINARY("Non-binary"),
     OTHER("Other");
 
-    private String label;
+    private final String label;
 
     Gender(String label) {
         this.label = label;

@@ -8,11 +8,11 @@ import use_case.start.UserDataAccessInterface;
 
 public class LoginInteractor implements LoginInputBoundary {
     LoginOutputBoundary loginPresenter;
-    UserDataAccessInterface userDataAcessObject;
+    UserDataAccessInterface userDataAccessObject;
 
     public LoginInteractor(LoginOutputBoundary loginPresenter, UserDataAccessInterface userDataAccessObject) {
         this.loginPresenter = loginPresenter;
-        this.userDataAcessObject = userDataAccessObject;
+        this.userDataAccessObject = userDataAccessObject;
     }
 
     public boolean checkEmailFormat(String email) {
@@ -29,7 +29,7 @@ public class LoginInteractor implements LoginInputBoundary {
 
     public boolean checkValidUser(String email, String password) {
         try {
-            this.userDataAcessObject.getUser(email, password);
+            this.userDataAccessObject.getUser(email, password);
             return true;
         } catch (UserNotFoundException e) {
             return false;
@@ -42,7 +42,7 @@ public class LoginInteractor implements LoginInputBoundary {
 
     public boolean checkValidPassword(String email, String password) {
         try {
-            this.userDataAcessObject.getUser(email, password);
+            this.userDataAccessObject.getUser(email, password);
             return true;
         } catch (IncorrectPasswordException e) {
             return false;
@@ -72,7 +72,7 @@ public class LoginInteractor implements LoginInputBoundary {
             loginPresenter.prepareWrongPasswordInterface("Incorrect password. Please try again");
         } else {
             try {
-                User user = this.userDataAcessObject.getUser(email, password);
+                User user = this.userDataAccessObject.getUser(email, password);
                 loginPresenter.prepareLoginSucessInterface(user);
             } catch (Exception e) {
                 loginPresenter.prepareLoginFailInterface("Unable to fetch. 504 error.");
