@@ -52,7 +52,6 @@ public class MessagingInteractor implements MessagingInputBoundary {
             
             // Fetch messages for the channel
             List<MessageDTO> messages = sendbirdMessagingService.fetchMessages(channelId);
-            
             MessagingOutputData outputData = new MessagingOutputData(messages, channelId);
             messagingOutputBoundary.prepareSuccessView(outputData);
             
@@ -110,3 +109,4 @@ public class MessagingInteractor implements MessagingInputBoundary {
         }
     }
 }
+
