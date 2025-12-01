@@ -3,11 +3,15 @@ package view.start_interface;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.event.DocumentEvent;
 
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginViewModel;
-import use_case.login.LoginState;
+import use_case.start.login.LoginState;
 import view.UIConstants;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -17,6 +21,7 @@ import java.awt.event.ActionListener;
 
 public class LoginView extends JPanel {
     private LoginController loginController;
+    private final String viewName = "log in"; 
 
     private final int PANEL_WIDTH = 400;
     private final int PANEL_HEIGHT = 500;
@@ -47,6 +52,7 @@ public class LoginView extends JPanel {
         setupLayout();
         setupStyling();
         addEventListeners();
+        bindViewModel();
     }
 
     private void initializeComponents() {
@@ -183,27 +189,32 @@ public class LoginView extends JPanel {
                     public void actionPerformed(ActionEvent evt) {
                         if (evt.getSource().equals(loginButton)) {
                             final LoginState currentState = loginViewModel.getState();
+                            loginViewModel.setState(currentState);
+                            updateErrorLabels();
 
                             loginController.execute(
                                     currentState.getEmail(),
                                     currentState.getPassword());
-
-                            loginErrorLabel.setText(currentState.getLoginError());
-                            passwordErrorLabel.setText(currentState.getPasswordError());
+                            
                         }
                     }
                 });
     }
 
+    public void handleSignUp() {
+        signUpText.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        signUpText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                loginController.switchToSignUp();
+            }
+        });
+    }
+
     private void addEventListeners() {
-        addPlaceholderBehavior(emailInputField, "Enter your email");
-
-        addPlaceholderBehavior(passwordInputField, "Enter your password");
-
+        handleSignUp();
         handleEmailInputUpdates();
-
         handlePasswordInputUpdates();
-
         handleLogin();
 
         KeyStroke enterKey = KeyStroke.getKeyStroke("ENTER");
@@ -213,9 +224,15 @@ public class LoginView extends JPanel {
         actionMap.put("login", new AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleEmailInputUpdates();
+                handlePasswordInputUpdates();
                 handleLogin();
             }
         });
+
+        addPlaceholderBehavior(emailInputField, "Enter your email");
+        addPlaceholderBehavior(passwordInputField, "Enter your password");
+
     }
 
     private JLabel createStyledLabel(String text) {
@@ -347,6 +364,20 @@ public class LoginView extends JPanel {
                 }
             }
         });
+    }
+
+    private void updateErrorLabels() {
+        LoginState currentState = loginViewModel.getState();
+        loginErrorLabel.setText(currentState.getLoginError());
+        passwordErrorLabel.setText(currentState.getPasswordError());
+    }
+
+	private void bindViewModel() {
+		loginViewModel.addPropertyChangeListener(evt -> SwingUtilities.invokeLater(this::updateErrorLabels));
+	}
+
+    public String getViewName() {
+        return this.viewName; 
     }
 
     public void setLoginController(LoginController loginController) {

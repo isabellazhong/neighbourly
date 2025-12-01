@@ -1,4 +1,4 @@
-package use_case.login;
+package use_case.start.login;
 import entity.*;
 
 public interface LoginOutputBoundary {
@@ -7,4 +7,6 @@ public interface LoginOutputBoundary {
     void prepareWrongPasswordInterface(String error); 
 
     void prepareLoginSucessInterface(User user); 
+
+    void prepareSignupView(); 
 }
