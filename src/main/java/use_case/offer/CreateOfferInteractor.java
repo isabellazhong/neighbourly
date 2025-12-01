@@ -7,9 +7,12 @@ import java.util.Date;
 
 public class CreateOfferInteractor implements CreateOfferInputBoundary {
     final OfferDataAccessInterface offerDataAccessObject;
+    final CreateOfferOutputBoundary offerPresenter;
 
-    public CreateOfferInteractor(OfferDataAccessInterface offerDataAccessObject) {
+    public CreateOfferInteractor(OfferDataAccessInterface offerDataAccessObject,
+                                 CreateOfferOutputBoundary offerPresenter) {
         this.offerDataAccessObject = offerDataAccessObject;
+        this.offerPresenter = offerPresenter;
     }
 
     @Override
@@ -20,7 +23,7 @@ public class CreateOfferInteractor implements CreateOfferInputBoundary {
                 new Date()
         );
         offerDataAccessObject.addOffer(newOffer);
-
-        System.out.println("Interactor: Offer saved to MongoDB with ID: " + newOffer.getId());
+        CreateOfferOutputData outputData = new CreateOfferOutputData(newOffer, false);
+        offerPresenter.prepareSuccessView(outputData);
     }
 }

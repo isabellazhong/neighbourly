@@ -1,8 +1,8 @@
-package use_case.login;
+package use_case.start.login;
 
 public class LoginInputData {
-    private String email; 
-    private String password; 
+    private final String email;
+    private final String password;
 
     public LoginInputData(String email, String password) {
         this.email = email;
