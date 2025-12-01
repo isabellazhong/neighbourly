@@ -9,7 +9,7 @@ neighbours are able to request and offer services and resources, allowing for a 
 ```bash
 touch .env
 ## replace with actual uri 
-echo MONDODB_URI=YOUR_MONGODB_URI >> .env 
+echo MONGODB_URI=YOUR_MONGODB_URI >> .env 
 ## replace with actual gemini api 
 echo GEMINI_API=YOUR_GEMINI_API >> .env 
 echo SENDBIRD_APP_ID=YOUR_SENDBIRD_APP_ID >> .env 
