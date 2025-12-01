@@ -8,6 +8,6 @@ public interface OfferDataAccessInterface {
     String getChatChannelId(UUID offerId);
     void setChatChannelId(UUID offerId, String channelId);
     void setAccepted(UUID offerId, boolean accepted);
-    List<Offer> AllOffers();
-    List<Offer> MyOffers(String username);
+    List<Offer> allOffers();
+    List<Offer> myOffers(String username);
 }

@@ -10,6 +10,7 @@ public class Offer {
     private boolean accepted;
     private Date postDate;
     private String chatChannelId;
+    private UUID userID;
 
     public Offer(String title, String details, Date postDate) {
         this.id = UUID.randomUUID();
@@ -19,10 +20,17 @@ public class Offer {
         this.accepted = false;
         this.imagePath = null;
         this.chatChannelId = null;
+        this.userID = null;
     }
 
     public UUID getId() {
         return id;
+    }
+    public UUID getUserID() {
+        return userID;
+    }
+    public void setUserID(UUID userID) {
+        this.userID = userID;
     }
     public String getTitle() {
         return title;

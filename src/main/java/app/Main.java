@@ -10,6 +10,8 @@ public class Main {
                 .addSignupView()
                 .addProfileView()
                 .addMyOffersView()
+                .addOfferUseCase()
+                .addMyOffersUseCase()
                 .addHomePageView()
                 .addMessagingView()
                 .addVerificationView()
@@ -18,8 +20,6 @@ public class Main {
                 .addVerificationUseCase()
                 .addProfileViewUseCase()
                 .addMessagingUseCase()
-                .addOfferUseCase()
-                .addMyOffersUseCase()
                 .build();
         app.pack();
         app.setLocationRelativeTo(null);
