@@ -4,6 +4,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import interface_adapter.offers.create_offer.CreateOfferController;
 import interface_adapter.offers.my_offers.MyOffersViewModel;
@@ -17,8 +19,12 @@ import view.offer_interface.MyOffersView;
 import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
 import io.github.cdimascio.dotenv.Dotenv;
+import interface_adapter.homepage.ViewModelManager;
+import interface_adapter.homepage.HomepageViewModel;
 
 public class HomepageView extends JPanel {
+    private interface_adapter.homepage.HomepageController homepageController;
+    private interface_adapter.homepage.ViewModelManager homepageViewModelManager;
     private final CreateOfferController createOfferController;
     private final MyOffersController myOffersController;
     private final MyOffersViewModel myOffersViewModel;
@@ -27,6 +33,31 @@ public class HomepageView extends JPanel {
     private ProfileController profileController;
     private ProfileViewModel profileViewModel;
     private String viewName;
+
+    // left demo requests panel (other people's requests)
+    private JPanel requestsPanel;
+
+    // center created requests (user's own created requests) - scrollable under the search
+    private final List<RequestLocation> createdRequests = new ArrayList<>();
+    private JPanel createdRequestsPanel;
+    private JScrollPane createdRequestsScroll;
+
+    public void setHomepageController(interface_adapter.homepage.HomepageController controller) {
+        this.homepageController = controller;
+    }
+
+    // bind the view model manager so the view can update when the presenter sets new state
+    public void bindHomepageViewModelManager(interface_adapter.homepage.ViewModelManager manager) {
+        this.homepageViewModelManager = manager;
+        if (manager == null) return;
+        manager.registerListener(new ViewModelManager.Listener() {
+            @Override
+            public void onViewModelUpdated(HomepageViewModel vm) {
+                List<RequestLocation> requests = vm != null ? vm.getRequests() : null;
+                SwingUtilities.invokeLater(() -> updateRequestsPanel(requests));
+            }
+        });
+    }
 
     public HomepageView(CreateOfferController createOfferController,
                         MyOffersController myOffersController,
@@ -80,7 +111,6 @@ public class HomepageView extends JPanel {
 
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setOpaque(false);
-        row.setOpaque(false);
         row.add(searchField, BorderLayout.CENTER);
         row.add(searchButton, BorderLayout.EAST);
 
@@ -94,7 +124,6 @@ public class HomepageView extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         JPanel topFiller = new JPanel();
         topFiller.setOpaque(false);
-        topFiller.setOpaque(false);
         content.add(topFiller, gbc);
 
         // The search row (no vertical weight so it stays at preferred height)
@@ -104,8 +133,28 @@ public class HomepageView extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         content.add(row, gbc);
 
-        // Bottom filler (absorbs remaining extra vertical space)
+        // The center "My requests" scrollable area under the search
         gbc.gridy = 2;
+        gbc.weighty = 0.5;
+        gbc.fill = GridBagConstraints.BOTH;
+        createdRequestsPanel = new JPanel();
+
+        createdRequestsPanel.setBorder(null);
+        createdRequestsPanel.setOpaque(true);
+        createdRequestsPanel.setBackground(UIManager.getColor("Panel.background"));
+        createdRequestsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        createdRequestsScroll = new JScrollPane(createdRequestsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        createdRequestsScroll.getVerticalScrollBar().setUnitIncrement(16);
+        createdRequestsScroll.setBorder(BorderFactory.createEmptyBorder());
+        content.add(createdRequestsScroll, gbc);
+
+        // make scrollable area match the search width and increase height so it extends near the create button
+        Dimension searchPref = searchField.getPreferredSize();
+        createdRequestsScroll.setPreferredSize(new Dimension(searchPref.width, 420));
+        createdRequestsScroll.setMaximumSize(new Dimension(searchPref.width, Integer.MAX_VALUE));
+
+        // Bottom filler (absorbs remaining extra vertical space)
+        gbc.gridy = 3;
         gbc.weighty = bottomWeight;
         gbc.fill = GridBagConstraints.BOTH;
         JPanel bottomFiller = new JPanel();
@@ -171,11 +220,17 @@ public class HomepageView extends JPanel {
         bottomPanel.add(createButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Demo requests panel on the left
-        JPanel requestsPanel = buildRequestsPanel();
-        requestsPanel.setPreferredSize(new Dimension(360, 400));
-        add(requestsPanel, BorderLayout.WEST);
+        // Demo requests panel on the left (other people's requests)
+        this.requestsPanel = new JPanel();
+        this.requestsPanel.setLayout(new BoxLayout(this.requestsPanel, BoxLayout.Y_AXIS));
+        this.requestsPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        this.requestsPanel.setOpaque(false);
+        this.requestsPanel.setPreferredSize(new Dimension(360, 400));
+        add(this.requestsPanel, BorderLayout.WEST);
+        updateRequestsPanel(null); // populate left demo
 
+        // initialize created requests area (empty)
+        rebuildCreatedRequestsArea();
 
         setPreferredSize(new Dimension(1200, 700));
     }
@@ -195,17 +250,19 @@ public class HomepageView extends JPanel {
         return token;
     }
 
-    private JPanel buildRequestsPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+    // rebuilds the left requests panel using the provided list (or default demo if null)
+    private void updateRequestsPanel(List<RequestLocation> requests) {
+        requestsPanel.removeAll();
+        requestsPanel.setLayout(new BoxLayout(requestsPanel, BoxLayout.Y_AXIS));
+        requestsPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        requestsPanel.setOpaque(false);
 
         JLabel header = new JLabel("Nearby requests");
         header.setFont(header.getFont().deriveFont(Font.BOLD, 16f));
-        panel.add(header);
-        panel.add(Box.createVerticalStrut(8));
+        requestsPanel.add(header);
+        requestsPanel.add(Box.createVerticalStrut(8));
 
-        // Use a single helper location (you) and vary requester locations
+        // default demo data if none provided
         double helperLat = 43.6617;
         double helperLng = -79.3950;
         List<RequestLocation> demoRequests = List.of(
@@ -213,20 +270,46 @@ public class HomepageView extends JPanel {
                 new RequestLocation("REQ-002", "Medication pickup (Toronto)", 43.7000, -79.4000, helperLat, helperLng)
         );
 
-        for (RequestLocation location : demoRequests) {
-            panel.add(createRequestRow(location));
-            panel.add(Box.createVerticalStrut(6));
+        List<RequestLocation> toShow = requests == null ? demoRequests : requests;
+
+        for (RequestLocation location : toShow) {
+            requestsPanel.add(createRequestRow(location));
+            requestsPanel.add(Box.createVerticalStrut(6));
         }
 
         if (mapboxToken == null || mapboxToken.isBlank()) {
             JLabel warning = new JLabel("Set MAPBOX_TOKEN env/system property to enable maps + ETA");
             warning.setForeground(Color.RED.darker());
             warning.setFont(warning.getFont().deriveFont(Font.PLAIN, 12f));
-            panel.add(Box.createVerticalStrut(6));
-            panel.add(warning);
+            requestsPanel.add(Box.createVerticalStrut(6));
+            requestsPanel.add(warning);
         }
 
-        return panel;
+        requestsPanel.revalidate();
+        requestsPanel.repaint();
+    }
+
+    private void rebuildCreatedRequestsArea() {
+        createdRequestsPanel.removeAll();
+
+        JLabel header = new JLabel("My Pending requests");
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 16f));
+        createdRequestsPanel.add(header);
+        createdRequestsPanel.add(Box.createVerticalStrut(8));
+
+        if (createdRequests.isEmpty()) {
+            JLabel empty = new JLabel("You have not posted any requests yet.");
+            empty.setFont(empty.getFont().deriveFont(Font.PLAIN, 13f));
+            createdRequestsPanel.add(empty);
+        } else {
+            for (RequestLocation loc : createdRequests) {
+                createdRequestsPanel.add(createCreatedRequestRow(loc));
+                createdRequestsPanel.add(Box.createVerticalStrut(6));
+            }
+        }
+
+        createdRequestsPanel.revalidate();
+        createdRequestsPanel.repaint();
     }
 
     private JPanel createRequestRow(RequestLocation location) {
@@ -236,11 +319,13 @@ public class HomepageView extends JPanel {
                 BorderFactory.createLineBorder(new Color(230, 230, 230)),
                 new EmptyBorder(6, 8, 6, 8)
         ));
+        row.setOpaque(false);
 
         JLabel title = new JLabel(location.title());
         row.add(title, BorderLayout.CENTER);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        actions.setOpaque(false);
         JButton accept = new JButton("Accept");
         accept.addActionListener(evt -> JOptionPane.showMessageDialog(
                 this,
@@ -254,6 +339,35 @@ public class HomepageView extends JPanel {
 
         actions.add(accept);
         actions.add(view);
+        row.add(actions, BorderLayout.EAST);
+
+        return row;
+    }
+
+    // Center created request row: show Edit / Delete buttons, no listeners attached (user will implement later)
+    private JPanel createCreatedRequestRow(RequestLocation location) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        row.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                new EmptyBorder(6, 8, 6, 8)
+        ));
+        row.setOpaque(false);
+
+        JLabel title = new JLabel(location.title());
+        row.add(title, BorderLayout.CENTER);
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        actions.setOpaque(false);
+
+        JButton edit = new JButton("Edit");
+        edit.setToolTipText("Edit (not implemented)");
+
+        JButton delete = new JButton("Delete");
+        delete.setToolTipText("Delete (not implemented)");
+
+        actions.add(edit);
+        actions.add(delete);
         row.add(actions, BorderLayout.EAST);
 
         return row;
@@ -328,6 +442,23 @@ public class HomepageView extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Adds a new created request to the top of the center list and refreshes UI
+    public void addCreatedRequest(RequestLocation location) {
+        if (location == null) return;
+        createdRequests.add(0, location);
+        rebuildCreatedRequestsArea();
+        if (createdRequestsScroll != null) {
+            SwingUtilities.invokeLater(() -> createdRequestsScroll.getVerticalScrollBar().setValue(0));
+        }
+    }
+
+    // Allows presenter/controller to replace full created list (keeps UI consistent)
+    public void setCreatedRequests(List<RequestLocation> list) {
+        createdRequests.clear();
+        if (list != null) createdRequests.addAll(list);
+        rebuildCreatedRequestsArea();
+    }
+
     public class CreateRequest extends JDialog {
         public CreateRequest(Window owner) {
             super(owner, "Request", ModalityType.APPLICATION_MODAL);
@@ -347,7 +478,6 @@ public class HomepageView extends JPanel {
             JPanel column = new JPanel();
             column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
             column.setOpaque(false);
-
 
             // Title label
             JLabel titleLabel = new JLabel("Title");
@@ -369,7 +499,6 @@ public class HomepageView extends JPanel {
             sectionHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
             sectionHeading.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
             column.add(sectionHeading);
-
 
             // Request types (Service / Resource)
             JPanel optionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
@@ -399,13 +528,33 @@ public class HomepageView extends JPanel {
 
             root.add(column, BorderLayout.CENTER);
 
-
             // Buttons
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancel = new JButton("Back");
             cancel.addActionListener((ActionEvent e) -> dispose());
             JButton create = new JButton("Post Request");
             create.addActionListener((ActionEvent e) -> {
+                String title = titleField.getText() != null ? titleField.getText().trim() : "";
+                if (title.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please enter a title for the request", "Missing title", JOptionPane.WARNING_MESSAGE);
+                    titleField.requestFocus();
+                    return;
+                }
+
+                // create a RequestLocation for display (demo coords)
+                double helperLat = 43.6617;
+                double helperLng = -79.3950;
+                RequestLocation newLocation = new RequestLocation(
+                        UUID.randomUUID().toString(),
+                        title,
+                        43.6532,   // demo request lat
+                        -79.3832,  // demo request lng
+                        helperLat,
+                        helperLng
+                );
+
+                // add to center "My requests" list and refresh UI
+                HomepageView.this.addCreatedRequest(newLocation);
                 dispose();
             });
             buttons.add(cancel);
@@ -422,6 +571,6 @@ public class HomepageView extends JPanel {
     }
 
     public String getViewName() {
-        return this.viewName; 
+        return this.viewName;
     }
 }
