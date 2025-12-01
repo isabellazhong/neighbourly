@@ -70,7 +70,9 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         Offer offer = new Offer(title, details, date);
         return offer;
     }
-    
+
+    }
+
     public String getChatChannelId(UUID offerId) {
         Document offerDoc = offersCollection.find(Filters.eq("id", offerId.toString())).first();
         if (offerDoc != null && offerDoc.containsKey("chatChannelId")) {
@@ -79,7 +81,6 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         return null;
     }
 
-    @Override
     public void setChatChannelId(UUID offerId, String chatChannelId) {
         offersCollection.updateOne(
             Filters.eq("id", offerId.toString()),
@@ -87,7 +88,6 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         );
     }
 
-    @Override
     public void setAccepted(UUID offerId, boolean accepted) {
         offersCollection.updateOne(
             Filters.eq("id", offerId.toString()),
