@@ -5,14 +5,14 @@ import java.util.List;
 
 import entity.MessageDTO;
 import entity.SendbirdMessagingService;
-import use_case.offer.OfferDataAccessInterface;
+import use_case.offers.create_offer.OfferDataAccessInterface;
 import use_case.request.RequestDataAccessInterface;
 
 public class MessagingInteractor implements MessagingInputBoundary {
     private final MessagingOutputBoundary messagingOutputBoundary;
     private final SendbirdMessagingService sendbirdMessagingService;
     private final RequestDataAccessInterface requestDAO;
-    private final use_case.offer.OfferDataAccessInterface offerDAO;
+    private final OfferDataAccessInterface offerDAO;
     
     public MessagingInteractor(
             MessagingOutputBoundary messagingOutputBoundary,

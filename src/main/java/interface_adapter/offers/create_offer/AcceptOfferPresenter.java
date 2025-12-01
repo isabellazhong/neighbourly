@@ -1,4 +1,4 @@
-package interface_adapter.offer;
+package interface_adapter.offers.create_offer; 
 
 import java.util.ArrayList;
 

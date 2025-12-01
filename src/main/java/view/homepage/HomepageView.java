@@ -4,22 +4,33 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
+import interface_adapter.offers.my_offers.MyOffersController;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfileViewModel;
 import view.offer_interface.CreateOfferView;
+import view.offer_interface.MyOffersView;
 import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
     private final CreateOfferController createOfferController;
+    private final MyOffersController myOffersController;
+    private final MyOffersViewModel myOffersViewModel;
+
     private ProfileController profileController;
     private ProfileViewModel profileViewModel;
     private String viewName;
 
-    public HomepageView(CreateOfferController createOfferController) {
+    public HomepageView(CreateOfferController createOfferController,
+                        MyOffersController myOffersController,
+                        MyOffersViewModel myOffersViewModel) {
         this.viewName = "homepage";
         this.createOfferController = createOfferController;
+        this.myOffersController = myOffersController;
+        this.myOffersViewModel = myOffersViewModel;
+
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
@@ -27,9 +38,16 @@ public class HomepageView extends JPanel {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JButton myOffersButton = new JButton("My Offers");
+        myOffersButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        myOffersButton.addActionListener(e -> openOffers());
+
         JButton profileButton = new JButton("Profile");
         profileButton.setFont(profileButton.getFont().deriveFont(14f));
         profileButton.addActionListener(e -> openProfile());
+
+        topPanel.add(myOffersButton);
         topPanel.add(profileButton);
         add(topPanel, BorderLayout.NORTH);
 
@@ -168,6 +186,25 @@ public class HomepageView extends JPanel {
             profileDialog.setLocationRelativeTo(topFrame);
             profileDialog.setVisible(true);
         }
+    }
+
+    private void openOffers() {
+        if (myOffersController != null) {
+            myOffersController.execute();
+        }
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(topFrame, "My Offers", true);
+
+        MyOffersView myOffersView = new MyOffersView(myOffersViewModel);
+
+        if (myOffersViewModel.getState() != null) {
+            myOffersView.showOffers(myOffersViewModel.getState().getOffers());
+        }
+
+        dialog.setContentPane(myOffersView);
+        dialog.setSize(720, 500);
+        dialog.setLocationRelativeTo(topFrame);
+        dialog.setVisible(true);
     }
 
     public class CreateRequest extends JDialog {

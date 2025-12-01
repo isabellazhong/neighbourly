@@ -1,14 +1,13 @@
-package use_case.offer;
-import java.util.UUID;
-
+package use_case.offers.create_offer;
 import entity.Offer;
+import java.util.List;
+import java.util.UUID;
 
 public interface OfferDataAccessInterface {
     void addOffer(Offer offer);
-    
     String getChatChannelId(UUID offerId);
-
     void setChatChannelId(UUID offerId, String channelId);
-
     void setAccepted(UUID offerId, boolean accepted);
+    List<Offer> AllOffers();
+    List<Offer> MyOffers(String username);
 }

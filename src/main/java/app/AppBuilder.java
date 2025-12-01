@@ -12,13 +12,11 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.messaging.MessagingController;
 import interface_adapter.messaging.MessagingPresenter;
 import interface_adapter.messaging.MessagingViewModel;
-import interface_adapter.offer.CreateOfferController;
 import use_case.messaging.MessagingInteractor;
 import use_case.messaging.MessagingOutputBoundary;
-import use_case.offer.CreateOfferInteractor;
-import use_case.offer.OfferDataAccessInterface;
 import view.homepage.HomepageView;
 import view.messaging.MessagingView;
+import view.offer_interface.MyOffersView;
 import view.start_interface.LoginView;
 import database.MongoDBUserDataAccessObject;
 import entity.IDVerfication;
@@ -26,9 +24,19 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferPresenter;
+import interface_adapter.offers.create_offer.CreateOfferViewModel;
+import interface_adapter.offers.my_offers.MyOffersController;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
+import interface_adapter.offers.my_offers.MyOffersPresenter;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
+import use_case.offers.create_offer.CreateOfferInteractor;
+import use_case.offers.create_offer.CreateOfferOutputBoundary;
+import use_case.offers.create_offer.OfferDataAccessInterface;
+import use_case.offers.get_offers.MyOffersInteractor;
 import view.ViewManager;
 import view.homepage.HomepageView;
 import view.profile_interface.ProfileView;
@@ -61,6 +69,7 @@ public class AppBuilder {
     private LoginViewModel loginViewModel;
     private LoginView loginView;
     private HomepageView homepageView;
+    private MyOffersView myOffersView; 
     private VerificationView verificationView;
     private VerificationViewModel verificationViewModel;
     private MessagingViewModel messagingViewModel;
@@ -70,8 +79,12 @@ public class AppBuilder {
     private IDVerfication idVerfication;
     private SignupViewModel signupViewModel;
     private SignUpView signUpView;
-    private final UserDataAccessInterface userDataAcessObject = new MongoDBUserDataAccessObject();
+    private CreateOfferController createOfferController;
+    private MyOffersViewModel myOffersViewModel;
+    private MyOffersController myOffersController;
+    private interface_adapter.offers.my_offers.MyOffersController myOffersViewController;
     private final OfferDataAccessInterface offerDataAccessObject = new MongoDBOfferDataAccessObject();
+    private final UserDataAccessInterface userDataAccessObject = new MongoDBUserDataAccessObject();
     private final RequestDataAccessInterface requestDataAccessObject = new MongoDBRequestDataAccessObject();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final CardLayout cardLayout = new CardLayout();
@@ -105,8 +118,8 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomePageView() {
-        homepageView = new HomepageView(null);
-        cardPanel.add(homepageView, homepageView.getViewName());
+        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel);
+        cardPanel.add(homepageView, homepageView.getViewName()); 
         return this;
     }
 
@@ -124,11 +137,19 @@ public class AppBuilder {
         return this;
     }
 
+
+    public AppBuilder addMyOffersView() {
+        myOffersViewModel = new MyOffersViewModel();
+        myOffersView = new MyOffersView(myOffersViewModel);
+        cardPanel.add(myOffersView, myOffersView.getViewName());
+        return this;
+    }
+
     public AppBuilder addVerificationUseCase() {
         VerificationOutputBoundary verificationPresenter = new VerificationPresenter(homepageView, viewManagerModel,
                 verificationViewModel);
         VerificationInputBoundary verificationInteractor = new VerificationInteractor(idVerfication,
-                userDataAcessObject, verificationPresenter);
+                userDataAccessObject, verificationPresenter);
         VerificationController verificationController = new VerificationController(verificationInteractor);
         verificationView.setController(verificationController);
         return this;
@@ -137,7 +158,7 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         LoginOutputBoundary loginPresenter = new LoginPresenter(loginViewModel, homepageView, signUpView,
                 viewManagerModel);
-        LoginInputBoundary loginInteractor = new LoginInteractor(loginPresenter, userDataAcessObject);
+        LoginInputBoundary loginInteractor = new LoginInteractor(loginPresenter, userDataAccessObject);
         LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
         return this;
@@ -146,7 +167,7 @@ public class AppBuilder {
     public AppBuilder addSignupUseCase() {
         SignupOutputBoundary signupPresenter = new SignupPresenter(signupViewModel, viewManagerModel, verificationView,
                 loginView, verificationViewModel);
-        SignupInputBoundary signupInteractor = new SignupInteractor(signupPresenter, userDataAcessObject);
+        SignupInputBoundary signupInteractor = new SignupInteractor(signupPresenter, userDataAccessObject);
         SignupController signupController = new SignupController(signupInteractor);
         signUpView.setSignupController(signupController);
         return this;
@@ -154,7 +175,7 @@ public class AppBuilder {
 
     public AppBuilder addProfileViewUseCase() {
         ProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(profileViewModel);
-        ProfileInputBoundary profileInteractor = new ProfileInteractor(profileOutputBoundary, userDataAcessObject);
+        ProfileInputBoundary profileInteractor = new ProfileInteractor(profileOutputBoundary, userDataAccessObject);
         ProfileController profileController = new ProfileController(profileInteractor);
         profileView.setProfileController(profileController);
         return this;
@@ -171,6 +192,22 @@ public class AppBuilder {
                 offerDataAccessObject);
         MessagingController messagingController = new MessagingController(messagingInteractor);
         messagingView.setMessagingController(messagingController);
+        return this;
+    }
+
+    public AppBuilder addOfferUseCase() {
+        CreateOfferViewModel createOfferViewModel = new CreateOfferViewModel();
+        CreateOfferOutputBoundary createOfferPresenter = new CreateOfferPresenter(createOfferViewModel);
+        CreateOfferInteractor createOfferInteractor = new CreateOfferInteractor(offerDataAccessObject, createOfferPresenter);
+        this.createOfferController = new CreateOfferController(createOfferInteractor);
+        return this;
+    }
+
+    public AppBuilder addMyOffersUseCase() {
+        this.myOffersViewModel = new MyOffersViewModel();
+        MyOffersPresenter presenter = new MyOffersPresenter(myOffersViewModel);
+        MyOffersInteractor interactor = new MyOffersInteractor(offerDataAccessObject, presenter);
+        this.myOffersController = new MyOffersController(interactor);
         return this;
     }
 
