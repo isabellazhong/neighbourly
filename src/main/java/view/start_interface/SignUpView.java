@@ -17,8 +17,8 @@ import java.util.HashMap;
 import entity.Gender;
 
 public class SignUpView extends JPanel {
-	private SignupController signupController;
-	private final SignupViewModel signupViewModel;
+	private transient SignupController signupController;
+	private final transient SignupViewModel signupViewModel;
 
 	private static final int PANEL_WIDTH = 420;
 	private static final int PANEL_HEIGHT = 580;
@@ -55,7 +55,7 @@ public class SignUpView extends JPanel {
 	private HashMap<String, Gender> genderOptions;
 	private JComboBox<String> genderComboBox;
 
-	private String viewName;
+	private final String viewName;
 
 	public SignUpView(SignupViewModel signupViewModel) {
 		this.viewName = "sign up";
@@ -69,7 +69,7 @@ public class SignUpView extends JPanel {
 
 	private void initializeComponents() {
 		JLabel titleLabel = new JLabel("Create Your Neighbourly Account", SwingConstants.CENTER);
-		titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+		titleLabel.setFont(UIConstants.titleFontStyle);
 		titleLabel.setForeground(UIConstants.textColor);
 
 		firstNameLabel = createStyledLabel("First Name");
@@ -178,7 +178,7 @@ public class SignUpView extends JPanel {
 
 	private void buildGenderDropdown() {
 		genderComboBox = new JComboBox<>(genderOptions.keySet().toArray(new String[0]));
-		genderComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		genderComboBox.setFont(UIConstants.labelFontStyle);
 		genderComboBox.setBackground(Color.WHITE);
 		genderComboBox.setForeground(UIConstants.darkGray);
 	}
@@ -263,8 +263,8 @@ public class SignUpView extends JPanel {
 	private void attachDocumentListener(JTextField field, java.util.function.Consumer<String> consumer) {
 		field.getDocument().addDocumentListener(new DocumentListener() {
 			private void handleChange() {
-				String value = field instanceof JPasswordField
-						? new String(((JPasswordField) field).getPassword())
+				String value = field instanceof JPasswordField field
+						? new String((field).getPassword())
 						: field.getText();
 				consumer.accept(value.trim());
 			}
@@ -450,8 +450,8 @@ public class SignUpView extends JPanel {
 				if (field.getText().equals(placeholder)) {
 					field.setText("");
 					field.setForeground(Color.BLACK);
-					if (field instanceof JPasswordField) {
-						((JPasswordField) field).setEchoChar('•');
+					if (field instanceof JPasswordField field) {
+						(field).setEchoChar('•');
 					}
 				}
 			}
@@ -461,8 +461,8 @@ public class SignUpView extends JPanel {
 				if (field.getText().isEmpty()) {
 					field.setText(placeholder);
 					field.setForeground(UIConstants.textColorFaded);
-					if (field instanceof JPasswordField) {
-						((JPasswordField) field).setEchoChar((char) 0);
+					if (field instanceof JPasswordField field) {
+						(field).setEchoChar((char) 0);
 					}
 				}
 			}

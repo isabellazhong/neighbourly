@@ -1,35 +1,36 @@
 package use_case.start.id_verification;
 
-import database.MongoDBUserDataAcessObject;
+import database.MongoDBUserDataAccessObject;
 import entity.Address;
 import entity.IDVerfication;
 import entity.User;
 import use_case.start.signup.SignupInputData;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.io.File;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 
 public class VerificationInteractor implements VerificationInputBoundary {
     private final IDVerfication idVerfication;
-    private final MongoDBUserDataAcessObject userDataAcessObject;
-    private final VerificationOutputBoundary verficationPresenter;
+    private final MongoDBUserDataAccessObject userDataAccessObject;
+    private final VerificationOutputBoundary verificationPresenter;
+    static final Logger logger = Logger.getLogger(VerificationInteractor.class.getName());
 
     public VerificationInteractor(IDVerfication idVerfication,
-            MongoDBUserDataAcessObject userDataAcessObject,
-            VerificationOutputBoundary verficationPresenter) {
+            MongoDBUserDataAccessObject userDataAccessObject,
+            VerificationOutputBoundary verificationPresenter) {
         this.idVerfication = idVerfication;
-        this.userDataAcessObject = userDataAcessObject;
-        this.verficationPresenter = verficationPresenter;
+        this.userDataAccessObject = userDataAccessObject;
+        this.verificationPresenter = verificationPresenter;
     }
 
     @Override
     public void handleError(String error) {
-        verficationPresenter.prepareVerificationErrorView(error);
+        verificationPresenter.prepareVerificationErrorView(error);
     }
 
     @Override
@@ -51,8 +52,6 @@ public class VerificationInteractor implements VerificationInputBoundary {
                         signupInputData.getLastName(),
                         signupInputData.getEmail(),
                         signupInputData.getGender(),
-                        new ArrayList<>(),
-                        new ArrayList<>(),
                         UUID.randomUUID(),
                         new Address(address.get("street"),
                                 address.get("city"),
@@ -60,29 +59,29 @@ public class VerificationInteractor implements VerificationInputBoundary {
                                 address.get("postal_code"),
                                 address.get("country")),
                         signupInputData.getPassword());
-                userDataAcessObject.addUser(user);
-                verficationPresenter.prepareVerficationSuccessButton(); 
+                userDataAccessObject.addUser(user);
+                verificationPresenter.prepareVerificationSuccessButton();
             } else {
-                verficationPresenter.prepareVerificationErrorView("Government ID inavlid. Please try again.");
+                verificationPresenter.prepareVerificationErrorView("Government ID invalid. Please try again.");
             }
             
         } catch (IOException e) {
-            System.out.println("Gemini agent could not be called." + e);
+            logger.severe("Gemini agent could not be called." + e);
         }
     }
 
     @Override
     public void continueToHomepage() {
-        verficationPresenter.prepareVerficationSuccess();
+        verificationPresenter.prepareVerificationSuccess();
     }
 
     @Override 
     public void uploadFileStatus(File file) {
-        verficationPresenter.prepareUploadFileView(file);
+        verificationPresenter.prepareUploadFileView(file);
     }
 
     @Override 
     public void prepareVerifyingView() {
-        verficationPresenter.prepareVerifyingView();
+        verificationPresenter.prepareVerifyingView();
     }
 }
