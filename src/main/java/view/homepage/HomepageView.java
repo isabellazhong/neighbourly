@@ -1,5 +1,4 @@
 package view.homepage;
-
 import interface_adapter.home.HomepageController;
 import interface_adapter.home.HomepageViewModel;
 import view.request_interface.CreateRequestView;
@@ -41,14 +40,12 @@ public class HomepageView extends JPanel {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.weightx = 1.0;
 
-        // Top filler
         gbc.gridy = 0;
         gbc.weighty = 0.2;
         JPanel topFiller = new JPanel();
         topFiller.setOpaque(false);
         content.add(topFiller, gbc);
 
-        // Search row
         gbc.gridy = 1;
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -66,7 +63,6 @@ public class HomepageView extends JPanel {
 
         content.add(row, gbc);
 
-        // Bottom filler
         gbc.gridy = 2;
         gbc.weighty = 0.8;
         gbc.fill = GridBagConstraints.BOTH;
@@ -148,4 +144,7 @@ public class HomepageView extends JPanel {
         });
     }
 
+    public String getViewName() {
+        return "HOMEPAGE";
+    }
 }

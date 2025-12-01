@@ -1,23 +1,19 @@
 package interface_adapter.home;
 
-import javax.swing.*;
-import java.awt.*;
-
 import interface_adapter.interactor.HomepageViewOutputBoundary;
-import view.offer_interface.CreateOfferView;
 
 public class HomepagePresenter implements HomepageViewOutputBoundary {
     private final ViewModelManager viewModelManager;
     private final HomepageViewModel tempModel;
-    private CreateOfferView offerView; // optional view instance presented directly
+    private OfferDialog offerDialog;
 
     public HomepagePresenter(ViewModelManager viewModelManager, HomepageViewModel tempModel) {
         this.viewModelManager = viewModelManager;
         this.tempModel = tempModel;
     }
 
-    public void setOfferView(CreateOfferView offerView) {
-        this.offerView = offerView;
+    public void setOfferDialog(OfferDialog offerDialog) {
+        this.offerDialog = offerDialog;
     }
 
     public void presentOpenRequest() { tempModel.setRequestOpen(true); }
@@ -31,28 +27,20 @@ public class HomepagePresenter implements HomepageViewOutputBoundary {
 
     @Override
     public void prepareOfferPage() {
-        // Ensure requestOpen is cleared so it doesn't get propagated accidentally.
         tempModel.setRequestOpen(false);
-        tempModel.setOfferOpen(true);
         viewModelManager.refreshFrom(tempModel);
 
-        if (offerView != null) {
-            SwingUtilities.invokeLater(() -> {
-                JDialog dlg = new JDialog((Window) null, "Offer Help", Dialog.ModalityType.APPLICATION_MODAL);
-                dlg.setContentPane(offerView);
-                dlg.pack();
-                dlg.setLocationRelativeTo(null);
-                dlg.setVisible(true);
-                // After dialog closed, clear the flag and refresh so view remains consistent.
-                tempModel.setOfferOpen(false);
-                viewModelManager.refreshFrom(tempModel);
-            });
+        if (offerDialog != null) {
+            offerDialog.show();
+            return;
         }
+
+        tempModel.setOfferOpen(true);
+        viewModelManager.refreshFrom(tempModel);
     }
 
     @Override
     public void prepareRequestPage() {
-        // Ensure offerOpen is cleared so it doesn't get propagated accidentally.
         tempModel.setOfferOpen(false);
         tempModel.setRequestOpen(true);
         viewModelManager.refreshFrom(tempModel);
