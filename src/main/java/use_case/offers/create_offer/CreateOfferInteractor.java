@@ -19,15 +19,23 @@ public class CreateOfferInteractor implements CreateOfferInputBoundary {
     @Override
     public void execute(CreateOfferInputData inputData) {
         User currentUser = UserSession.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            offerPresenter.prepareFailView("User not logged in");
+            return;
+        }
+        String title = inputData.getTitle();
+        if (title == null || title.trim().isEmpty()) {
+            offerPresenter.prepareFailView("Please enter a title");
+            return;
+        }
         Offer newOffer = new Offer(
                 inputData.getTitle(),
                 inputData.getDetails(),
                 new Date()
         );
-        if (currentUser != null) {
-            newOffer.setUserID(currentUser.getID());
-        }
+        newOffer.setUserID(currentUser.getID());
         offerDataAccessObject.addOffer(newOffer);
+
         CreateOfferOutputData outputData = new CreateOfferOutputData(newOffer, false);
         offerPresenter.prepareSuccessView(outputData);
     }

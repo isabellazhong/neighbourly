@@ -20,6 +20,7 @@ public class User {
     private UUID id;
     private Address address;
     private String password;
+    private List<UUID> offers;
 
     // default constructor for mongodb
     public User() {
@@ -30,6 +31,7 @@ public class User {
         this.id = null;
         this.address = null;
         this.password = "";
+        this.offers = new ArrayList<>();
     }
 
     public User(String name,
@@ -46,6 +48,16 @@ public class User {
         this.id = java.util.UUID.randomUUID();
         this.address = address;
         this.password = password;
+        this.offers = new ArrayList<>();
+    }
+
+    public User(UUID id, String name, String lastName, String email, String gender) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.gender = gender;
+        this.offers = new ArrayList<>();
     }
 
     public String getName() {
@@ -76,6 +88,13 @@ public class User {
         // change later to store hashed password instead
         return this.password;
     }
+
+    public void addOffer(UUID id) { this.offers.add(id); }
+
+    public List<UUID> getOfferIDs() { return this.offers; }
+
+    public void setOfferIDs(List<UUID> offerIDs) { this.offers = offers; }
+
 
     // Setter methods for MongoDB deserialization
     public void setName(String name) {
