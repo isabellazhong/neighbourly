@@ -8,8 +8,6 @@ import javax.swing.JFrame;
 import database.MongoDBOfferDataAccessObject;
 import database.MongoDBRequestDataAccessObject;
 import entity.SendbirdMessagingService;
-import interface_adapter.home.OfferDialog;
-import interface_adapter.home.SwingOfferDialog;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.messaging.MessagingController;
 import interface_adapter.messaging.MessagingPresenter;
@@ -71,7 +69,7 @@ public class AppBuilder {
     private LoginViewModel loginViewModel;
     private LoginView loginView;
     private HomepageView homepageView;
-    private MyOffersView myOffersView;
+    private MyOffersView myOffersView; 
     private VerificationView verificationView;
     private VerificationViewModel verificationViewModel;
     private MessagingViewModel messagingViewModel;
@@ -118,27 +116,14 @@ public class AppBuilder {
         cardPanel.add(verificationView, verificationView.getViewName());
         return this;
     }
+
     public AppBuilder addHomePageView() {
-            interface_adapter.home.HomepageViewModel homepageViewModel =
-                    new interface_adapter.home.HomepageViewModel();
-            interface_adapter.home.ViewModelManager viewModelManager =
-                    new interface_adapter.home.ViewModelManager(homepageViewModel);
-            interface_adapter.home.HomepagePresenter homepagePresenter =
-                    new interface_adapter.home.HomepagePresenter(viewModelManager, homepageViewModel);
-            interface_adapter.interactor.HomepageInteractor homepageInteractor =
-                    new interface_adapter.interactor.HomepageInteractor(homepagePresenter);
-            interface_adapter.home.HomepageController homepageController =
-                    new interface_adapter.home.HomepageController(homepageInteractor);
-
-            OfferDialog offerDialog = new SwingOfferDialog(null, createOfferController);
-            homepagePresenter.setOfferDialog(offerDialog);
-
-            homepageView = new view.homepage.HomepageView(homepageController, homepageViewModel);
-            cardPanel.add(homepageView, homepageView.getViewName());
-            return this;
+        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel);
+        cardPanel.add(homepageView, homepageView.getViewName()); 
+        return this;
     }
 
-        public AppBuilder addProfileView() {
+    public AppBuilder addProfileView() {
         profileViewModel = new ProfileViewModel();
         profileView = new ProfileView(profileViewModel);
         cardPanel.add(profileView, profileView.getViewName());
