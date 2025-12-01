@@ -58,3 +58,20 @@ As a user, I want to be able to easily post offers that I can provide and view a
 - Implemented Clean Architecture for Create Offer and My Offers use cases
 
 
+## Tahmid
+### 5. Use case
+
+#### User story:
+As a helper, I want to accept a request, see the requester on a map with route/ETA, and open a live map so I know how to get there. 
+
+#### Features:
+- Show requester and helper locations with a route on a static map (in-app)  
+- Display walk, bike, and car ETAs and reverse-geocoded addresses for both parties  
+- Provide a “View location” dialog with an “Open in browser” option for the live Mapbox GL map  
+- Include a “Message requester” button in the location dialog  
+
+### 2. Implementation and Contributions:
+- Added Mapbox integration behind clean architecture ports (`MapService`, `MapImageProvider`) with `MapboxMapService` / `RealMapImageProvider` implementations  
+- Centralized config/env loading via `AppConfig`, injecting Mapbox services into the UI (no direct env reads in views)  
+- Built `RequestMapView` to render static maps, multi-mode ETAs, addresses, and a browser launch for the interactive map  
+- Wrote headless-safe tests with full coverage of the Mapbox flow (routes, fallback, browser launch, address handling) and enabled JaCoCo coverage reporting
