@@ -16,6 +16,7 @@ import view.map.RequestMapView;
 import view.offer_interface.MyOffersView;
 import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class HomepageView extends JPanel {
     private final CreateOfferController createOfferController;
@@ -167,6 +168,11 @@ public class HomepageView extends JPanel {
         bottomPanel.add(createButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // Demo requests panel on the left
+        JPanel requestsPanel = buildRequestsPanel();
+        requestsPanel.setPreferredSize(new Dimension(360, 400));
+        add(requestsPanel, BorderLayout.WEST);
+
 
         setPreferredSize(new Dimension(1200, 700));
     }
@@ -175,6 +181,13 @@ public class HomepageView extends JPanel {
         String token = System.getenv("MAPBOX_TOKEN");
         if (token == null || token.isBlank()) {
             token = System.getProperty("MAPBOX_TOKEN");
+        }
+        if (token == null || token.isBlank()) {
+            try {
+                Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+                token = dotenv.get("MAPBOX_TOKEN");
+            } catch (Exception ignored) {
+            }
         }
         return token;
     }
@@ -189,9 +202,12 @@ public class HomepageView extends JPanel {
         panel.add(header);
         panel.add(Box.createVerticalStrut(8));
 
+        // Use a single helper location (you) and vary requester locations
+        double helperLat = 43.6617;
+        double helperLng = -79.3950;
         List<RequestLocation> demoRequests = List.of(
-                new RequestLocation("REQ-001", "Grocery drop-off (Toronto)", 43.6532, -79.3832, 43.6617, -79.3950),
-                new RequestLocation("REQ-002", "Medication pickup (Toronto)", 43.7000, -79.4000, 43.7100, -79.4200)
+                new RequestLocation("REQ-001", "Grocery drop-off (Toronto)", 43.6532, -79.3832, helperLat, helperLng),
+                new RequestLocation("REQ-002", "Medication pickup (Toronto)", 43.7000, -79.4000, helperLat, helperLng)
         );
 
         for (RequestLocation location : demoRequests) {
@@ -221,9 +237,21 @@ public class HomepageView extends JPanel {
         JLabel title = new JLabel(location.title());
         row.add(title, BorderLayout.CENTER);
 
-        JButton accept = new JButton("Accept & view map");
-        accept.addActionListener(evt -> openRequestOnMap(location));
-        row.add(accept, BorderLayout.EAST);
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        JButton accept = new JButton("Accept");
+        accept.addActionListener(evt -> JOptionPane.showMessageDialog(
+                this,
+                "Request accepted (demo).",
+                "Accepted",
+                JOptionPane.INFORMATION_MESSAGE
+        ));
+
+        JButton view = new JButton("View location");
+        view.addActionListener(evt -> openRequestOnMap(location));
+
+        actions.add(accept);
+        actions.add(view);
+        row.add(actions, BorderLayout.EAST);
 
         return row;
     }
@@ -243,6 +271,7 @@ public class HomepageView extends JPanel {
             JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Request location", Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setContentPane(new RequestMapView(mapboxToken, location));
             dialog.pack();
+            dialog.setSize(new Dimension(1100, 820));
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
         } catch (Exception ex) {

@@ -46,6 +46,19 @@ public class MapboxClient {
                 "https://api.mapbox.com/directions/v5/mapbox/driving/%f,%f;%f,%f?geometries=geojson&overview=full&access_token=%s",
                 fromLng, fromLat, toLng, toLat, token
         );
+        return fetchRouteWithProfile(url);
+    }
+
+    public RouteInfo fetchRoute(String profile, double fromLng, double fromLat, double toLng, double toLat) throws IOException, InterruptedException {
+        String url = String.format(Locale.US,
+                "https://api.mapbox.com/directions/v5/mapbox/%s/%f,%f;%f,%f?geometries=geojson&overview=full&access_token=%s",
+                profile,
+                fromLng, fromLat, toLng, toLat, token
+        );
+        return fetchRouteWithProfile(url);
+    }
+
+    private RouteInfo fetchRouteWithProfile(String url) throws IOException, InterruptedException {
 
         HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                 .timeout(Duration.ofSeconds(15))
@@ -76,6 +89,32 @@ public class MapboxClient {
         String geometryJson = gson.toJson(geometryEl);
 
         return new RouteInfo(etaMinutes, geometryJson);
+    }
+
+    /**
+     * Reverse geocode a coordinate into a place name.
+     */
+    public String fetchPlaceName(double lng, double lat) {
+        try {
+            String url = String.format(Locale.US,
+                    "https://api.mapbox.com/geocoding/v5/mapbox.places/%f,%f.json?limit=1&access_token=%s",
+                    lng, lat, token);
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                return null;
+            }
+            JsonObject root = gson.fromJson(response.body(), JsonObject.class);
+            JsonArray feats = Optional.ofNullable(root.getAsJsonArray("features")).orElse(new JsonArray());
+            if (feats.isEmpty()) return null;
+            JsonObject first = feats.get(0).getAsJsonObject();
+            return first.get("place_name").getAsString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

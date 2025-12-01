@@ -1,10 +1,5 @@
 package view.map;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -23,14 +18,12 @@ import java.nio.charset.StandardCharsets;
 public class RequestMapView extends JPanel {
 
     private final JLabel etaLabel = new JLabel("Loading ETA…");
-    private final JButton messageButton = new JButton("Message requester");
+    private final JLabel helperAddrLabel = new JLabel("Helper: resolving address…");
+    private final JLabel requesterAddrLabel = new JLabel("Requester: resolving address…");
     private final JButton openBrowserButton = new JButton("Open in browser");
     private final JLabel mapLabel = new JLabel("Loading map…", SwingConstants.CENTER);
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel centerPanel = new JPanel(cardLayout);
-    private JFXPanel jfxPanel;
-    private WebEngine webEngine;
-    private static volatile boolean fxInitialized = false;
 
     private final MapboxClient mapboxClient;
     private final RequestLocation requestLocation;
@@ -40,6 +33,7 @@ public class RequestMapView extends JPanel {
         this.mapboxToken = mapboxToken;
         this.mapboxClient = new MapboxClient(mapboxToken);
         this.requestLocation = requestLocation;
+        setPreferredSize(new Dimension(1100, 780));
         buildUi();
         loadData();
     }
@@ -60,16 +54,14 @@ public class RequestMapView extends JPanel {
         etaLabel.setFont(etaLabel.getFont().deriveFont(Font.PLAIN, 14f));
         infoBar.add(etaLabel);
 
-        messageButton.setEnabled(false);
-        messageButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Opening messaging for request " + requestLocation.requestId(),
-                        "Message",
-                        JOptionPane.INFORMATION_MESSAGE
-                )
-        );
-        infoBar.add(messageButton);
+        helperAddrLabel.setFont(helperAddrLabel.getFont().deriveFont(Font.PLAIN, 12f));
+        requesterAddrLabel.setFont(requesterAddrLabel.getFont().deriveFont(Font.PLAIN, 12f));
+        JPanel addresses = new JPanel();
+        addresses.setLayout(new BoxLayout(addresses, BoxLayout.Y_AXIS));
+        addresses.setOpaque(false);
+        addresses.add(helperAddrLabel);
+        addresses.add(requesterAddrLabel);
+        infoBar.add(addresses);
 
         openBrowserButton.addActionListener(openBrowserAction());
         infoBar.add(openBrowserButton);
@@ -80,20 +72,41 @@ public class RequestMapView extends JPanel {
     private void loadData() {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             private BufferedImage mapImage;
-            private double etaMinutes;
+            private double etaWalk;
+            private double etaBike;
+            private double etaDrive;
             private String routeGeometry;
+            private String helperAddress;
+            private String requesterAddress;
 
             @Override
             protected Void doInBackground() throws Exception {
-                MapboxClient.RouteInfo route = mapboxClient.fetchRoute(
+                MapboxClient.RouteInfo drive = mapboxClient.fetchRoute("driving",
                         requestLocation.helperLng(),
                         requestLocation.helperLat(),
                         requestLocation.requesterLng(),
                         requestLocation.requesterLat()
                 );
-                etaMinutes = route.etaMinutes();
-                routeGeometry = route.geometryJson();
+                MapboxClient.RouteInfo walk = mapboxClient.fetchRoute("walking",
+                        requestLocation.helperLng(),
+                        requestLocation.helperLat(),
+                        requestLocation.requesterLng(),
+                        requestLocation.requesterLat()
+                );
+                MapboxClient.RouteInfo bike = mapboxClient.fetchRoute("cycling",
+                        requestLocation.helperLng(),
+                        requestLocation.helperLat(),
+                        requestLocation.requesterLng(),
+                        requestLocation.requesterLat()
+                );
+
+                etaDrive = drive.etaMinutes();
+                etaWalk = walk.etaMinutes();
+                etaBike = bike.etaMinutes();
+                routeGeometry = drive.geometryJson();
                 mapImage = mapboxClient.fetchStaticMap(requestLocation, routeGeometry);
+                helperAddress = mapboxClient.fetchPlaceName(requestLocation.helperLng(), requestLocation.helperLat());
+                requesterAddress = mapboxClient.fetchPlaceName(requestLocation.requesterLng(), requestLocation.requesterLat());
                 return null;
             }
 
@@ -101,22 +114,22 @@ public class RequestMapView extends JPanel {
             protected void done() {
                 try {
                     get();
-                    etaLabel.setText("ETA: " + (int) etaMinutes + " min");
-                    messageButton.setEnabled(true);
+                    etaLabel.setText(String.format("Walk: %d min   Bike: %d min   Car: %d min",
+                            (int) etaWalk, (int) etaBike, (int) etaDrive));
+                    helperAddrLabel.setText("Helper: " + (helperAddress != null ? helperAddress :
+                            String.format("(%.5f, %.5f)", requestLocation.helperLat(), requestLocation.helperLng())));
+                    requesterAddrLabel.setText("Requester: " + (requesterAddress != null ? requesterAddress :
+                            String.format("(%.5f, %.5f)", requestLocation.requesterLat(), requestLocation.requesterLng())));
                     mapLabel.setText("");
                     mapLabel.setIcon(new ImageIcon(mapImage));
                 } catch (Exception ex) {
                     etaLabel.setText("ETA unavailable");
-                    messageButton.setEnabled(false);
                     mapLabel.setText("<html><div style='text-align:center;'>Map failed to load.<br/>"
                             + ex.getMessage() + "</div></html>");
                 }
             }
         };
         worker.execute();
-
-        // Try to embed interactive map; if it fails, the static map remains.
-        tryEmbedInteractiveMap();
     }
 
     private ActionListener openBrowserAction() {
@@ -135,38 +148,14 @@ public class RequestMapView extends JPanel {
         };
     }
 
-    private void tryEmbedInteractiveMap() {
-        try {
-            ensureFxToolkit();
-            jfxPanel = new JFXPanel();
-            jfxPanel.setPreferredSize(new Dimension(900, 600));
-            centerPanel.add(jfxPanel, "webview");
-            cardLayout.show(centerPanel, "webview");
-
-            File temp = buildTempInteractiveHtml();
-            Platform.runLater(() -> {
-                WebView webView = new WebView();
-                webEngine = webView.getEngine();
-                webEngine.load(temp.toURI().toString());
-                jfxPanel.setScene(new Scene(webView));
-            });
-        } catch (Exception ex) {
-            // Fall back to static view
-            cardLayout.show(centerPanel, "static");
-        }
-    }
-
-    private void ensureFxToolkit() {
-        if (fxInitialized) return;
-        synchronized (RequestMapView.class) {
-            if (fxInitialized) return;
-            Platform.startup(() -> {});
-            fxInitialized = true;
-        }
-    }
-
     private File buildTempInteractiveHtml() throws Exception {
         String safeToken = mapboxToken.replace("\\", "\\\\").replace("\"", "\\\"");
+        String helperAddress = mapboxClient.fetchPlaceName(requestLocation.helperLng(), requestLocation.helperLat());
+        String requesterAddress = mapboxClient.fetchPlaceName(requestLocation.requesterLng(), requestLocation.requesterLat());
+        String helperAddressSafe = helperAddress != null ? helperAddress.replace("\"", "\\\"") :
+                String.format("(%.5f, %.5f)", requestLocation.helperLat(), requestLocation.helperLng());
+        String requesterAddressSafe = requesterAddress != null ? requesterAddress.replace("\"", "\\\"") :
+                String.format("(%.5f, %.5f)", requestLocation.requesterLat(), requestLocation.requesterLng());
         String html =
                 "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
@@ -195,12 +184,18 @@ public class RequestMapView extends JPanel {
                 "<body>\n" +
                 "<div id=\"map\"></div>\n" +
                 "<div id=\"status\">Loading…</div>\n" +
+                "<div id=\"addresses\" style=\"position:absolute;bottom:12px;left:12px;background:rgba(255,255,255,0.9);padding:6px 10px;border-radius:6px;font-family:system-ui;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,0.12);\">\n" +
+                "  <div id=\"addr-helper\"></div>\n" +
+                "  <div id=\"addr-requester\"></div>\n" +
+                "</div>\n" +
                 "<script>\n" +
                 "  const token = \"" + safeToken + "\";\n" +
                 "  const helperLat = " + requestLocation.helperLat() + ";\n" +
                 "  const helperLng = " + requestLocation.helperLng() + ";\n" +
                 "  const reqLat = " + requestLocation.requesterLat() + ";\n" +
                 "  const reqLng = " + requestLocation.requesterLng() + ";\n" +
+                "  const helperAddress = \"" + helperAddressSafe + "\";\n" +
+                "  const requesterAddress = \"" + requesterAddressSafe + "\";\n" +
                 "\n" +
                 "  mapboxgl.accessToken = token;\n" +
                 "  const map = new mapboxgl.Map({\n" +
@@ -214,7 +209,8 @@ public class RequestMapView extends JPanel {
                 "    addMarker(helperLng, helperLat, '#1d4ed8');\n" +
                 "    addMarker(reqLng, reqLat, '#ef4444');\n" +
                 "    fitToBounds(helperLng, helperLat, reqLng, reqLat);\n" +
-                "    fetchRoute();\n" +
+                "    fetchRoutes();\n" +
+                "    setAddresses();\n" +
                 "  });\n" +
                 "\n" +
                 "  function addMarker(lng, lat, color) {\n" +
@@ -226,17 +222,27 @@ public class RequestMapView extends JPanel {
                 "    bounds.extend([lng2, lat2]);\n" +
                 "    map.fitBounds(bounds, { padding: 60 });\n" +
                 "  }\n" +
-                "  function fetchRoute() {\n" +
-                "    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${helperLng},${helperLat};${reqLng},${reqLat}?geometries=geojson&overview=full&access_token=${token}`;\n" +
-                "    fetch(url).then(r => r.json()).then(data => {\n" +
-                "      if (!data.routes || !data.routes.length) throw new Error('No routes');\n" +
-                "      const route = data.routes[0];\n" +
-                "      renderRoute(route.geometry);\n" +
-                "      const etaMinutes = Math.round(route.duration / 60);\n" +
-                "      setStatus(`ETA: ${etaMinutes} min`);\n" +
-                "    }).catch(err => {\n" +
+                "  async function fetchRoutes() {\n" +
+                "    try {\n" +
+                "      const profiles = ['driving','walking','cycling'];\n" +
+                "      const results = await Promise.all(profiles.map(p => fetchDirections(p)));\n" +
+                "      const drive = results[0];\n" +
+                "      if (drive && drive.geometry) renderRoute(drive.geometry);\n" +
+                "      const etaParts = [];\n" +
+                "      if (results[1]) etaParts.push(`Walk: ${Math.round(results[1].duration/60)} min`);\n" +
+                "      if (results[2]) etaParts.push(`Bike: ${Math.round(results[2].duration/60)} min`);\n" +
+                "      if (results[0]) etaParts.push(`Car: ${Math.round(results[0].duration/60)} min`);\n" +
+                "      setStatus(etaParts.length ? etaParts.join('  |  ') : 'ETA unavailable');\n" +
+                "    } catch (err) {\n" +
                 "      setStatus('Route failed: ' + err.message);\n" +
-                "    });\n" +
+                "    }\n" +
+                "  }\n" +
+                "  async function fetchDirections(profile) {\n" +
+                "    const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${helperLng},${helperLat};${reqLng},${reqLat}?geometries=geojson&overview=full&access_token=${token}`;\n" +
+                "    const r = await fetch(url);\n" +
+                "    const data = await r.json();\n" +
+                "    if (!data.routes || !data.routes.length) return null;\n" +
+                "    return data.routes[0];\n" +
                 "  }\n" +
                 "  function renderRoute(geojson) {\n" +
                 "    if (map.getSource('route')) {\n" +
@@ -254,6 +260,12 @@ public class RequestMapView extends JPanel {
                 "  function setStatus(text) {\n" +
                 "    const el = document.getElementById('status');\n" +
                 "    if (el) el.textContent = text;\n" +
+                "  }\n" +
+                "  function setAddresses() {\n" +
+                "    const h = document.getElementById('addr-helper');\n" +
+                "    const r = document.getElementById('addr-requester');\n" +
+                "    if (h) h.textContent = 'Helper: ' + helperAddress;\n" +
+                "    if (r) r.textContent = 'Requester: ' + requesterAddress;\n" +
                 "  }\n" +
                 "</script>\n" +
                 "</body>\n" +
