@@ -41,6 +41,7 @@ import use_case.offers.create_offer.CreateOfferOutputBoundary;
 import use_case.offers.create_offer.OfferDataAccessInterface;
 import use_case.offers.get_offers.MyOffersInteractor;
 import interface_adapter.map.MapboxMapService;
+import interface_adapter.map.RealMapImageProvider;
 import use_case.profile.ProfileInputBoundary;
 import use_case.profile.ProfileInteractor;
 import use_case.profile.ProfileOutputBoundary;
@@ -119,7 +120,13 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomePageView() {
-        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel, new MapboxMapService(config.mapboxToken()), config.mapboxToken());
+        homepageView = new HomepageView(
+                createOfferController,
+                myOffersController,
+                myOffersViewModel,
+                new MapboxMapService(config.mapboxToken()),
+                config.mapboxToken()
+        );
         cardPanel.add(homepageView, homepageView.getViewName()); 
         return this;
     }

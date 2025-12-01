@@ -1,6 +1,9 @@
 package config;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.DotenvException;
+
+import java.util.function.Function;
 
 /**
  * Centralized configuration loader. Reads from environment variables first, then .env.
@@ -22,20 +25,47 @@ public class AppConfig {
     }
 
     public static AppConfig load() {
-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        String mapbox = envOrDotenv("MAPBOX_TOKEN", dotenv);
-        String mongo = envOrDotenv("MONDODB_URI", dotenv);
-        String sbApp = envOrDotenv("SENDBIRD_APP_ID", dotenv);
-        String sbToken = envOrDotenv("SENDBIRD_MASTER_TOKEN", dotenv);
+        return load(() -> Dotenv.configure().ignoreIfMissing().load());
+    }
+
+    static AppConfig load(DotenvLoader loader) {
+        Function<String, String> dotenvLookup = key -> null;
+        try {
+            Dotenv dotenv = loader.load();
+            if (dotenv != null) {
+                dotenvLookup = dotenv::get;
+            }
+        } catch (DotenvException ignored) {
+        }
+        return from(System::getenv, dotenvLookup);
+    }
+
+    static AppConfig from(Function<String, String> envLookup,
+                          Function<String, String> dotenvLookup) {
+        String mapbox = resolve("MAPBOX_TOKEN", envLookup, dotenvLookup);
+        String mongo = resolve("MONDODB_URI", envLookup, dotenvLookup);
+        String sbApp = resolve("SENDBIRD_APP_ID", envLookup, dotenvLookup);
+        String sbToken = resolve("SENDBIRD_MASTER_TOKEN", envLookup, dotenvLookup);
         return new AppConfig(mapbox, mongo, sbApp, sbToken);
     }
 
-    private static String envOrDotenv(String key, Dotenv dotenv) {
-        String env = System.getenv(key);
-        if (env != null && !env.isBlank()) return env;
-        String dv = dotenv.get(key);
-        if (dv != null && !dv.isBlank()) return dv;
+    private static String resolve(String key,
+                                  Function<String, String> envLookup,
+                                  Function<String, String> dotenvLookup) {
+        String env = envLookup != null ? envLookup.apply(key) : null;
+        if (env != null && !env.isBlank()) {
+            return env;
+        }
+        String dv = dotenvLookup != null ? dotenvLookup.apply(key) : null;
+        if (dv != null && !dv.isBlank()) {
+            return dv;
+        }
         return null;
+    }
+
+    @FunctionalInterface
+    interface DotenvLoader {
+        Dotenv load() throws DotenvException;
     }
 
     public String mapboxToken() { return mapboxToken; }

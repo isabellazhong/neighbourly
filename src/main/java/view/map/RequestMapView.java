@@ -1,9 +1,12 @@
 package view.map;
 
+import use_case.map.MapImageProvider;
 import use_case.map.MapService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,18 +26,40 @@ public class RequestMapView extends JPanel {
     private final JLabel helperAddrLabel = new JLabel("Helper: resolving address…");
     private final JLabel requesterAddrLabel = new JLabel("Requester: resolving address…");
     private final JButton openBrowserButton = new JButton("Open in browser");
+    private final JButton messageButton = new JButton("Message requester");
     private final JLabel mapLabel = new JLabel("Loading map…", SwingConstants.CENTER);
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel centerPanel = new JPanel(cardLayout);
 
     private final MapService mapService;
+    private final MapImageProvider mapImageProvider;
     private final RequestLocation requestLocation;
     private final String mapboxToken;
+    private final BrowserLauncher browserLauncher;
+    private final MessageReporter messageReporter;
+    private SwingWorker<Void, Void> worker;
 
-    public RequestMapView(MapService mapService, String mapboxToken, RequestLocation requestLocation) {
+    public RequestMapView(MapService mapService,
+                          MapImageProvider mapImageProvider,
+                          String mapboxToken,
+                          RequestLocation requestLocation) {
+        this(mapService, mapImageProvider, mapboxToken, requestLocation,
+                RequestMapView::defaultBrowse,
+                RequestMapView::defaultShowError);
+    }
+
+    RequestMapView(MapService mapService,
+                   MapImageProvider mapImageProvider,
+                   String mapboxToken,
+                   RequestLocation requestLocation,
+                   BrowserLauncher browserLauncher,
+                   MessageReporter messageReporter) {
         this.mapboxToken = mapboxToken;
         this.mapService = mapService;
+        this.mapImageProvider = mapImageProvider;
         this.requestLocation = requestLocation;
+        this.browserLauncher = browserLauncher;
+        this.messageReporter = messageReporter;
         setPreferredSize(new Dimension(1100, 780));
         buildUi();
         loadData();
@@ -68,11 +93,21 @@ public class RequestMapView extends JPanel {
         openBrowserButton.addActionListener(openBrowserAction());
         infoBar.add(openBrowserButton);
 
+        messageButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Messaging not implemented in this demo.",
+                        "Message",
+                        JOptionPane.INFORMATION_MESSAGE
+                )
+        );
+        infoBar.add(messageButton);
+
         add(infoBar, BorderLayout.SOUTH);
     }
 
     private void loadData() {
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        worker = new SwingWorker<>() {
             private BufferedImage mapImage;
             private double etaWalk;
             private double etaBike;
@@ -97,7 +132,7 @@ public class RequestMapView extends JPanel {
                 etaWalk = walk.etaMinutes();
                 etaBike = bike.etaMinutes();
                 routeGeometry = drive.geometryJson();
-                mapImage = MapboxClient.fetchStaticMap(mapboxToken, requestLocation, routeGeometry);
+                mapImage = mapImageProvider.loadImage(requestLocation, routeGeometry);
                 helperAddress = mapService.reverseGeocode(requestLocation.helperLng(), requestLocation.helperLat());
                 requesterAddress = mapService.reverseGeocode(requestLocation.requesterLng(), requestLocation.requesterLat());
                 return null;
@@ -125,26 +160,58 @@ public class RequestMapView extends JPanel {
         worker.execute();
     }
 
+    // Test helpers
+    void waitForLoad() {
+        if (worker == null) return;
+        try {
+            worker.get(3, java.util.concurrent.TimeUnit.SECONDS);
+            // Flush EDT tasks (e.g., SwingWorker.done)
+            SwingUtilities.invokeAndWait(() -> { /* no-op */ });
+        } catch (Exception ignored) {
+        }
+    }
+
+    String getEtaLabelText() {
+        return etaLabel.getText();
+    }
+
+    String getHelperAddressText() {
+        return helperAddrLabel.getText();
+    }
+
+    String getRequesterAddressText() {
+        return requesterAddrLabel.getText();
+    }
+
+    javax.swing.Icon getMapIcon() {
+        return mapLabel.getIcon();
+    }
+
+    String getMapLabelText() {
+        return mapLabel.getText();
+    }
+
     private ActionListener openBrowserAction() {
         return e -> {
             try {
                 File temp = buildTempInteractiveHtml();
-                Desktop.getDesktop().browse(temp.toURI());
+                browserLauncher.open(temp.toURI());
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(
+                messageReporter.show(
                         this,
                         "Unable to open interactive map: " + ex.getMessage(),
-                        "Map error",
-                        JOptionPane.ERROR_MESSAGE
+                        "Map error"
                 );
             }
         };
     }
 
     private File buildTempInteractiveHtml() throws Exception {
-        String safeToken = mapboxToken.replace("\\", "\\\\").replace("\"", "\\\"");
-        String helperAddress = mapboxClient.fetchPlaceName(requestLocation.helperLng(), requestLocation.helperLat());
-        String requesterAddress = mapboxClient.fetchPlaceName(requestLocation.requesterLng(), requestLocation.requesterLat());
+        String safeToken = (mapboxToken != null ? mapboxToken : "")
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"");
+        String helperAddress = mapService.reverseGeocode(requestLocation.helperLng(), requestLocation.helperLat());
+        String requesterAddress = mapService.reverseGeocode(requestLocation.requesterLng(), requestLocation.requesterLat());
         String helperAddressSafe = helperAddress != null ? helperAddress.replace("\"", "\\\"") :
                 String.format("(%.5f, %.5f)", requestLocation.helperLat(), requestLocation.helperLng());
         String requesterAddressSafe = requesterAddress != null ? requesterAddress.replace("\"", "\\\"") :
@@ -270,5 +337,32 @@ public class RequestMapView extends JPanel {
             fw.write(html);
         }
         return temp;
+    }
+
+    void triggerOpenInBrowser() {
+        for (ActionListener listener : openBrowserButton.getActionListeners()) {
+            listener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "test"));
+        }
+    }
+
+    @FunctionalInterface
+    interface BrowserLauncher {
+        void open(URI uri) throws Exception;
+    }
+
+    @FunctionalInterface
+    interface MessageReporter {
+        void show(Component parent, String message, String title);
+    }
+
+    public static void defaultBrowse(URI uri) throws Exception {
+        if (!Desktop.isDesktopSupported()) {
+            throw new UnsupportedOperationException("Desktop browse not supported");
+        }
+        Desktop.getDesktop().browse(uri);
+    }
+
+    public static void defaultShowError(Component parent, String message, String title) {
+        JOptionPane.showMessageDialog(parent, message, title, JOptionPane.ERROR_MESSAGE);
     }
 }

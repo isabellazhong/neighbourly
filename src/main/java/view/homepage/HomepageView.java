@@ -272,9 +272,9 @@ public class HomepageView extends JPanel {
 
         try {
             JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Request location", Dialog.ModalityType.APPLICATION_MODAL);
-            dialog.setContentPane(new RequestMapView(mapService, mapboxToken, location));
+            dialog.setContentPane(new RequestMapView(mapService, new interface_adapter.map.RealMapImageProvider(mapboxToken), mapboxToken, location));
             dialog.pack();
-            dialog.setSize(new Dimension(1100, 820));
+            dialog.setSize(new Dimension(1300, 900));
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
         } catch (Exception ex) {

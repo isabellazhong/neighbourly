@@ -32,10 +32,14 @@ public class MapboxClient {
     private final Gson gson = new Gson();
 
     public MapboxClient(String token) {
-        this.token = token;
-        this.httpClient = HttpClient.newBuilder()
+        this(token, HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
-                .build();
+                .build());
+    }
+
+    MapboxClient(String token, HttpClient httpClient) {
+        this.token = token;
+        this.httpClient = httpClient;
     }
 
     /**
@@ -120,7 +124,7 @@ public class MapboxClient {
     /**
      * Static map with helper/requester markers and optional route polyline (GeoJSON LineString).
      */
-    public static BufferedImage fetchStaticMap(String token, RequestLocation location, String routeGeoJson) throws IOException, InterruptedException {
+    public BufferedImage fetchStaticMap(RequestLocation location, String routeGeoJson) throws IOException, InterruptedException {
         String overlay;
         if (routeGeoJson != null) {
             String polyline = encodePolyline5(routeGeoJson);
@@ -164,7 +168,7 @@ public class MapboxClient {
         }
     }
 
-    private static String encodePolyline5(String geoJson) {
+    private String encodePolyline5(String geoJson) {
         try {
             JsonObject obj = gson.fromJson(geoJson, JsonObject.class);
             if (obj == null || !obj.has("coordinates")) return null;

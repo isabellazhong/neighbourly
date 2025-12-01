@@ -7,7 +7,11 @@ public class MapboxMapService implements MapService {
     private final MapboxClient client;
 
     public MapboxMapService(String token) {
-        this.client = new MapboxClient(token);
+        this(new MapboxClient(token));
+    }
+
+    MapboxMapService(MapboxClient client) {
+        this.client = client;
     }
 
     @Override
