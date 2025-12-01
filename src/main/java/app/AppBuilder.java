@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import database.MongoDBOfferDataAccessObject;
@@ -20,7 +21,6 @@ import use_case.offer.CreateOfferInteractor;
 import view.homepage.HomepageView;
 import view.messaging.MessagingView;
 import view.start_interface.LoginView;
-import database.MongoDBUserDataAcessObject;
 import database.MongoDBUserDataAccessObject;
 import entity.IDVerfication;
 import interface_adapter.ViewManagerModel;

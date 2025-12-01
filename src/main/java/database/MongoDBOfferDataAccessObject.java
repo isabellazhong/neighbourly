@@ -10,7 +10,7 @@ import com.mongodb.client.model.Updates;
 
 import entity.Offer;
 
-public class MongoDBOfferDataAccessObject extends MongoDB{
+public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAccessInterface {
     private final MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {
