@@ -20,16 +20,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginView extends JPanel {
-    private LoginController loginController;
-    private final String viewName = "log in"; 
+    static LoginController loginController;
+    private final String viewName;
 
-    private final int PANEL_WIDTH = 400;
-    private final int PANEL_HEIGHT = 500;
-    private final int INPUT_HEIGHT = 45;
-    private final int BUTTON_HEIGHT = 50;
-    private final int COMPONENT_SPACING = 15;
-    private final int ERROR_SPACING = 5;
-    private final int SECTION_SPACING = 25;
+    static final int PANEL_WIDTH = 400;
+    static final int PANEL_HEIGHT = 500;
+    static final int INPUT_HEIGHT = 45;
+    static final int BUTTON_HEIGHT = 50;
+    static final int COMPONENT_SPACING = 15;
+    static final int ERROR_SPACING = 5;
+    static final int SECTION_SPACING = 25;
 
     private JTextField emailInputField;
     private JPasswordField passwordInputField;
@@ -41,12 +41,13 @@ public class LoginView extends JPanel {
     private JLabel passwordErrorLabel;
 
     // clean architecture dependencies
-    private LoginViewModel loginViewModel;
+    private final LoginViewModel loginViewModel;
 
     // sign up button
     private JLabel signUpText;
 
     public LoginView(LoginViewModel loginViewModel) {
+        this.viewName =  "log in";
         this.loginViewModel = loginViewModel;
         initializeComponents();
         setupLayout();
@@ -57,7 +58,7 @@ public class LoginView extends JPanel {
 
     private void initializeComponents() {
         titleLabel = new JLabel("Neighbourly", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
+        titleLabel.setFont(UIConstants.titleFontStyle);
         titleLabel.setForeground(UIConstants.textColor);
 
         emailLabel = createStyledLabel("Email Address");
@@ -237,7 +238,7 @@ public class LoginView extends JPanel {
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setFont(UIConstants.labelFontStyle);
         label.setForeground(UIConstants.textColor);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -346,8 +347,7 @@ public class LoginView extends JPanel {
                 if (textField.getText().equals(placeholder)) {
                     textField.setText("");
                     textField.setForeground(Color.BLACK);
-                    if (textField instanceof JPasswordField) {
-                        JPasswordField field = (JPasswordField) textField;
+                    if (textField instanceof JPasswordField field) {
                         field.setEchoChar('•');
                     }
                 }
@@ -357,8 +357,7 @@ public class LoginView extends JPanel {
                 if (textField.getText().isEmpty()) {
                     textField.setForeground(UIConstants.textColorFaded);
                     textField.setText(placeholder);
-                    if (textField instanceof JPasswordField) {
-                        JPasswordField field = (JPasswordField) textField;
+                    if (textField instanceof JPasswordField field) {
                         field.setEchoChar((char) 0);
                     }
                 }
@@ -377,7 +376,7 @@ public class LoginView extends JPanel {
 	}
 
     public String getViewName() {
-        return this.viewName; 
+        return this.viewName;
     }
 
     public void setLoginController(LoginController loginController) {

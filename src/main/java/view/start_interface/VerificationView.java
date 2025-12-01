@@ -22,8 +22,8 @@ import javax.swing.SwingWorker;
 
 public class VerificationView extends JPanel {
     private final String viewName;
-    private final VerificationViewModel verificationViewModel;
-    private VerificationController verificationController;
+    private final transient VerificationViewModel verificationViewModel;
+    private transient VerificationController verificationController;
 
     private JLabel titleLabel;
     private JPanel dropZonePanel;

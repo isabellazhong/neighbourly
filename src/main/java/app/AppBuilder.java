@@ -21,6 +21,7 @@ import view.homepage.HomepageView;
 import view.messaging.MessagingView;
 import view.start_interface.LoginView;
 import database.MongoDBUserDataAcessObject;
+import database.MongoDBUserDataAccessObject;
 import entity.IDVerfication;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
@@ -65,7 +66,7 @@ public class AppBuilder {
     private IDVerfication idVerfication; 
     private SignupViewModel signupViewModel;
     private SignUpView signUpView;
-    private final MongoDBUserDataAcessObject userDataAcessObject = new MongoDBUserDataAcessObject();
+    private final MongoDBUserDataAccessObject userDataAcessObject = new MongoDBUserDataAccessObject();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cardPanel = new JPanel();

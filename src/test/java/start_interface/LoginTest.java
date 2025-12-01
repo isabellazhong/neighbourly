@@ -185,8 +185,6 @@ class LoginTest {
                 "Example",
                 email,
                 Gender.MALE,
-                new ArrayList<>(),
-                new ArrayList<>(),
                 UUID.randomUUID(),
                 new Address("1 King St", "Toronto", "ON", "M5H", "Canada"),
                 password);
