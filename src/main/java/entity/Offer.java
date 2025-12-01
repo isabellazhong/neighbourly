@@ -9,6 +9,7 @@ public class Offer {
     private byte[] imagePath;
     private boolean accepted;
     private Date postDate;
+    private String chatChannelId;
 
     public Offer(String title, String details, Date postDate) {
         this.id = UUID.randomUUID();
@@ -17,6 +18,7 @@ public class Offer {
         this.postDate = postDate;
         this.accepted = false;
         this.imagePath = null;
+        this.chatChannelId = null;
     }
 
     public UUID getId() {
@@ -51,5 +53,11 @@ public class Offer {
     }
     public void setPostDate(Date postDate) {
         this.postDate = postDate;
+    }
+    public String getChatChannelId() {
+        return chatChannelId;
+    }
+    public void setChatChannelId(String chatChannelId) {
+        this.chatChannelId = chatChannelId;
     }
 }

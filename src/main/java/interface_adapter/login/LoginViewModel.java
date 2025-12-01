@@ -1,7 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewModel;
-import use_case.login.LoginState;
+import use_case.start.login.LoginState;
 
 public class LoginViewModel extends ViewModel<LoginState> {
     public LoginViewModel () {
