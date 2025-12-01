@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neighbourly Map</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #status {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="status">Loading map…</div>
+
+<script>
+    let map;
+    let routeSourceId = 'route';
+
+    function initMap(token, helperLng, helperLat, reqLng, reqLat) {
+        mapboxgl.accessToken = token;
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [helperLng, helperLat],
+            zoom: 13
+        });
+
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+        map.on('load', () => {
+            addMarker(helperLng, helperLat, '#1d4ed8');
+            addMarker(reqLng, reqLat, '#ef4444');
+            fitToBounds(helperLng, helperLat, reqLng, reqLat);
+            setStatus('Map ready');
+        });
+    }
+
+    function addMarker(lng, lat, color) {
+        new mapboxgl.Marker({ color }).setLngLat([lng, lat]).addTo(map);
+    }
+
+    function fitToBounds(lng1, lat1, lng2, lat2) {
+        const bounds = new mapboxgl.LngLatBounds();
+        bounds.extend([lng1, lat1]);
+        bounds.extend([lng2, lat2]);
+        map.fitBounds(bounds, { padding: 60 });
+    }
+
+    function renderRoute(geojsonString) {
+        const data = typeof geojsonString === 'string' ? JSON.parse(geojsonString) : geojsonString;
+        if (!map || !map.isStyleLoaded()) {
+            setTimeout(() => renderRoute(geojsonString), 100);
+            return;
+        }
+
+        if (map.getSource(routeSourceId)) {
+            map.getSource(routeSourceId).setData(data);
+        } else {
+            map.addSource(routeSourceId, { type: 'geojson', data });
+            map.addLayer({
+                id: 'route-line',
+                type: 'line',
+                source: routeSourceId,
+                paint: { 'line-color': '#1d4ed8', 'line-width': 4 }
+            });
+        }
+        setStatus('Route loaded');
+    }
+
+    function showError(message) {
+        setStatus(message);
+    }
+
+    function setStatus(text) {
+        const el = document.getElementById('status');
+        if (el) el.textContent = text;
+    }
+</script>
+</body>
+</html>

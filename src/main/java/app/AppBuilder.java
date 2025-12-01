@@ -4,45 +4,44 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import database.MongoDBOfferDataAccessObject;
 import database.MongoDBRequestDataAccessObject;
-import entity.SendbirdMessagingService;
-import interface_adapter.login.LoginViewModel;
-import interface_adapter.messaging.MessagingController;
-import interface_adapter.messaging.MessagingPresenter;
-import interface_adapter.messaging.MessagingViewModel;
-import use_case.messaging.MessagingInteractor;
-import use_case.messaging.MessagingOutputBoundary;
-import view.homepage.HomepageView;
-import view.messaging.MessagingView;
-import view.offer_interface.MyOffersView;
-import view.start_interface.LoginView;
 import database.MongoDBUserDataAccessObject;
+import config.AppConfig;
 import entity.IDVerfication;
+import entity.SendbirdMessagingService;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.messaging.MessagingController;
+import interface_adapter.messaging.MessagingPresenter;
+import interface_adapter.messaging.MessagingViewModel;
 import interface_adapter.offers.create_offer.CreateOfferController;
 import interface_adapter.offers.create_offer.CreateOfferPresenter;
 import interface_adapter.offers.create_offer.CreateOfferViewModel;
 import interface_adapter.offers.my_offers.MyOffersController;
-import interface_adapter.offers.my_offers.MyOffersViewModel;
 import interface_adapter.offers.my_offers.MyOffersPresenter;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
+import interface_adapter.signup.SignupController;
+import interface_adapter.signup.SignupPresenter;
+import interface_adapter.signup.SignupViewModel;
+import interface_adapter.verification.VerificationController;
+import interface_adapter.verification.VerificationPresenter;
+import interface_adapter.verification.VerificationViewModel;
+import use_case.messaging.MessagingInteractor;
+import use_case.messaging.MessagingOutputBoundary;
 import use_case.offers.create_offer.CreateOfferInteractor;
 import use_case.offers.create_offer.CreateOfferOutputBoundary;
 import use_case.offers.create_offer.OfferDataAccessInterface;
 import use_case.offers.get_offers.MyOffersInteractor;
-import view.ViewManager;
-import view.homepage.HomepageView;
-import view.profile_interface.ProfileView;
-import view.start_interface.LoginView;
-import view.start_interface.SignUpView;
-import view.start_interface.VerificationView;
+import interface_adapter.map.MapboxMapService;
+import interface_adapter.map.RealMapImageProvider;
 import use_case.profile.ProfileInputBoundary;
 import use_case.profile.ProfileInteractor;
 import use_case.profile.ProfileOutputBoundary;
@@ -57,13 +56,14 @@ import use_case.start.login.LoginOutputBoundary;
 import use_case.start.signup.SignupInputBoundary;
 import use_case.start.signup.SignupInteractor;
 import use_case.start.signup.SignupOutputBoundary;
-import interface_adapter.signup.SignupController;
-import interface_adapter.signup.SignupPresenter;
-import interface_adapter.signup.SignupViewModel;
-import interface_adapter.verification.VerificationPresenter;
-import interface_adapter.verification.VerificationController;
-import interface_adapter.verification.VerificationViewModel;
-import javax.swing.JPanel;
+import view.ViewManager;
+import view.homepage.HomepageView;
+import view.messaging.MessagingView;
+import view.offer_interface.MyOffersView;
+import view.profile_interface.ProfileView;
+import view.start_interface.LoginView;
+import view.start_interface.SignUpView;
+import view.start_interface.VerificationView;
 
 public class AppBuilder {
     private LoginViewModel loginViewModel;
@@ -90,9 +90,11 @@ public class AppBuilder {
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cardPanel = new JPanel();
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    private AppConfig config;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
+        this.config = AppConfig.load();
     }
 
     public AppBuilder addSignupView() {
@@ -118,7 +120,13 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomePageView() {
-        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel);
+        homepageView = new HomepageView(
+                createOfferController,
+                myOffersController,
+                myOffersViewModel,
+                new MapboxMapService(config.mapboxToken()),
+                config.mapboxToken()
+        );
         cardPanel.add(homepageView, homepageView.getViewName()); 
         return this;
     }
@@ -221,5 +229,4 @@ public class AppBuilder {
         viewManagerModel.firePropertyChange();
         return frame;
     }
-
 }
