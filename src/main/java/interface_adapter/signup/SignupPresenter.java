@@ -10,20 +10,20 @@ import view.start_interface.LoginView;
 import view.start_interface.VerificationView;
 
 public class SignupPresenter implements SignupOutputBoundary {
-    private LoginView loginView;
-    private ViewManagerModel viewManagerModel;
-    private SignupViewModel signupViewModel;
-    private VerificationView verficationView;
-    private VerificationViewModel verificationViewModel;
+    private final LoginView loginView;
+    private final ViewManagerModel viewManagerModel;
+    private final SignupViewModel signupViewModel;
+    private final VerificationView verificationView;
+    private final VerificationViewModel verificationViewModel;
 
     public SignupPresenter(
             SignupViewModel signupViewModel,
             ViewManagerModel viewManagerModel,
-            VerificationView verficationView,
+            VerificationView verificationView,
             LoginView loginView,
             VerificationViewModel verificationViewModel) {
         this.viewManagerModel = viewManagerModel;
-        this.verficationView = verficationView;
+        this.verificationView = verificationView;
         this.signupViewModel = signupViewModel;
         this.verificationViewModel = verificationViewModel;
         this.loginView = loginView;
@@ -106,10 +106,10 @@ public class SignupPresenter implements SignupOutputBoundary {
 
     @Override
     public void prepareVerificationPage(SignupInputData signupInputData) {
-        VerificationViewState verficationViewState = new VerificationViewState();
-        verficationViewState.setSignupInputData(signupInputData);
-        verificationViewModel.setState(verficationViewState);
-        viewManagerModel.setState(verficationView.getViewName());
+        VerificationViewState verificationViewState = new VerificationViewState();
+        verificationViewState.setSignupInputData(signupInputData);
+        verificationViewModel.setState(verificationViewState);
+        viewManagerModel.setState(verificationView.getViewName());
         viewManagerModel.firePropertyChange();
     }
 

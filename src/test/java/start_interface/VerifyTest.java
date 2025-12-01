@@ -1,6 +1,6 @@
 package start_interface;
 
-import database.MongoDBUserDataAcessObject;
+import database.MongoDBUserDataAccessObject;
 import entity.Gender;
 import entity.User;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class VerifyTest {
     @Test
     void execute_successfulVerificationPersistsUser() throws Exception {
         IDVerfication verificationClient = mock(IDVerfication.class);
-        MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+        MongoDBUserDataAccessObject userDao = mock(MongoDBUserDataAccessObject.class);
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
 
@@ -45,7 +45,7 @@ class VerifyTest {
     @Test
     void execute_successfulVerificationCopiesAllSignupDetails() throws Exception {
         IDVerfication verificationClient = mock(IDVerfication.class);
-        MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+        MongoDBUserDataAccessObject userDao = mock(MongoDBUserDataAccessObject.class);
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
 
@@ -74,7 +74,7 @@ class VerifyTest {
     @Test
     void execute_failedVerificationSurfacesError() throws Exception {
         IDVerfication verificationClient = mock(IDVerfication.class);
-        MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+        MongoDBUserDataAccessObject userDao = mock(MongoDBUserDataAccessObject.class);
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
 
@@ -87,14 +87,14 @@ class VerifyTest {
         interactor.execute(verificationInputData);
 
         verify(userDao, never()).addUser(any());
-        assertEquals("Government ID inavlid. Please try again.", presenter.errorMessage);
+        assertEquals("Government ID invalid. Please try again.", presenter.errorMessage);
         assertFalse(presenter.successButtonPrepared);
     }
 
     @Test
     void execute_missingSuccessFlagTreatsVerificationAsFailed() throws Exception {
         IDVerfication verificationClient = mock(IDVerfication.class);
-        MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+        MongoDBUserDataAccessObject userDao = mock(MongoDBUserDataAccessObject.class);
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
 
@@ -107,13 +107,13 @@ class VerifyTest {
         interactor.execute(verificationInputData);
 
         verify(userDao, never()).addUser(any());
-        assertEquals("Government ID inavlid. Please try again.", presenter.errorMessage);
+        assertEquals("Government ID invalid. Please try again.", presenter.errorMessage);
     }
 
     @Test
     void execute_handlesVerificationClientIOException() throws Exception {
         IDVerfication verificationClient = mock(IDVerfication.class);
-        MongoDBUserDataAcessObject userDao = mock(MongoDBUserDataAcessObject.class);
+        MongoDBUserDataAccessObject userDao = mock(MongoDBUserDataAccessObject.class);
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(verificationClient, userDao, presenter);
 
@@ -134,7 +134,7 @@ class VerifyTest {
     void continueToHomepage_triggersSuccessNavigation() {
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
-                mock(MongoDBUserDataAcessObject.class), presenter);
+                mock(MongoDBUserDataAccessObject.class), presenter);
 
 		interactor.continueToHomepage();
 
@@ -145,7 +145,7 @@ class VerifyTest {
     void uploadFileStatus_notifiesPresenterOfFileProgress() {
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
-                mock(MongoDBUserDataAcessObject.class), presenter);
+                mock(MongoDBUserDataAccessObject.class), presenter);
         File uploadedFile = new File("/tmp/mock-id.png");
 
         interactor.uploadFileStatus(uploadedFile);
@@ -157,7 +157,7 @@ class VerifyTest {
     void prepareVerifyingView_notifiesPresenter() {
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
-                mock(MongoDBUserDataAcessObject.class), presenter);
+                mock(MongoDBUserDataAccessObject.class), presenter);
 
         interactor.prepareVerifyingView();
 
@@ -168,7 +168,7 @@ class VerifyTest {
     void handleError_delegatesToPresenter() {
         VerificationPresenterSpy presenter = new VerificationPresenterSpy();
         VerificationInteractor interactor = new VerificationInteractor(mock(IDVerfication.class),
-                mock(MongoDBUserDataAcessObject.class), presenter);
+                mock(MongoDBUserDataAccessObject.class), presenter);
 
         interactor.handleError("boom");
 
@@ -210,12 +210,12 @@ class VerifyTest {
         }
 
         @Override
-        public void prepareVerficationSuccessButton() {
+        public void prepareVerificationSuccessButton() {
             this.successButtonPrepared = true;
         }
 
         @Override
-        public void prepareVerficationSuccess() {
+        public void prepareVerificationSuccess() {
             this.successFlowCompleted = true;
         }
 

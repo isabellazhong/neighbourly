@@ -8,10 +8,10 @@ import view.start_interface.SignUpView;
 import view.homepage.*;
 
 public class LoginPresenter implements LoginOutputBoundary {
-    private LoginViewModel loginViewModel;
-    private ViewManagerModel viewManagerModel;
-    private HomepageView homepageView;
-    private SignUpView signUpView;
+    private final LoginViewModel loginViewModel;
+    private final ViewManagerModel viewManagerModel;
+    private final HomepageView homepageView;
+    private final SignUpView signUpView;
 
     public LoginPresenter(LoginViewModel loginViewModel,
             HomepageView homepageView,

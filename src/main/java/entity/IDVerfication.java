@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import com.google.genai.Client;
 import com.google.genai.types.Content;
@@ -13,16 +14,15 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 
 public class IDVerfication {
-    public Client geminiClient;
-    public String model;
-    public HashMap<String, String> mimeTypes;
+    static Client geminiClient;
+    static String model = "gemini-2.5-flash";
+    static final Logger logger = Logger.getLogger(IDVerfication.class.getName());
 
     public IDVerfication() {
         initClient();
-        model = "gemini-2.5-flash";
     }
 
-    private void initClient() {
+    static void initClient() {
         String apiKey = loadApiKeyFromEnvFile();
         if (apiKey == null) {
             throw new RuntimeException("GEMINI_API key not found. Please check your .env file.");
@@ -30,7 +30,7 @@ public class IDVerfication {
         geminiClient = Client.builder().apiKey(apiKey).build();
     }
 
-    private String loadApiKeyFromEnvFile() {
+    static String loadApiKeyFromEnvFile() {
         try {
             Path envFile = Paths.get(".env");
             if (!Files.exists(envFile)) {
@@ -45,18 +45,17 @@ public class IDVerfication {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading .env file: " + e.getMessage());
+            logger.severe("Error reading .env file: " + e.getMessage());
         }
 
         // Fallback to environment variable
         return System.getenv("GEMINI_API");
     }
 
-    private String guessMimeType(String file_path) throws IOException {
-        Path filePath = Paths.get(file_path);
+    private String guessMimeType(String filePath) throws IOException {
+        Path file = Paths.get(filePath);
         try {
-            String mimeType = Files.probeContentType(filePath);
-            return mimeType;
+            return Files.probeContentType(file);
         } catch (IOException e) {
             return null;
         }

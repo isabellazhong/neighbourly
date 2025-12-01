@@ -32,10 +32,6 @@ public class ViewModel<T> {
         this.support.firePropertyChange(propertyName, null, this.state);
     }
 
-    public void firePropertyChange(T oldState, T newState) {
-        this.support.firePropertyChange("state", oldState, newState);
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.support.addPropertyChangeListener(listener);
     }
