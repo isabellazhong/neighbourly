@@ -87,7 +87,7 @@ class VerifyTest {
         interactor.execute(verificationInputData);
 
         verify(userDao, never()).addUser(any());
-        assertEquals("Government ID inavlid. Please try again.", presenter.errorMessage);
+        assertEquals("Government ID invalid. Please try again.", presenter.errorMessage);
         assertFalse(presenter.successButtonPrepared);
     }
 
@@ -107,7 +107,7 @@ class VerifyTest {
         interactor.execute(verificationInputData);
 
         verify(userDao, never()).addUser(any());
-        assertEquals("Government ID inavlid. Please try again.", presenter.errorMessage);
+        assertEquals("Government ID invalid. Please try again.", presenter.errorMessage);
     }
 
     @Test
