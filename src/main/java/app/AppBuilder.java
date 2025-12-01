@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import database.MongoDBOfferDataAccessObject;
 import database.MongoDBRequestDataAccessObject;
 import database.MongoDBUserDataAccessObject;
+import config.AppConfig;
 import entity.IDVerfication;
 import entity.SendbirdMessagingService;
 import interface_adapter.ViewManagerModel;
@@ -39,6 +40,7 @@ import use_case.offers.create_offer.CreateOfferInteractor;
 import use_case.offers.create_offer.CreateOfferOutputBoundary;
 import use_case.offers.create_offer.OfferDataAccessInterface;
 import use_case.offers.get_offers.MyOffersInteractor;
+import interface_adapter.map.MapboxMapService;
 import use_case.profile.ProfileInputBoundary;
 import use_case.profile.ProfileInteractor;
 import use_case.profile.ProfileOutputBoundary;
@@ -87,9 +89,11 @@ public class AppBuilder {
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cardPanel = new JPanel();
     ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    private AppConfig config;
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
+        this.config = AppConfig.load();
     }
 
     public AppBuilder addSignupView() {
@@ -115,7 +119,7 @@ public class AppBuilder {
     }
 
     public AppBuilder addHomePageView() {
-        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel);
+        homepageView = new HomepageView(createOfferController, myOffersController, myOffersViewModel, new MapboxMapService(config.mapboxToken()), config.mapboxToken());
         cardPanel.add(homepageView, homepageView.getViewName()); 
         return this;
     }

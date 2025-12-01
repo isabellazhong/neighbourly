@@ -120,7 +120,7 @@ public class MapboxClient {
     /**
      * Static map with helper/requester markers and optional route polyline (GeoJSON LineString).
      */
-    public BufferedImage fetchStaticMap(RequestLocation location, String routeGeoJson) throws IOException, InterruptedException {
+    public static BufferedImage fetchStaticMap(String token, RequestLocation location, String routeGeoJson) throws IOException, InterruptedException {
         String overlay;
         if (routeGeoJson != null) {
             String polyline = encodePolyline5(routeGeoJson);
@@ -164,7 +164,7 @@ public class MapboxClient {
         }
     }
 
-    private String encodePolyline5(String geoJson) {
+    private static String encodePolyline5(String geoJson) {
         try {
             JsonObject obj = gson.fromJson(geoJson, JsonObject.class);
             if (obj == null || !obj.has("coordinates")) return null;

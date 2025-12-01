@@ -1,5 +1,7 @@
 package view.map;
 
+import use_case.map.MapService;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -25,13 +27,13 @@ public class RequestMapView extends JPanel {
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel centerPanel = new JPanel(cardLayout);
 
-    private final MapboxClient mapboxClient;
+    private final MapService mapService;
     private final RequestLocation requestLocation;
     private final String mapboxToken;
 
-    public RequestMapView(String mapboxToken, RequestLocation requestLocation) {
+    public RequestMapView(MapService mapService, String mapboxToken, RequestLocation requestLocation) {
         this.mapboxToken = mapboxToken;
-        this.mapboxClient = new MapboxClient(mapboxToken);
+        this.mapService = mapService;
         this.requestLocation = requestLocation;
         setPreferredSize(new Dimension(1100, 780));
         buildUi();
@@ -81,32 +83,23 @@ public class RequestMapView extends JPanel {
 
             @Override
             protected Void doInBackground() throws Exception {
-                MapboxClient.RouteInfo drive = mapboxClient.fetchRoute("driving",
-                        requestLocation.helperLng(),
-                        requestLocation.helperLat(),
-                        requestLocation.requesterLng(),
-                        requestLocation.requesterLat()
-                );
-                MapboxClient.RouteInfo walk = mapboxClient.fetchRoute("walking",
-                        requestLocation.helperLng(),
-                        requestLocation.helperLat(),
-                        requestLocation.requesterLng(),
-                        requestLocation.requesterLat()
-                );
-                MapboxClient.RouteInfo bike = mapboxClient.fetchRoute("cycling",
-                        requestLocation.helperLng(),
-                        requestLocation.helperLat(),
-                        requestLocation.requesterLng(),
-                        requestLocation.requesterLat()
-                );
+                MapService.RouteInfo drive = mapService.getRoute("driving",
+                        requestLocation.helperLng(), requestLocation.helperLat(),
+                        requestLocation.requesterLng(), requestLocation.requesterLat());
+                MapService.RouteInfo walk = mapService.getRoute("walking",
+                        requestLocation.helperLng(), requestLocation.helperLat(),
+                        requestLocation.requesterLng(), requestLocation.requesterLat());
+                MapService.RouteInfo bike = mapService.getRoute("cycling",
+                        requestLocation.helperLng(), requestLocation.helperLat(),
+                        requestLocation.requesterLng(), requestLocation.requesterLat());
 
                 etaDrive = drive.etaMinutes();
                 etaWalk = walk.etaMinutes();
                 etaBike = bike.etaMinutes();
                 routeGeometry = drive.geometryJson();
-                mapImage = mapboxClient.fetchStaticMap(requestLocation, routeGeometry);
-                helperAddress = mapboxClient.fetchPlaceName(requestLocation.helperLng(), requestLocation.helperLat());
-                requesterAddress = mapboxClient.fetchPlaceName(requestLocation.requesterLng(), requestLocation.requesterLat());
+                mapImage = MapboxClient.fetchStaticMap(mapboxToken, requestLocation, routeGeometry);
+                helperAddress = mapService.reverseGeocode(requestLocation.helperLng(), requestLocation.helperLat());
+                requesterAddress = mapService.reverseGeocode(requestLocation.requesterLng(), requestLocation.requesterLat());
                 return null;
             }
 

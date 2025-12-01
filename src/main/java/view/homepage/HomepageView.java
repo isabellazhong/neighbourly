@@ -23,19 +23,22 @@ public class HomepageView extends JPanel {
     private final MyOffersController myOffersController;
     private final MyOffersViewModel myOffersViewModel;
     private String mapboxToken;
+    private final use_case.map.MapService mapService;
     private ProfileController profileController;
     private ProfileViewModel profileViewModel;
     private String viewName;
 
     public HomepageView(CreateOfferController createOfferController,
                         MyOffersController myOffersController,
-                        MyOffersViewModel myOffersViewModel) {
+                        MyOffersViewModel myOffersViewModel,
+                        use_case.map.MapService mapService,
+                        String mapboxToken) {
         this.viewName = "homepage";
         this.createOfferController = createOfferController;
         this.myOffersController = myOffersController;
         this.myOffersViewModel = myOffersViewModel;
-        // Try to get mapbox token from environment or system property
-        this.mapboxToken = resolveMapboxToken();
+        this.mapService = mapService;
+        this.mapboxToken = mapboxToken != null ? mapboxToken : resolveMapboxToken();
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
@@ -269,7 +272,7 @@ public class HomepageView extends JPanel {
 
         try {
             JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Request location", Dialog.ModalityType.APPLICATION_MODAL);
-            dialog.setContentPane(new RequestMapView(mapboxToken, location));
+            dialog.setContentPane(new RequestMapView(mapService, mapboxToken, location));
             dialog.pack();
             dialog.setSize(new Dimension(1100, 820));
             dialog.setLocationRelativeTo(this);
