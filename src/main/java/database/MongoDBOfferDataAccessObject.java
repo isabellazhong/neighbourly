@@ -32,12 +32,13 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
                 .append("details", offer.getAlternativeDetails())
                 .append("postDate", offer.getPostDate())
                 .append("accepted", offer.isAccepted())
-                .append("chatChannelId", offer.getChatChannelId());
+                .append("chatChannelId", offer.getChatChannelId())
+                .append("userID", offer.getUserID() != null ? offer.getUserID().toString() : null);
         this.offersCollection.insertOne(offerDocument);
     }
 
     @Override
-    public List<Offer> AllOffers() {
+    public List<Offer> allOffers() {
         List<Offer> offers = new ArrayList<>();
         FindIterable<Document> iterable = offersCollection.find();
 
@@ -51,9 +52,15 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
     }
 
     @Override
-    public List<Offer> MyOffers(String username) {
+    public List<Offer> myOffers(String userIDString) {
         List<Offer> offers = new ArrayList<>();
-        return AllOffers();
+        FindIterable<Document> iterable = offersCollection.find(Filters.eq("userID", userIDString));
+        try (MongoCursor<Document> cursor = iterable.iterator()) {
+            while (cursor.hasNext()) {
+                offers.add(documentToOffer(cursor.next()));
+            }
+        }
+        return offers;
     }
 
     private Offer documentToOffer(Document doc) {
