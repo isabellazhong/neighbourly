@@ -11,6 +11,7 @@ public class Request {
     private byte[] imagePath;
     private boolean fulfilled;
     private Date expirationDate;
+    private String chatChannelId;
 
     public Request(String title, String details, Boolean service, Date expirationDate) {
         this.id = UUID.randomUUID();
@@ -20,10 +21,9 @@ public class Request {
         this.expirationDate = expirationDate;
         this.fulfilled = false;
         this.imagePath = null;
+        this.chatChannelId = null;
 
     }
-
-
 
     public UUID getId() {
         return id;
@@ -63,5 +63,11 @@ public class Request {
     }
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+    public String getChatChannelId() {
+        return chatChannelId;
+    }
+    public void setChatChannelId(String chatChannelId) {
+        this.chatChannelId = chatChannelId;
     }
 }

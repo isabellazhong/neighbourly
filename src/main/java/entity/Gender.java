@@ -1,8 +1,10 @@
 package entity;
 
 public enum Gender {
-    FEMALE("female"),
-    MALE("male");
+    FEMALE("Female"),
+    MALE("Male"),
+    NON_BINARY("Non-binary"),
+    OTHER("Other");
 
     private final String label;
 

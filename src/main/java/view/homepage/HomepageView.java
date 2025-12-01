@@ -8,29 +8,55 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+
+import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
+import interface_adapter.offers.my_offers.MyOffersController;
+import interface_adapter.profile.ProfileController;
+import interface_adapter.profile.ProfileViewModel;
+import view.offer_interface.CreateOfferView;
+import view.offer_interface.MyOffersView;
+import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
 
 public class HomepageView extends JPanel {
-    private final HomepageController controller;
-    private final HomepageViewModel viewModel;
+    private final CreateOfferController createOfferController;
+    private final MyOffersController myOffersController;
+    private final MyOffersViewModel myOffersViewModel;
 
-    public HomepageView(HomepageController controller, HomepageViewModel viewModel) {
-        this.controller = controller;
-        this.viewModel = viewModel;
-        initialize();
-        attachViewModelListener();
-    }
+    private ProfileController profileController;
+    private ProfileViewModel profileViewModel;
+    private String viewName;
+
+    public HomepageView(CreateOfferController createOfferController,
+                        MyOffersController myOffersController,
+                        MyOffersViewModel myOffersViewModel) {
+        this.viewName = "homepage";
+        this.createOfferController = createOfferController;
+        this.myOffersController = myOffersController;
+        this.myOffersViewModel = myOffersViewModel;
+
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
     private void initialize() {
         setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(12, 12, 12, 12));
-        setPreferredSize(new Dimension(1100, 700));
 
-        add(buildCenter(), BorderLayout.CENTER);
-        add(buildBottomBar(), BorderLayout.SOUTH);
-    }
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setOpaque(false);
+        topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    private JComponent buildCenter() {
+        JButton myOffersButton = new JButton("My Offers");
+        myOffersButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        myOffersButton.addActionListener(e -> openOffers());
+
+        JButton profileButton = new JButton("Profile");
+        profileButton.setFont(profileButton.getFont().deriveFont(14f));
+        profileButton.addActionListener(e -> openProfile());
+
+        topPanel.add(myOffersButton);
+        topPanel.add(profileButton);
+        add(topPanel, BorderLayout.NORTH);
+
         JPanel content = new JPanel(new GridBagLayout());
         content.setOpaque(false);
         content.setBorder(new EmptyBorder(20, 40, 20, 40));
@@ -133,10 +159,45 @@ public class HomepageView extends JPanel {
                 return;
             }
 
-            if ("offerOpen".equals(prop) && Boolean.TRUE.equals(evt.getNewValue())) {
-                viewModel.setOfferOpen(false);
-                return;
-            }
+    public void setProfileController(ProfileController profileController) {
+        this.profileController = profileController;
+    }
+
+    public void setProfileViewModel(ProfileViewModel profileViewModel) {
+        this.profileViewModel = profileViewModel;
+    }
+
+    private void openProfile() {
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (topFrame != null && profileController != null && profileViewModel != null) {
+            JDialog profileDialog = new JDialog(topFrame, "Profile", true);
+            ProfileView profileView = new ProfileView(profileViewModel);
+            profileView.setProfileController(profileController);
+            profileDialog.setContentPane(profileView);
+            profileDialog.pack();
+            profileDialog.setLocationRelativeTo(topFrame);
+            profileDialog.setVisible(true);
+        }
+    }
+
+    private void openOffers() {
+        if (myOffersController != null) {
+            myOffersController.execute();
+        }
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(topFrame, "My Offers", true);
+
+        MyOffersView myOffersView = new MyOffersView(myOffersViewModel);
+
+        if (myOffersViewModel.getState() != null) {
+            myOffersView.showOffers(myOffersViewModel.getState().getOffers());
+        }
+
+        dialog.setContentPane(myOffersView);
+        dialog.setSize(720, 500);
+        dialog.setLocationRelativeTo(topFrame);
+        dialog.setVisible(true);
+    }
 
             if ("errorMessage".equals(prop)) {
                 String msg = (String) evt.getNewValue();
@@ -148,4 +209,7 @@ public class HomepageView extends JPanel {
         });
     }
 
+    public String getViewName() {
+        return this.viewName; 
+    }
 }
