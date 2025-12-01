@@ -63,6 +63,22 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
         return offers;
     }
 
+    @Override
+    public Offer getOfferByID(java.util.UUID offerId) {
+        Document doc = offersCollection.find(Filters.eq("id", offerId.toString())).first();
+        if (doc != null) {
+            return documentToOffer(doc);
+        }
+        return null;
+    }
+
+    @Override
+    public void updateOffer(Offer offer) {
+        offersCollection.updateOne(Filters.eq("id",
+                offer.getId().toString()), Updates.combine(Updates.set("title", offer.getTitle()),
+                Updates.set("details", offer.getAlternativeDetails()), Updates.set("postDate", offer)));
+    }
+
     private Offer documentToOffer(Document doc) {
         String title = doc.getString("title");
         String details = doc.getString("details");

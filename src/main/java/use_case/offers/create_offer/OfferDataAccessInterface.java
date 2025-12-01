@@ -10,4 +10,6 @@ public interface OfferDataAccessInterface {
     void setAccepted(UUID offerId, boolean accepted);
     List<Offer> allOffers();
     List<Offer> myOffers(String username);
+    Offer getOfferByID(UUID offerId);
+    void updateOffer(Offer offer);
 }

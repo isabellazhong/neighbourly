@@ -18,7 +18,7 @@ public class MyOffersInteractor implements MyOffersInputBoundary {
     @Override
     public void execute() {
         if (UserSession.getInstance().getCurrentUser() == null) {
-            presenter.prepareFailView("Please Login");
+            presenter.prepareFailView("No user logged in");
             return;
         }
         String userID = UserSession.getInstance().getCurrentUser().getID().toString();
