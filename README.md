@@ -12,6 +12,8 @@ touch .env
 echo MONDODB_URI=YOUR_MONGODB_URI >> .env 
 ## replace with actual gemini api 
 echo GEMINI_API=YOUR_GEMINI_API >> .env 
+echo SENDBIRD_APP_ID=YOUR_SENDBIRD_APP_ID >> .env 
+echo SENDBIRD_MASTER_TOKEN=YOUR_SENDBIRD_MASTER_TOKEN >> .env 
 ```
 
 2. Run main.py
