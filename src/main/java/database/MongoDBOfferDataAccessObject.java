@@ -9,8 +9,9 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import entity.Offer;
+import use_case.offer.OfferDataAccessInterface;
 
-public class MongoDBOfferDataAccessObject extends MongoDB{
+public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAccessInterface {
     private final MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {
@@ -19,6 +20,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB{
         this.offersCollection = this.getDatabase().getCollection(collectionName);
     }
 
+    @Override
     public void addOffer(Offer offer) {
         Document offerDocument = new Document("id", offer.getId().toString())
                 .append("title", offer.getTitle())
@@ -29,6 +31,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB{
         this.offersCollection.insertOne(offerDocument);
     }
 
+    @Override
     public String getChatChannelId(UUID offerId) {
         Document offerDoc = offersCollection.find(Filters.eq("id", offerId.toString())).first();
         if (offerDoc != null && offerDoc.containsKey("chatChannelId")) {
@@ -37,6 +40,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB{
         return null;
     }
 
+    @Override
     public void setChatChannelId(UUID offerId, String chatChannelId) {
         offersCollection.updateOne(
             Filters.eq("id", offerId.toString()),
@@ -44,6 +48,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB{
         );
     }
 
+    @Override
     public void setAccepted(UUID offerId, boolean accepted) {
         offersCollection.updateOne(
             Filters.eq("id", offerId.toString()),

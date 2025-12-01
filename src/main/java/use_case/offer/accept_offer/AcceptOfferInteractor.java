@@ -5,21 +5,19 @@ import java.util.UUID;
 
 import database.MongoDBOfferDataAccessObject;
 import entity.SendbirdMessagingService;
-import use_case.offer.AcceptOfferOutputBoundary;
-import use_case.offer.AcceptOfferOutputData;
 
 public class AcceptOfferInteractor {
     private final MongoDBOfferDataAccessObject offerDAO;
     private final SendbirdMessagingService messagingService;
-    private final AcceptOfferOutputBoundary outputBoundary;
+    private final AcceptOfferOutputBoundary messagingPresenter;
 
     public AcceptOfferInteractor(
             MongoDBOfferDataAccessObject offerDAO,
             SendbirdMessagingService messagingService,
-            AcceptOfferOutputBoundary outputBoundary) {
+            AcceptOfferOutputBoundary messagingPresenter) {
         this.offerDAO = offerDAO;
         this.messagingService = messagingService;
-        this.outputBoundary = outputBoundary;
+        this.messagingPresenter = messagingPresenter;
     }
 
     public void execute(UUID offerId, String offererUserId, String accepterUserId) {
@@ -30,18 +28,18 @@ public class AcceptOfferInteractor {
             offerDAO.setAccepted(offerId, true);
 
             AcceptOfferOutputData outputData = new AcceptOfferOutputData(channelId, accepterUserId);
-            outputBoundary.presentMessagingView(outputData);
+            messagingPresenter.presentMessagingView(outputData);
 
         } catch (IOException e) {
             String errorMsg = "Failed to create messaging channel: " + e.getMessage();
             System.err.println(errorMsg);
             e.printStackTrace();
-            outputBoundary.presentFailure(errorMsg);
+            messagingPresenter.presentFailure(errorMsg);
         } catch (Exception e) {
             String errorMsg = "Error accepting offer: " + e.getMessage();
             System.err.println(errorMsg);
             e.printStackTrace();
-            outputBoundary.presentFailure(errorMsg);
+            messagingPresenter.presentFailure(errorMsg);
         }
     }
 }

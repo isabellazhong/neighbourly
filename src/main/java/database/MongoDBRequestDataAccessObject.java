@@ -8,6 +8,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import use_case.request.RequestDataAccessInterface;
+
 public class MongoDBRequestDataAccessObject extends MongoDB implements RequestDataAccessInterface {
     private MongoCollection<Document> requestsCollection;
 

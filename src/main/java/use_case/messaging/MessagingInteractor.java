@@ -3,16 +3,16 @@ package use_case.messaging;
 import java.io.IOException;
 import java.util.List;
 
-import database.OfferDataAccessInterface;
-import database.RequestDataAccessInterface;
 import entity.MessageDTO;
 import entity.SendbirdMessagingService;
+import use_case.offer.OfferDataAccessInterface;
+import use_case.request.RequestDataAccessInterface;
 
 public class MessagingInteractor implements MessagingInputBoundary {
     private final MessagingOutputBoundary messagingOutputBoundary;
     private final SendbirdMessagingService sendbirdMessagingService;
     private final RequestDataAccessInterface requestDAO;
-    private final OfferDataAccessInterface offerDAO;
+    private final use_case.offer.OfferDataAccessInterface offerDAO;
     
     public MessagingInteractor(
             MessagingOutputBoundary messagingOutputBoundary,
