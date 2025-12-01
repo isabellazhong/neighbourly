@@ -1,4 +1,6 @@
+// java
 package view.homepage;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -6,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.Date;
 
 import interface_adapter.offers.create_offer.CreateOfferController;
 import interface_adapter.offers.my_offers.MyOffersViewModel;
@@ -21,6 +24,7 @@ import java.awt.event.ActionListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import interface_adapter.homepage.ViewModelManager;
 import interface_adapter.homepage.HomepageViewModel;
+import entity.Request;
 
 public class HomepageView extends JPanel {
     private interface_adapter.homepage.HomepageController homepageController;
@@ -37,8 +41,8 @@ public class HomepageView extends JPanel {
     // left demo requests panel (other people's requests)
     private JPanel requestsPanel;
 
-    // center created requests (user's own created requests) - scrollable under the search
-    private final List<RequestLocation> createdRequests = new ArrayList<>();
+
+    private final List<Request> createdRequests = new ArrayList<>();
     private JPanel createdRequestsPanel;
     private JScrollPane createdRequestsScroll;
 
@@ -46,15 +50,18 @@ public class HomepageView extends JPanel {
         this.homepageController = controller;
     }
 
-    // bind the view model manager so the view can update when the presenter sets new state
     public void bindHomepageViewModelManager(interface_adapter.homepage.ViewModelManager manager) {
         this.homepageViewModelManager = manager;
         if (manager == null) return;
         manager.registerListener(new ViewModelManager.Listener() {
             @Override
             public void onViewModelUpdated(HomepageViewModel vm) {
-                List<RequestLocation> requests = vm != null ? vm.getRequests() : null;
-                SwingUtilities.invokeLater(() -> updateRequestsPanel(requests));
+                List<RequestLocation> nearby = vm != null ? vm.getRequests() : null;
+                List<Request> created = vm != null ? vm.getCreatedRequests() : null;
+                SwingUtilities.invokeLater(() -> {
+                    updateRequestsPanel(nearby);
+                    setCreatedRequests(created);
+                });
             }
         });
     }
@@ -108,6 +115,11 @@ public class HomepageView extends JPanel {
 
         JButton searchButton = new JButton("Search Requests");
         searchButton.setFont(searchButton.getFont().deriveFont(18f));
+        searchButton.addActionListener(e -> {
+            if (homepageController != null) {
+                homepageController.search(searchField.getText().trim());
+            }
+        });
 
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setOpaque(false);
@@ -243,7 +255,6 @@ public class HomepageView extends JPanel {
         return token;
     }
 
-    // rebuilds the left requests panel using the provided list (or default demo if null)
     private void updateRequestsPanel(List<RequestLocation> requests) {
         requestsPanel.removeAll();
         requestsPanel.setLayout(new BoxLayout(requestsPanel, BoxLayout.Y_AXIS));
@@ -255,7 +266,6 @@ public class HomepageView extends JPanel {
         requestsPanel.add(header);
         requestsPanel.add(Box.createVerticalStrut(8));
 
-        // default demo data if none provided
         double helperLat = 43.6617;
         double helperLng = -79.3950;
         List<RequestLocation> demoRequests = List.of(
@@ -295,8 +305,8 @@ public class HomepageView extends JPanel {
             empty.setFont(empty.getFont().deriveFont(Font.PLAIN, 13f));
             createdRequestsPanel.add(empty);
         } else {
-            for (RequestLocation loc : createdRequests) {
-                createdRequestsPanel.add(createCreatedRequestRow(loc));
+            for (Request req : createdRequests) {
+                createdRequestsPanel.add(createCreatedRequestRow(req));
                 createdRequestsPanel.add(Box.createVerticalStrut(6));
             }
         }
@@ -337,8 +347,8 @@ public class HomepageView extends JPanel {
         return row;
     }
 
-    // Center created request row: show Edit / Delete buttons, no listeners attached (user will implement later)
-    private JPanel createCreatedRequestRow(RequestLocation location) {
+    // created requests rows now operate on entity.Request
+    private JPanel createCreatedRequestRow(Request req) {
         JPanel row = new JPanel(new BorderLayout(8, 0));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         row.setBorder(BorderFactory.createCompoundBorder(
@@ -347,17 +357,52 @@ public class HomepageView extends JPanel {
         ));
         row.setOpaque(false);
 
-        JLabel title = new JLabel(location.title());
+        JLabel title = new JLabel(req.getTitle());
         row.add(title, BorderLayout.CENTER);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         actions.setOpaque(false);
 
         JButton edit = new JButton("Edit");
-        edit.setToolTipText("Edit (not implemented)");
+        edit.addActionListener(evt -> {
+            String newTitle = JOptionPane.showInputDialog(this, "Edit title:", req.getTitle());
+            if (newTitle == null) return;
+            newTitle = newTitle.trim();
+            if (newTitle.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Title cannot be empty", "Invalid", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String newDetails = JOptionPane.showInputDialog(this, "Edit details:", req.getDetails() != null ? req.getDetails() : "");
+            if (newDetails == null) return;
+
+            if (homepageController != null) {
+                homepageController.editRequest(req.getId().toString(), newTitle, newDetails, req.isService());
+            } else {
+                for (int i = 0; i < createdRequests.size(); i++) {
+                    if (createdRequests.get(i).getId().equals(req.getId())) {
+                        createdRequests.get(i).setTitle(newTitle);
+                        createdRequests.get(i).setDetails(newDetails);
+                        createdRequests.get(i).setService(req.isService());
+                        break;
+                    }
+                }
+                rebuildCreatedRequestsArea();
+            }
+        });
 
         JButton delete = new JButton("Delete");
-        delete.setToolTipText("Delete (not implemented)");
+        delete.addActionListener(evt -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "Delete this request?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) return;
+
+            if (homepageController != null) {
+                homepageController.deleteRequest(req.getId().toString());
+            } else {
+                createdRequests.removeIf(r -> r.getId().equals(req.getId()));
+                rebuildCreatedRequestsArea();
+            }
+        });
 
         actions.add(edit);
         actions.add(delete);
@@ -435,18 +480,16 @@ public class HomepageView extends JPanel {
         dialog.setVisible(true);
     }
 
-    // Adds a new created request to the top of the center list and refreshes UI
-    public void addCreatedRequest(RequestLocation location) {
-        if (location == null) return;
-        createdRequests.add(0, location);
+    public void addCreatedRequest(Request request) {
+        if (request == null) return;
+        createdRequests.add(0, request);
         rebuildCreatedRequestsArea();
         if (createdRequestsScroll != null) {
             SwingUtilities.invokeLater(() -> createdRequestsScroll.getVerticalScrollBar().setValue(0));
         }
     }
 
-    // Allows presenter/controller to replace full created list (keeps UI consistent)
-    public void setCreatedRequests(List<RequestLocation> list) {
+    public void setCreatedRequests(List<Request> list) {
         createdRequests.clear();
         if (list != null) createdRequests.addAll(list);
         rebuildCreatedRequestsArea();
@@ -462,38 +505,33 @@ public class HomepageView extends JPanel {
             JPanel root = new JPanel(new BorderLayout(12, 12));
             root.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
-            // REQUEST HEADER
             JLabel header = new JLabel("Create a Request", SwingConstants.LEFT);
             header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
             root.add(header, BorderLayout.NORTH);
 
-            // Content
             JPanel column = new JPanel();
             column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
             column.setOpaque(false);
 
-            // Title label
             JLabel titleLabel = new JLabel("Title");
             titleLabel.setFont(titleLabel.getFont().deriveFont(16f));
             titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             column.add(titleLabel);
 
             JTextField titleField = new JTextField();
-            titleField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26)); // slim height
+            titleField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 26));
             titleField.setPreferredSize(new Dimension(400, 26));
             titleField.setAlignmentX(Component.LEFT_ALIGNMENT);
             titleField.setToolTipText("Short title");
             column.add(titleField);
             column.add(Box.createVerticalStrut(10));
 
-            // Header for request type
             JLabel sectionHeading = new JLabel("Type");
             sectionHeading.setFont(sectionHeading.getFont().deriveFont(16f));
             sectionHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
             sectionHeading.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
             column.add(sectionHeading);
 
-            // Request types (Service / Resource)
             JPanel optionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
             optionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             JRadioButton serviceBtn = new JRadioButton("Service");
@@ -507,7 +545,6 @@ public class HomepageView extends JPanel {
             column.add(optionPanel);
             column.add(Box.createVerticalStrut(12));
 
-            // Additional details heading + larger text area
             JLabel detailsLabel = new JLabel("Additional details");
             detailsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             column.add(detailsLabel);
@@ -521,7 +558,6 @@ public class HomepageView extends JPanel {
 
             root.add(column, BorderLayout.CENTER);
 
-            // Buttons
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancel = new JButton("Back");
             cancel.addActionListener((ActionEvent e) -> dispose());
@@ -534,20 +570,16 @@ public class HomepageView extends JPanel {
                     return;
                 }
 
-                // create a RequestLocation for display (demo coords)
-                double helperLat = 43.6617;
-                double helperLng = -79.3950;
-                RequestLocation newLocation = new RequestLocation(
-                        UUID.randomUUID().toString(),
-                        title,
-                        43.6532,   // demo request lat
-                        -79.3832,  // demo request lng
-                        helperLat,
-                        helperLng
-                );
+                String details = detailsArea.getText() != null ? detailsArea.getText().trim() : "";
+                boolean service = serviceBtn.isSelected();
 
-                // add to center "My requests" list and refresh UI
-                HomepageView.this.addCreatedRequest(newLocation);
+                if (homepageController != null) {
+                    homepageController.createRequest(title, details, service);
+                } else {
+                    Request r = new Request(title, details, service, null);
+                    HomepageView.this.addCreatedRequest(r);
+                }
+
                 dispose();
             });
             buttons.add(cancel);

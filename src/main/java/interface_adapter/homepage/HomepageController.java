@@ -16,4 +16,16 @@ public class HomepageController {
     public void search(String query) {
         interactor.search(query);
     }
+
+    public void createRequest(String title, String details, boolean service) {
+        interactor.createRequest(title, details, service);
+    }
+
+    public void editRequest(String requestId, String newTitle, String newDetails, boolean service) {
+        interactor.editRequest(requestId, newTitle, newDetails, service);
+    }
+
+    public void deleteRequest(String requestId) {
+        interactor.deleteRequest(requestId);
+    }
 }

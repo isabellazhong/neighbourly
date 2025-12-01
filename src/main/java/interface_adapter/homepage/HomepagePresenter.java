@@ -1,6 +1,7 @@
 package interface_adapter.homepage;
 
 import view.map.RequestLocation;
+import entity.Request;
 
 import java.util.List;
 
@@ -13,7 +14,12 @@ public class HomepagePresenter implements HomepageViewOutputBoundary {
 
     @Override
     public void presentHome(List<RequestLocation> requests) {
-        HomepageViewModel vm = new HomepageViewModel(requests);
+        presentHome(requests, null);
+    }
+
+    @Override
+    public void presentHome(List<RequestLocation> requests, List<Request> createdRequests) {
+        HomepageViewModel vm = new HomepageViewModel(requests, createdRequests);
         manager.setViewModel(vm);
     }
 }
