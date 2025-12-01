@@ -3,23 +3,42 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
-import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.my_offers.MyOffersViewModel;
+import interface_adapter.offers.my_offers.MyOffersController;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfileViewModel;
 import view.offer_interface.CreateOfferView;
+import view.map.RequestLocation;
+import view.map.RequestMapView;
+import view.offer_interface.MyOffersView;
 import view.profile_interface.ProfileView;
 import java.awt.event.ActionListener;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class HomepageView extends JPanel {
     private final CreateOfferController createOfferController;
+    private final MyOffersController myOffersController;
+    private final MyOffersViewModel myOffersViewModel;
+    private String mapboxToken;
+    private final use_case.map.MapService mapService;
     private ProfileController profileController;
     private ProfileViewModel profileViewModel;
     private String viewName;
 
-    public HomepageView(CreateOfferController createOfferController) {
+    public HomepageView(CreateOfferController createOfferController,
+                        MyOffersController myOffersController,
+                        MyOffersViewModel myOffersViewModel,
+                        use_case.map.MapService mapService,
+                        String mapboxToken) {
         this.viewName = "homepage";
         this.createOfferController = createOfferController;
+        this.myOffersController = myOffersController;
+        this.myOffersViewModel = myOffersViewModel;
+        this.mapService = mapService;
+        this.mapboxToken = mapboxToken != null ? mapboxToken : resolveMapboxToken();
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
 
         setLayout(new BorderLayout());
@@ -27,9 +46,16 @@ public class HomepageView extends JPanel {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JButton myOffersButton = new JButton("My Offers");
+        myOffersButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        myOffersButton.addActionListener(e -> openOffers());
+
         JButton profileButton = new JButton("Profile");
         profileButton.setFont(profileButton.getFont().deriveFont(14f));
         profileButton.addActionListener(e -> openProfile());
+
+        topPanel.add(myOffersButton);
         topPanel.add(profileButton);
         add(topPanel, BorderLayout.NORTH);
 
@@ -145,8 +171,121 @@ public class HomepageView extends JPanel {
         bottomPanel.add(createButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // Demo requests panel on the left
+        JPanel requestsPanel = buildRequestsPanel();
+        requestsPanel.setPreferredSize(new Dimension(360, 400));
+        add(requestsPanel, BorderLayout.WEST);
+
 
         setPreferredSize(new Dimension(1200, 700));
+    }
+
+    private String resolveMapboxToken() {
+        String token = System.getenv("MAPBOX_TOKEN");
+        if (token == null || token.isBlank()) {
+            token = System.getProperty("MAPBOX_TOKEN");
+        }
+        if (token == null || token.isBlank()) {
+            try {
+                Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+                token = dotenv.get("MAPBOX_TOKEN");
+            } catch (Exception ignored) {
+            }
+        }
+        return token;
+    }
+
+    private JPanel buildRequestsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        JLabel header = new JLabel("Nearby requests");
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 16f));
+        panel.add(header);
+        panel.add(Box.createVerticalStrut(8));
+
+        // Use a single helper location (you) and vary requester locations
+        double helperLat = 43.6617;
+        double helperLng = -79.3950;
+        List<RequestLocation> demoRequests = List.of(
+                new RequestLocation("REQ-001", "Grocery drop-off (Toronto)", 43.6532, -79.3832, helperLat, helperLng),
+                new RequestLocation("REQ-002", "Medication pickup (Toronto)", 43.7000, -79.4000, helperLat, helperLng)
+        );
+
+        for (RequestLocation location : demoRequests) {
+            panel.add(createRequestRow(location));
+            panel.add(Box.createVerticalStrut(6));
+        }
+
+        if (mapboxToken == null || mapboxToken.isBlank()) {
+            JLabel warning = new JLabel("Set MAPBOX_TOKEN env/system property to enable maps + ETA");
+            warning.setForeground(Color.RED.darker());
+            warning.setFont(warning.getFont().deriveFont(Font.PLAIN, 12f));
+            panel.add(Box.createVerticalStrut(6));
+            panel.add(warning);
+        }
+
+        return panel;
+    }
+
+    private JPanel createRequestRow(RequestLocation location) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        row.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                new EmptyBorder(6, 8, 6, 8)
+        ));
+
+        JLabel title = new JLabel(location.title());
+        row.add(title, BorderLayout.CENTER);
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        JButton accept = new JButton("Accept");
+        accept.addActionListener(evt -> JOptionPane.showMessageDialog(
+                this,
+                "Request accepted (demo).",
+                "Accepted",
+                JOptionPane.INFORMATION_MESSAGE
+        ));
+
+        JButton view = new JButton("View location");
+        view.addActionListener(evt -> openRequestOnMap(location));
+
+        actions.add(accept);
+        actions.add(view);
+        row.add(actions, BorderLayout.EAST);
+
+        return row;
+    }
+
+    private void openRequestOnMap(RequestLocation location) {
+        if (mapboxToken == null || mapboxToken.isBlank()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Mapbox token not set. Add MAPBOX_TOKEN as an environment variable or JVM property.",
+                    "Map unavailable",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Request location", Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.setContentPane(new RequestMapView(mapService, new interface_adapter.map.RealMapImageProvider(mapboxToken), mapboxToken, location));
+            dialog.pack();
+            dialog.setSize(new Dimension(1300, 900));
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to open map: " + ex.getMessage(),
+                    "Map error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     public void setProfileController(ProfileController profileController) {
@@ -168,6 +307,25 @@ public class HomepageView extends JPanel {
             profileDialog.setLocationRelativeTo(topFrame);
             profileDialog.setVisible(true);
         }
+    }
+
+    private void openOffers() {
+        if (myOffersController != null) {
+            myOffersController.execute();
+        }
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(topFrame, "My Offers", true);
+
+        MyOffersView myOffersView = new MyOffersView(myOffersViewModel);
+
+        if (myOffersViewModel.getState() != null) {
+            myOffersView.showOffers(myOffersViewModel.getState().getOffers());
+        }
+
+        dialog.setContentPane(myOffersView);
+        dialog.setSize(720, 500);
+        dialog.setLocationRelativeTo(topFrame);
+        dialog.setVisible(true);
     }
 
     public class CreateRequest extends JDialog {

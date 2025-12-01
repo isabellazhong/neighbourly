@@ -35,10 +35,12 @@ public class MongoDBUserDataAccessObject extends MongoDB implements UserDataAcce
         collection = this.getDatabase().getCollection(collectionName);
     }
 
+    @Override
     public boolean checkExistingUser(String email) {
         return collection.find(eq(NAME, email)).first() != null;
     }
 
+    @Override
     public void addUser(User user) {
         Document userDoc = new Document()
                 .append(NAME, user.getName())
@@ -62,6 +64,7 @@ public class MongoDBUserDataAccessObject extends MongoDB implements UserDataAcce
         logger.info("User " + user.getName() + " has been added to the collection");
     }
 
+    @Override
     public User getUser(String email, String password) throws Exception {
         try {
             Document userDoc = collection.find(eq(EMAIL, email)).first();
@@ -119,6 +122,7 @@ public class MongoDBUserDataAccessObject extends MongoDB implements UserDataAcce
         }
     }
 
+    @Override
     public boolean updateUser(User user) {
         collection.updateMany(
                 Filters.eq(ID, user.getID()),

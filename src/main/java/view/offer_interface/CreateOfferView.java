@@ -1,10 +1,11 @@
 package view.offer_interface;
 
-import interface_adapter.offer.CreateOfferController;
+import interface_adapter.offers.create_offer.CreateOfferController;
 import view.UIConstants;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,14 +18,16 @@ public class CreateOfferView extends JPanel {
 
     private CreateOfferController createOfferController;
 
-    private static final int PANEL_WIDTH = 500;
-    private static final int PANEL_HEIGHT = 600;
-    private static final int INPUT_HEIGHT = 45;
-    private static final int BUTTON_HEIGHT = 50;
+    private static final int PANEL_WIDTH = 720;
+    private static final int PANEL_HEIGHT = 460;
+    private static final int INPUT_HEIGHT = 100;
+    private static final int INPUT_WIDTH = 500;
+    private static final int BUTTON_HEIGHT = 60;
     private static final int COMPONENT_SPACING = 15;
     private static final int SECTION_SPACING = 25;
-    private static final String DETAIlS_PLACEHOLDER = "Add more details (optional)";
+    private static final String DETAILS_PLACEHOLDER = "Add more details (optional)";
     private static final String TITLE_PLACEHOLDER = "What are you offering?";
+    private static final Color SUCCESS = UIConstants.darkGray;
 
     private JTextField titleInputField;
     private JTextArea detailsInputField;
@@ -54,12 +57,14 @@ public class CreateOfferView extends JPanel {
         titleInputField = createStyledTextField(TITLE_PLACEHOLDER);
 
         detailsLabel = createStyledLabel("Description");
-        detailsInputField = createStyledTextArea(DETAIlS_PLACEHOLDER);
+        detailsInputField = createStyledTextArea(DETAILS_PLACEHOLDER);
 
         submitButton = createStyledButton("Submit Offer");
 
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
         statusLabel.setFont(new Font(FONT_NAME, Font.PLAIN, 12));
+
+        statusLabel.setPreferredSize(new Dimension(INPUT_WIDTH, 20));
     }
 
     private void setupLayout() {
@@ -77,9 +82,11 @@ public class CreateOfferView extends JPanel {
         formPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
 
+        gbc.weightx = 1.0;
         gbc.gridx = 0;
-        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridy = 0;
         gbc.insets = new Insets(0, 0, 5, 0);
         formPanel.add(titleLabel, gbc);
 
@@ -93,17 +100,23 @@ public class CreateOfferView extends JPanel {
 
         gbc.gridy = 3;
         gbc.insets = new Insets(0, 0, SECTION_SPACING, 0);
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+
         JScrollPane detailsScrollPane = new JScrollPane(detailsInputField);
-        detailsScrollPane.setPreferredSize(new Dimension(300, 100));
+        detailsScrollPane.setPreferredSize(new Dimension(INPUT_WIDTH, 150));
         detailsScrollPane.setBorder(BorderFactory.createLineBorder(UIConstants.textColorFaded, 1));
         formPanel.add(detailsScrollPane, gbc);
 
+        gbc.weighty = 0;
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 0, COMPONENT_SPACING, 0);
         formPanel.add(submitButton, gbc);
 
         gbc.gridy = 5;
         gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(statusLabel, gbc);
 
         mainPanel.add(titlePanel);
@@ -119,24 +132,7 @@ public class CreateOfferView extends JPanel {
 
     private void addEventListeners() {
         addPlaceholderBehavior(titleInputField, TITLE_PLACEHOLDER);
-
-        detailsInputField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (detailsInputField.getText().equals(DETAIlS_PLACEHOLDER)) {
-                    detailsInputField.setText("");
-                    detailsInputField.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (detailsInputField.getText().isEmpty()) {
-                    detailsInputField.setForeground(UIConstants.textColorFaded);
-                    detailsInputField.setText(DETAIlS_PLACEHOLDER);
-                }
-            }
-        });
+        addPlaceholderBehavior(detailsInputField, DETAILS_PLACEHOLDER);
 
         submitButton.addActionListener(new ActionListener() {
             @Override
@@ -159,13 +155,23 @@ public class CreateOfferView extends JPanel {
         if (createOfferController != null) {
             createOfferController.execute(title, details);
             showStatus("Offer submitted successfully", UIConstants.darkGray);
-            titleInputField.setText(TITLE_PLACEHOLDER);
-            titleInputField.setForeground(UIConstants.textColorFaded);
-            detailsInputField.setText(DETAIlS_PLACEHOLDER);
-            detailsInputField.setForeground(UIConstants.textColorFaded);
+            resetFields();
         } else {
             System.out.println("Error: Controller not connected to View");
         }
+    }
+
+    private void resetFields() {
+        titleInputField.setText(TITLE_PLACEHOLDER);
+        titleInputField.setForeground(UIConstants.textColorFaded);
+        detailsInputField.setText(DETAILS_PLACEHOLDER);
+        detailsInputField.setForeground(UIConstants.textColorFaded);
+    }
+
+    private void clearStatus() {
+        statusLabel.setText(" ");
+        statusLabel.revalidate();
+        statusLabel.repaint();
     }
 
     private String getTitleText() {
@@ -175,12 +181,16 @@ public class CreateOfferView extends JPanel {
 
     private String getDetailsText() {
         String text = detailsInputField.getText();
-        return text.equals(DETAIlS_PLACEHOLDER) ? "" : text;
+        return text.equals(DETAILS_PLACEHOLDER) ? "" : text;
     }
 
     private void showStatus(String message, Color color) {
         statusLabel.setText(message);
         statusLabel.setForeground(color);
+        statusLabel.revalidate();
+        statusLabel.repaint();
+        this.revalidate();
+        this.repaint();
     }
 
     private JLabel createStyledLabel(String text) {
@@ -193,7 +203,7 @@ public class CreateOfferView extends JPanel {
 
     private JTextField createStyledTextField(String placeholder) {
         JTextField textField = new JTextField();
-        textField.setPreferredSize(new Dimension(300, INPUT_HEIGHT));
+        textField.setPreferredSize(new Dimension(INPUT_WIDTH, INPUT_HEIGHT));
         textField.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         textField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIConstants.textColorFaded, 1),
@@ -224,7 +234,7 @@ public class CreateOfferView extends JPanel {
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(300, BUTTON_HEIGHT));
+        button.setPreferredSize(new Dimension(INPUT_WIDTH, BUTTON_HEIGHT));
         button.setFont(new Font(FONT_NAME, Font.BOLD, 16));
 
         button.setOpaque(true);
@@ -259,21 +269,24 @@ public class CreateOfferView extends JPanel {
         return panel;
     }
 
-    private void addPlaceholderBehavior(JTextField textField, String placeholder) {
-        textField.addFocusListener(new FocusAdapter() {
+    private void addPlaceholderBehavior(JTextComponent textComponent, String placeholder) {
+        textComponent.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
+                if (statusLabel.getForeground().equals(SUCCESS)) {
+                    clearStatus();
+                }
+                if (textComponent.getText().equals(placeholder)) {
+                    textComponent.setText("");
+                    textComponent.setForeground(Color.BLACK);
                 }
             }
 
             @Override
             public void focusLost(FocusEvent e) {
-                if (textField.getText().isEmpty()) {
-                    textField.setForeground(UIConstants.textColorFaded);
-                    textField.setText(placeholder);
+                if (textComponent.getText().isEmpty()) {
+                    textComponent.setForeground(UIConstants.textColorFaded);
+                    textComponent.setText(placeholder);
                 }
             }
         });

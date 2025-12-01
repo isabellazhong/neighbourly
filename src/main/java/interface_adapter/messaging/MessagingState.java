@@ -10,6 +10,7 @@ public class MessagingState {
     private List<MessageDTO> messages = new ArrayList<>();
     private String currentInput = "";
     private String error = null;
+    private String currentUserId;
 
     public String getChannelId() {
         return channelId;
@@ -42,5 +43,12 @@ public class MessagingState {
     public void setError(String error) {
         this.error = error;
     }
-}
 
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
+    }
+}

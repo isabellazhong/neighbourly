@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neighbourly Map</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="status">Loading…</div>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const hlat = parseFloat(params.get('hlat'));
+  const hlng = parseFloat(params.get('hlng'));
+  const rlat = parseFloat(params.get('rlat'));
+  const rlng = parseFloat(params.get('rlng'));
+
+  if (!token || Number.isNaN(hlat) || Number.isNaN(hlng) || Number.isNaN(rlat) || Number.isNaN(rlng)) {
+    document.getElementById('status').textContent = 'Missing parameters';
+  } else {
+    init(token, hlng, hlat, rlng, rlat);
+  }
+
+  function init(token, helperLng, helperLat, reqLng, reqLat) {
+    mapboxgl.accessToken = token;
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [helperLng, helperLat],
+      zoom: 13
+    });
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.on('load', () => {
+      addMarker(map, helperLng, helperLat, '#1d4ed8');
+      addMarker(map, reqLng, reqLat, '#ef4444');
+      fitToBounds(map, helperLng, helperLat, reqLng, reqLat);
+      fetchRoute(map, helperLng, helperLat, reqLng, reqLat, token);
+    });
+  }
+
+  function addMarker(map, lng, lat, color) {
+    new mapboxgl.Marker({ color }).setLngLat([lng, lat]).addTo(map);
+  }
+
+  function fitToBounds(map, lng1, lat1, lng2, lat2) {
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([lng1, lat1]);
+    bounds.extend([lng2, lat2]);
+    map.fitBounds(bounds, { padding: 60 });
+  }
+
+  function fetchRoute(map, fromLng, fromLat, toLng, toLat, token) {
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${fromLng},${fromLat};${toLng},${toLat}?geometries=geojson&overview=full&access_token=${token}`;
+    fetch(url).then(r => r.json()).then(data => {
+      if (!data.routes || !data.routes.length) throw new Error('No routes');
+      const route = data.routes[0];
+      renderRoute(map, route.geometry);
+      const etaMinutes = Math.round(route.duration / 60);
+      setStatus(`ETA: ${etaMinutes} min`);
+    }).catch(err => {
+      setStatus('Route failed: ' + err.message);
+    });
+  }
+
+  function renderRoute(map, geojson) {
+    if (map.getSource('route')) {
+      map.getSource('route').setData(geojson);
+    } else {
+      map.addSource('route', { type: 'geojson', data: geojson });
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        paint: { 'line-color': '#1d4ed8', 'line-width': 4 }
+      });
+    }
+  }
+
+  function setStatus(text) {
+    const el = document.getElementById('status');
+    if (el) el.textContent = text;
+  }
+</script>
+</body>
+</html>
