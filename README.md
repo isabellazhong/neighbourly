@@ -47,7 +47,8 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 ### 2. Use case 
 
 #### User story: 
- As a user, I want to be able to access my homepage to view and search current requests. I also want to create a request and add additional details to my request.
+As a user, I want to be able to access my homepage, view and search current requests, and have the option to create. 
+When creating a request, I want the option to add additional details to my request.
 
 #### Features:
 - Create a button to add either a request or an offer
@@ -55,7 +56,7 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - choose the type of request(service, or resource)
 
 ### 2. Implementation and Contributions:
-- Implemented homepage ui, search, create button
+- Implemented homepage ui, search, and create button
 - Implemented request window
 
 
