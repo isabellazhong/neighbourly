@@ -12,6 +12,7 @@ public class Main {
                 .addMyOffersView()
                 .addOfferUseCase()
                 .addMyOffersUseCase()
+                .addEditOfferUseCase()
                 .addHomePageView()
                 .addMessagingView()
                 .addVerificationView()

@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.edit_offer.EditOfferController;
 import interface_adapter.offers.my_offers.MyOffersViewModel;
 import interface_adapter.offers.my_offers.MyOffersController;
 import interface_adapter.profile.ProfileController;
@@ -22,6 +23,7 @@ public class HomepageView extends JPanel {
     private final CreateOfferController createOfferController;
     private final MyOffersController myOffersController;
     private final MyOffersViewModel myOffersViewModel;
+    private final EditOfferController editOfferController;
     private String mapboxToken;
     private final use_case.map.MapService mapService;
     private ProfileController profileController;
@@ -31,11 +33,13 @@ public class HomepageView extends JPanel {
     public HomepageView(CreateOfferController createOfferController,
                         MyOffersController myOffersController,
                         MyOffersViewModel myOffersViewModel,
+                        EditOfferController editOfferController,
                         use_case.map.MapService mapService,
                         String mapboxToken) {
         this.viewName = "homepage";
         this.createOfferController = createOfferController;
         this.myOffersController = myOffersController;
+        this.editOfferController = editOfferController;
         this.myOffersViewModel = myOffersViewModel;
         this.mapService = mapService;
         this.mapboxToken = mapboxToken != null ? mapboxToken : resolveMapboxToken();
@@ -149,6 +153,7 @@ public class HomepageView extends JPanel {
 
                     CreateOfferView offerView = new CreateOfferView();
                     offerView.setCreateOfferController(createOfferController);
+                    offerView.setEditOfferController(editOfferController);
 
                     popup.setContentPane(offerView);
                     popup.pack();
@@ -317,10 +322,28 @@ public class HomepageView extends JPanel {
         JDialog dialog = new JDialog(topFrame, "My Offers", true);
 
         MyOffersView myOffersView = new MyOffersView(myOffersViewModel);
+        myOffersView.setOnEditListener(offerToEdit -> {
+            JDialog editPopup = new JDialog(topFrame, "Edit Offer", true); // 'true' means it pauses execution here until closed
+            CreateOfferView editView = new CreateOfferView();
 
-        if (myOffersViewModel.getState() != null) {
-            myOffersView.showOffers(myOffersViewModel.getState().getOffers());
-        }
+            editView.setCreateOfferController(this.createOfferController);
+            editView.setEditOfferController(this.editOfferController);
+
+            editView.loadOfferToEdit(offerToEdit);
+
+            editPopup.setContentPane(editView);
+            editPopup.setSize(720, 500);
+            editPopup.setLocationRelativeTo(topFrame);
+
+            editPopup.setVisible(true);
+            System.out.println("Refreshing list after edit...");
+            if (myOffersController != null) {
+                myOffersController.execute();
+            }
+            });
+            if (myOffersViewModel.getState() != null) {
+                myOffersView.showOffers(myOffersViewModel.getState().getOffers());
+            }
 
         dialog.setContentPane(myOffersView);
         dialog.setSize(720, 500);

@@ -20,8 +20,8 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
     private final MongoCollection<Document> offersCollection;
 
     public MongoDBOfferDataAccessObject() {
-        super(); 
-        String collectionName = "Offers"; 
+        super();
+        String collectionName = "Offers";
         this.offersCollection = this.getDatabase().getCollection(collectionName);
     }
 
@@ -32,8 +32,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
                 .append("details", offer.getAlternativeDetails())
                 .append("postDate", offer.getPostDate())
                 .append("accepted", offer.isAccepted())
-                .append("chatChannelId", offer.getChatChannelId())
-                .append("userID", offer.getUserID() != null ? offer.getUserID().toString() : null);
+                .append("chatChannelId", offer.getChatChannelId());
         this.offersCollection.insertOne(offerDocument);
     }
 
@@ -53,14 +52,7 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
 
     @Override
     public List<Offer> myOffers(String userIDString) {
-        List<Offer> offers = new ArrayList<>();
-        FindIterable<Document> iterable = offersCollection.find(Filters.eq("userID", userIDString));
-        try (MongoCursor<Document> cursor = iterable.iterator()) {
-            while (cursor.hasNext()) {
-                offers.add(documentToOffer(cursor.next()));
-            }
-        }
-        return offers;
+        return allOffers();
     }
 
     @Override
@@ -76,14 +68,18 @@ public class MongoDBOfferDataAccessObject extends MongoDB implements OfferDataAc
     public void updateOffer(Offer offer) {
         offersCollection.updateOne(Filters.eq("id",
                 offer.getId().toString()), Updates.combine(Updates.set("title", offer.getTitle()),
-                Updates.set("details", offer.getAlternativeDetails()), Updates.set("postDate", offer)));
+                Updates.set("details", offer.getAlternativeDetails())));
     }
 
     private Offer documentToOffer(Document doc) {
         String title = doc.getString("title");
         String details = doc.getString("details");
         Date date = doc.getDate("postDate");
+        String idStr = doc.getString("id");
         Offer offer = new Offer(title, details, date);
+        if (idStr != null) {
+            offer.setId(UUID.fromString(idStr));
+        }
         return offer;
     }
 

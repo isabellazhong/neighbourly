@@ -33,7 +33,6 @@ public class CreateOfferInteractor implements CreateOfferInputBoundary {
                 inputData.getDetails(),
                 new Date()
         );
-        newOffer.setUserID(currentUser.getID());
         offerDataAccessObject.addOffer(newOffer);
 
         CreateOfferOutputData outputData = new CreateOfferOutputData(newOffer, false);

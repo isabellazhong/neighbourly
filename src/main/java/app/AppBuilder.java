@@ -82,6 +82,7 @@ public class AppBuilder {
     private CreateOfferController createOfferController;
     private MyOffersViewModel myOffersViewModel;
     private MyOffersController myOffersController;
+    private interface_adapter.offers.edit_offer.EditOfferController editOfferController;
     private interface_adapter.offers.my_offers.MyOffersController myOffersViewController;
     private final OfferDataAccessInterface offerDataAccessObject = new MongoDBOfferDataAccessObject();
     private final UserDataAccessInterface userDataAccessObject = new MongoDBUserDataAccessObject();
@@ -95,6 +96,16 @@ public class AppBuilder {
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
         this.config = AppConfig.load();
+        java.util.UUID fixedID = java.util.UUID.fromString("12345678-1234-1234-1234-123456789abc");
+
+        entity.User mockUser = new entity.User(
+                fixedID,
+                "Test",
+                "User",
+                "test@example.com",
+                "MALE"
+        );
+        app.UserSession.getInstance().setCurrentUser(mockUser);
     }
 
     public AppBuilder addSignupView() {
@@ -124,6 +135,7 @@ public class AppBuilder {
                 createOfferController,
                 myOffersController,
                 myOffersViewModel,
+                editOfferController,
                 new MapboxMapService(config.mapboxToken()),
                 config.mapboxToken()
         );
@@ -216,6 +228,16 @@ public class AppBuilder {
         MyOffersPresenter presenter = new MyOffersPresenter(myOffersViewModel);
         MyOffersInteractor interactor = new MyOffersInteractor(offerDataAccessObject, presenter);
         this.myOffersController = new MyOffersController(interactor);
+        return this;
+    }
+
+    public AppBuilder addEditOfferUseCase() {
+        interface_adapter.offers.edit_offer.EditOfferViewModel editViewModel = new interface_adapter.offers.edit_offer.EditOfferViewModel();
+        interface_adapter.offers.edit_offer.EditOfferPresenter editPresenter = new interface_adapter.offers.edit_offer.EditOfferPresenter(editViewModel);
+
+        use_case.offers.edit_offers.EditOfferInteractor editInteractor = new use_case.offers.edit_offers.EditOfferInteractor(offerDataAccessObject, editPresenter);
+
+        this.editOfferController = new interface_adapter.offers.edit_offer.EditOfferController(editInteractor);
         return this;
     }
 

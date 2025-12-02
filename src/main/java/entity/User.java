@@ -93,7 +93,7 @@ public class User {
 
     public List<UUID> getOfferIDs() { return this.offers; }
 
-    public void setOfferIDs(List<UUID> offerIDs) { this.offers = offers; }
+    public void setOfferIDs(List<UUID> offerIDs) { this.offers = offerIDs; }
 
 
     // Setter methods for MongoDB deserialization

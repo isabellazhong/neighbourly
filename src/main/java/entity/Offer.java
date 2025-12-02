@@ -26,6 +26,7 @@ public class Offer {
     public UUID getId() {
         return id;
     }
+    public void setId(UUID id) { this.id = id; }
     public UUID getUserID() {
         return userID;
     }

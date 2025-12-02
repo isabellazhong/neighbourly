@@ -1,6 +1,8 @@
 package view.offer_interface;
 
+import entity.Offer;
 import interface_adapter.offers.create_offer.CreateOfferController;
+import interface_adapter.offers.edit_offer.EditOfferController;
 import view.UIConstants;
 
 import javax.swing.*;
@@ -11,12 +13,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.UUID;
 
 public class CreateOfferView extends JPanel {
     public static final String FONT_NAME = "SansSerif";
     private final String viewName = "create offer";
 
     private CreateOfferController createOfferController;
+    private EditOfferController editOfferController;
+
+    private UUID editingOfferId = null;
 
     private static final int PANEL_WIDTH = 720;
     private static final int PANEL_HEIGHT = 460;
@@ -47,6 +53,20 @@ public class CreateOfferView extends JPanel {
     public void setCreateOfferController(CreateOfferController createOfferController) {
         this.createOfferController = createOfferController;
     }
+
+    public void setEditOfferController(EditOfferController editOfferController) {
+        this.editOfferController = editOfferController;
+    }
+
+    public void loadOfferToEdit(Offer offer) {
+        this.editingOfferId = offer.getId();
+        pageTitleLabel.setText("Edit Offer");
+        submitButton.setText("Save Changes");
+        titleInputField.setText(offer.getTitle());
+        titleInputField.setForeground(Color.BLACK);
+        detailsInputField.setText(offer.getAlternativeDetails());
+        detailsInputField.setForeground(Color.BLACK); }
+
 
     private void initializeComponents() {
         pageTitleLabel = new JLabel("Offer Help", SwingConstants.CENTER);
@@ -152,6 +172,19 @@ public class CreateOfferView extends JPanel {
             return;
         }
 
+        if (editingOfferId != null) {
+            if (editOfferController != null) {
+                editOfferController.execute(editingOfferId, title, details);
+                showStatus("Offer updated successfully", UIConstants.darkGray);
+            }
+        } else {
+            if (createOfferController != null) {
+                createOfferController.execute(title, details);
+                showStatus("Offer created successfully", UIConstants.darkGray);
+                resetFields();
+            }
+        }
+
         if (createOfferController != null) {
             createOfferController.execute(title, details);
             showStatus("Offer submitted successfully", UIConstants.darkGray);
@@ -166,6 +199,7 @@ public class CreateOfferView extends JPanel {
         titleInputField.setForeground(UIConstants.textColorFaded);
         detailsInputField.setText(DETAILS_PLACEHOLDER);
         detailsInputField.setForeground(UIConstants.textColorFaded);
+        editingOfferId = null;
     }
 
     private void clearStatus() {

@@ -9,11 +9,13 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MyOffersView extends JPanel {
     public static final String FONT_NAME = "SansSerif";
     private final String viewName = "my_offers";
     private final MyOffersViewModel myOffersViewModel;
+    private Consumer<Offer> onEditListener;
 
     private static final int PANEL_WIDTH = 720;
     private static final int PANEL_HEIGHT = 460;
@@ -28,6 +30,9 @@ public class MyOffersView extends JPanel {
         setupLayout();
         setupStyling();
     }
+
+    public void setOnEditListener(Consumer<Offer> listener) {
+        this.onEditListener = listener; }
 
     private void initializeComponents() {
         pageTitleLabel = new JLabel("My Offers", SwingConstants.CENTER);
@@ -109,6 +114,12 @@ public class MyOffersView extends JPanel {
 
                 JButton editButton = new JButton("Edit");
                 editButton.setFocusPainted(false);
+
+                editButton.addActionListener(e -> {
+                    if (onEditListener != null) {
+                        onEditListener.accept(offer);
+                    }
+                });
 
                 rowPanel.add(textPanel, BorderLayout.CENTER);
                 rowPanel.add(editButton, BorderLayout.EAST);

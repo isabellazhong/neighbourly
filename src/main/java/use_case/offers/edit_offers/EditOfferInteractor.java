@@ -13,7 +13,6 @@ public class EditOfferInteractor implements EditOfferInputBoundary {
 
     @Override
     public void execute(EditOfferInputData inputData) {
-        // 1. Validate Input (The logic you asked for!)
         if (inputData.getTitle() == null || inputData.getTitle().trim().isEmpty()) {
             presenter.prepareFailView("Title cannot be empty.");
             return;

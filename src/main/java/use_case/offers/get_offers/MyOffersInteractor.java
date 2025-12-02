@@ -17,12 +17,7 @@ public class MyOffersInteractor implements MyOffersInputBoundary {
 
     @Override
     public void execute() {
-        if (UserSession.getInstance().getCurrentUser() == null) {
-            presenter.prepareFailView("No user logged in");
-            return;
-        }
-        String userID = UserSession.getInstance().getCurrentUser().getID().toString();
-        List<Offer> offers = offerDataAccessObject.myOffers(userID);
+        List<Offer> offers = offerDataAccessObject.allOffers();
         presenter.presentMyOffers(offers);
     }
 }
