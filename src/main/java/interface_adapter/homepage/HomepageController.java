@@ -13,10 +13,6 @@ public class HomepageController {
         interactor.loadHome();
     }
 
-    public void search(String query) {
-        interactor.search(query);
-    }
-
     public void createRequest(String title, String details, boolean service) {
         interactor.createRequest(title, details, service);
     }

@@ -1,4 +1,3 @@
-// java
 package view.homepage;
 
 import javax.swing.*;
@@ -115,11 +114,6 @@ public class HomepageView extends JPanel {
 
         JButton searchButton = new JButton("Search Requests");
         searchButton.setFont(searchButton.getFont().deriveFont(18f));
-        searchButton.addActionListener(e -> {
-            if (homepageController != null) {
-                homepageController.search(searchField.getText().trim());
-            }
-        });
 
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.setOpaque(false);

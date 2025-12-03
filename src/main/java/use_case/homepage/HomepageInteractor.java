@@ -40,9 +40,6 @@ public class HomepageInteractor implements HomepageInputBoundary {
     }
 
     @Override
-    public void search(String query) { loadHome(); }
-
-    @Override
     public void createRequest(String title, String details, boolean service) {
         createInteractor.execute(title, details, service);
     }

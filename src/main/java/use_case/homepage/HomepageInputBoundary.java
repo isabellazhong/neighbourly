@@ -2,7 +2,6 @@ package use_case.homepage;
 
 public interface HomepageInputBoundary {
     void loadHome();
-    void search(String query);
 
     // new CRUD actions for created requests (demo/in-memory implementation expected)
     void createRequest(String title, String details, boolean service);
