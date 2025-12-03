@@ -6,14 +6,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
-import java.util.Date;
-
 import interface_adapter.offers.create_offer.CreateOfferController;
 import interface_adapter.offers.my_offers.MyOffersViewModel;
 import interface_adapter.offers.my_offers.MyOffersController;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfileViewModel;
+import org.jetbrains.annotations.NotNull;
 import view.offer_interface.CreateOfferView;
 import view.map.RequestLocation;
 import view.map.RequestMapView;
@@ -162,6 +160,30 @@ public class HomepageView extends JPanel {
 
         add(content, BorderLayout.CENTER);
 
+        final JButton createButton = getCreateButton(createOfferController);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 12));
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(createButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // Demo requests panel on the left (other people's requests)
+        this.requestsPanel = new JPanel();
+        this.requestsPanel.setLayout(new BoxLayout(this.requestsPanel, BoxLayout.Y_AXIS));
+        this.requestsPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        this.requestsPanel.setOpaque(false);
+        this.requestsPanel.setPreferredSize(new Dimension(360, 400));
+        add(this.requestsPanel, BorderLayout.WEST);
+        updateRequestsPanel(null); // populate left demo
+
+        // initialize created requests area (empty)
+        rebuildCreatedRequestsArea();
+
+        setPreferredSize(new Dimension(1200, 700));
+    }
+
+    @NotNull
+    private JButton getCreateButton(CreateOfferController createOfferController) {
         JButton createButton = new JButton("+");
         createButton.setFont(createButton.getFont().deriveFont(Font.PLAIN, 28f));
         createButton.setPreferredSize(new Dimension(64, 64));
@@ -213,25 +235,7 @@ public class HomepageView extends JPanel {
 
         createButton.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         createButton.setMargin(new Insets(0, 0, 0, 0));
-
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 12));
-        bottomPanel.setOpaque(false);
-        bottomPanel.add(createButton);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        // Demo requests panel on the left (other people's requests)
-        this.requestsPanel = new JPanel();
-        this.requestsPanel.setLayout(new BoxLayout(this.requestsPanel, BoxLayout.Y_AXIS));
-        this.requestsPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
-        this.requestsPanel.setOpaque(false);
-        this.requestsPanel.setPreferredSize(new Dimension(360, 400));
-        add(this.requestsPanel, BorderLayout.WEST);
-        updateRequestsPanel(null); // populate left demo
-
-        // initialize created requests area (empty)
-        rebuildCreatedRequestsArea();
-
-        setPreferredSize(new Dimension(1200, 700));
+        return createButton;
     }
 
     private String resolveMapboxToken() {
@@ -552,6 +556,19 @@ public class HomepageView extends JPanel {
 
             root.add(column, BorderLayout.CENTER);
 
+            final JPanel buttons = getButtons(titleField, detailsArea, serviceBtn);
+
+            root.add(buttons, BorderLayout.SOUTH);
+
+            setContentPane(root);
+            setPreferredSize(new Dimension(720, 460));
+            pack();
+            setResizable(false);
+            setLocationRelativeTo(getOwner());
+        }
+
+        @NotNull
+        private JPanel getButtons(JTextField titleField, JTextArea detailsArea, JRadioButton serviceBtn) {
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancel = new JButton("Back");
             cancel.addActionListener((ActionEvent e) -> dispose());
@@ -578,14 +595,7 @@ public class HomepageView extends JPanel {
             });
             buttons.add(cancel);
             buttons.add(create);
-
-            root.add(buttons, BorderLayout.SOUTH);
-
-            setContentPane(root);
-            setPreferredSize(new Dimension(720, 460));
-            pack();
-            setResizable(false);
-            setLocationRelativeTo(getOwner());
+            return buttons;
         }
     }
 
