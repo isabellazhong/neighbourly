@@ -42,6 +42,24 @@ As a user, I want to be able to sign up into my app and login in whenever I want
 - Used Gemini API to verify user id during signup process 
 - Implemented the start interface flow from login -> hompage and login -> signup -> homepage 
 
+
+## Sam
+### 2. Use case 
+
+#### User story: 
+As a user, I want to be able to access my homepage, view and search current requests, and have the option to create. 
+When creating a request, I want the option to add additional details to my request.
+
+#### Features:
+- Create a button to add either a request or an offer
+- Allow users to create a new request with a title and additional details
+- choose the type of request(service, or resource)
+
+### 2. Implementation and Contributions:
+- Implemented homepage ui, search, and create button
+- Implemented request window
+
+
 ## Anna
 ### 3. Use case
 
@@ -56,6 +74,7 @@ As a user, I want to be able to easily post offers that I can provide and view a
 
 ### 2. Implementation and Contributions:
 - Implemented Clean Architecture for Create Offer and My Offers use cases
+
 
 
 ## Tahmid
@@ -75,3 +94,5 @@ As a helper, I want to accept a request, see the requester on a map with route/E
 - Centralized config/env loading via `AppConfig`, injecting Mapbox services into the UI (no direct env reads in views)  
 - Built `RequestMapView` to render static maps, multi-mode ETAs, addresses, and a browser launch for the interactive map  
 - Wrote headless-safe tests with full coverage of the Mapbox flow (routes, fallback, browser launch, address handling) and enabled JaCoCo coverage reporting
+
+
